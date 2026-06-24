@@ -1,10 +1,10 @@
-import type { PluginContext } from "@opencode-ai/plugin/v2/effect"
-import { AgentV2 } from "@opencode-ai/core/agent"
-import { Catalog } from "@opencode-ai/core/catalog"
-import { Integration } from "@opencode-ai/core/integration"
-import { ModelV2 } from "@opencode-ai/core/model"
-import { ProviderV2 } from "@opencode-ai/core/provider"
-import type { IntegrationEnvMethod, IntegrationKeyMethod, IntegrationOAuthMethod } from "@opencode-ai/sdk/v2/types"
+import type { PluginContext } from "@makcode-ai/plugin/v2/effect"
+import { AgentV2 } from "@makcode-ai/core/agent"
+import { Catalog } from "@makcode-ai/core/catalog"
+import { Integration } from "@makcode-ai/core/integration"
+import { ModelV2 } from "@makcode-ai/core/model"
+import { ProviderV2 } from "@makcode-ai/core/provider"
+import type { IntegrationEnvMethod, IntegrationKeyMethod, IntegrationOAuthMethod } from "@makcode-ai/sdk/v2/types"
 import { Effect } from "effect"
 
 type Overrides = Partial<Omit<PluginContext, "options">>

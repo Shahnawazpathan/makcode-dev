@@ -1,6 +1,6 @@
-# OpenCode Desktop
+# MakCode Desktop
 
-The OpenCode Desktop app, built with Electron.
+The MakCode Desktop app, built with Electron.
 
 ## Development
 

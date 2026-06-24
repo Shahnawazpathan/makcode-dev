@@ -1,5 +1,5 @@
 {
-  "name": "@opencode-ai/ui",
+  "name": "@makcode-ai/ui",
   "version": "1.17.9",
   "type": "module",
   "license": "MIT",
@@ -49,8 +49,8 @@
   },
   "dependencies": {
     "@kobalte/core": "catalog:",
-    "@opencode-ai/core": "workspace:*",
-    "@opencode-ai/sdk": "workspace:*",
+    "@makcode-ai/core": "workspace:*",
+    "@makcode-ai/sdk": "workspace:*",
     "@pierre/diffs": "catalog:",
     "@shikijs/transformers": "3.9.2",
     "@solid-primitives/bounds": "0.1.3",
