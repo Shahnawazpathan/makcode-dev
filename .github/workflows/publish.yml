@@ -34,7 +34,7 @@ permissions:
 jobs:
   version:
     runs-on: blacksmith-4vcpu-ubuntu-2404
-    if: github.repository == 'anomalyco/opencode'
+    if: github.repository == 'shahnawaz-pathan/makcode'
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
@@ -46,12 +46,12 @@ jobs:
         id: committer
         uses: ./.github/actions/setup-git-committer
         with:
-          opencode-app-id: ${{ vars.OPENCODE_APP_ID }}
-          opencode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
+          makcode-app-id: ${{ vars.OPENCODE_APP_ID }}
+          makcode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
 
-      - name: Install OpenCode
+      - name: Install MakCode
         if: inputs.bump || inputs.version
-        run: bun i -g opencode-ai
+        run: bun i -g makcode-ai
 
       - id: version
         run: |
@@ -61,7 +61,7 @@ jobs:
           OPENCODE_BUMP: ${{ inputs.bump }}
           OPENCODE_VERSION: ${{ inputs.version }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          GH_REPO: ${{ (github.ref_name == 'beta' && 'anomalyco/opencode-beta') || github.repository }}
+          GH_REPO: ${{ (github.ref_name == 'beta' && 'shahnawaz-pathan/makcode-beta') || github.repository }}
     outputs:
       version: ${{ steps.version.outputs.version }}
       release: ${{ steps.version.outputs.release }}
@@ -71,7 +71,7 @@ jobs:
   build-cli:
     needs: version
     runs-on: blacksmith-4vcpu-ubuntu-2404
-    if: github.repository == 'anomalyco/opencode'
+    if: github.repository == 'shahnawaz-pathan/makcode'
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
@@ -83,13 +83,13 @@ jobs:
         id: committer
         uses: ./.github/actions/setup-git-committer
         with:
-          opencode-app-id: ${{ vars.OPENCODE_APP_ID }}
-          opencode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
+          makcode-app-id: ${{ vars.OPENCODE_APP_ID }}
+          makcode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
 
       - name: Build
         id: build
         run: |
-          ./packages/opencode/script/build.ts ${{ (github.ref_name == 'beta' && '--sourcemaps') || '' }}
+          ./packages/makcode/script/build.ts ${{ (github.ref_name == 'beta' && '--sourcemaps') || '' }}
           ./packages/cli/script/build.ts ${{ (github.ref_name == 'beta' && '--sourcemaps') || '' }}
         env:
           OPENCODE_VERSION: ${{ needs.version.outputs.version }}
@@ -99,19 +99,19 @@ jobs:
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: opencode-cli
+          name: makcode-cli
           path: |
-            packages/opencode/dist/opencode-darwin*
-            packages/opencode/dist/opencode-linux*
+            packages/makcode/dist/makcode-darwin*
+            packages/makcode/dist/makcode-linux*
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: opencode-cli-windows
-          path: packages/opencode/dist/opencode-windows*
+          name: makcode-cli-windows
+          path: packages/makcode/dist/makcode-windows*
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: opencode-preview-cli
+          name: makcode-preview-cli
           path: packages/cli/dist/cli-*
 
     outputs:
@@ -122,7 +122,7 @@ jobs:
       - build-cli
       - version
     runs-on: blacksmith-4vcpu-windows-2025
-    if: github.repository == 'anomalyco/opencode'
+    if: github.repository == 'shahnawaz-pathan/makcode'
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -135,15 +135,15 @@ jobs:
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: opencode-cli-windows
-          path: packages/opencode/dist
+          name: makcode-cli-windows
+          path: packages/makcode/dist
 
       - name: Setup git committer
         id: committer
         uses: ./.github/actions/setup-git-committer
         with:
-          opencode-app-id: ${{ vars.OPENCODE_APP_ID }}
-          opencode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
+          makcode-app-id: ${{ vars.OPENCODE_APP_ID }}
+          makcode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
 
       - name: Azure login
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
@@ -158,9 +158,9 @@ jobs:
           signing-account-name: ${{ env.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
           certificate-profile-name: ${{ env.AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE }}
           files: |
-            ${{ github.workspace }}\packages\opencode\dist\opencode-windows-arm64\bin\opencode.exe
-            ${{ github.workspace }}\packages\opencode\dist\opencode-windows-x64\bin\opencode.exe
-            ${{ github.workspace }}\packages\opencode\dist\opencode-windows-x64-baseline\bin\opencode.exe
+            ${{ github.workspace }}\packages\makcode\dist\makcode-windows-arm64\bin\makcode.exe
+            ${{ github.workspace }}\packages\makcode\dist\makcode-windows-x64\bin\makcode.exe
+            ${{ github.workspace }}\packages\makcode\dist\makcode-windows-x64-baseline\bin\makcode.exe
           exclude-environment-credential: true
           exclude-workload-identity-credential: true
           exclude-managed-identity-credential: true
@@ -176,9 +176,9 @@ jobs:
         shell: pwsh
         run: |
           $files = @(
-            "${{ github.workspace }}\packages\opencode\dist\opencode-windows-arm64\bin\opencode.exe",
-            "${{ github.workspace }}\packages\opencode\dist\opencode-windows-x64\bin\opencode.exe",
-            "${{ github.workspace }}\packages\opencode\dist\opencode-windows-x64-baseline\bin\opencode.exe"
+            "${{ github.workspace }}\packages\makcode\dist\makcode-windows-arm64\bin\makcode.exe",
+            "${{ github.workspace }}\packages\makcode\dist\makcode-windows-x64\bin\makcode.exe",
+            "${{ github.workspace }}\packages\makcode\dist\makcode-windows-x64-baseline\bin\makcode.exe"
           )
 
           foreach ($file in $files) {
@@ -189,12 +189,12 @@ jobs:
           }
 
       - name: Repack Windows CLI archives
-        working-directory: packages/opencode/dist
+        working-directory: packages/makcode/dist
         shell: pwsh
         run: |
-          Compress-Archive -Path "opencode-windows-arm64\bin\*" -DestinationPath "opencode-windows-arm64.zip" -Force
-          Compress-Archive -Path "opencode-windows-x64\bin\*" -DestinationPath "opencode-windows-x64.zip" -Force
-          Compress-Archive -Path "opencode-windows-x64-baseline\bin\*" -DestinationPath "opencode-windows-x64-baseline.zip" -Force
+          Compress-Archive -Path "makcode-windows-arm64\bin\*" -DestinationPath "makcode-windows-arm64.zip" -Force
+          Compress-Archive -Path "makcode-windows-x64\bin\*" -DestinationPath "makcode-windows-x64.zip" -Force
+          Compress-Archive -Path "makcode-windows-x64-baseline\bin\*" -DestinationPath "makcode-windows-x64-baseline.zip" -Force
 
       - name: Upload signed Windows CLI release assets
         if: needs.version.outputs.release != ''
@@ -203,25 +203,25 @@ jobs:
           GH_TOKEN: ${{ steps.committer.outputs.token }}
         run: |
           gh release upload "v${{ needs.version.outputs.version }}" `
-            "${{ github.workspace }}\packages\opencode\dist\opencode-windows-arm64.zip" `
-            "${{ github.workspace }}\packages\opencode\dist\opencode-windows-x64.zip" `
-            "${{ github.workspace }}\packages\opencode\dist\opencode-windows-x64-baseline.zip" `
+            "${{ github.workspace }}\packages\makcode\dist\makcode-windows-arm64.zip" `
+            "${{ github.workspace }}\packages\makcode\dist\makcode-windows-x64.zip" `
+            "${{ github.workspace }}\packages\makcode\dist\makcode-windows-x64-baseline.zip" `
             --clobber `
             --repo "${{ needs.version.outputs.repo }}"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: opencode-cli-signed-windows
+          name: makcode-cli-signed-windows
           path: |
-            packages/opencode/dist/opencode-windows-arm64
-            packages/opencode/dist/opencode-windows-x64
-            packages/opencode/dist/opencode-windows-x64-baseline
+            packages/makcode/dist/makcode-windows-arm64
+            packages/makcode/dist/makcode-windows-x64
+            packages/makcode/dist/makcode-windows-x64-baseline
 
   build-electron:
     needs:
       - build-cli
       - version
-    if: github.repository == 'anomalyco/opencode'
+    if: github.repository == 'shahnawaz-pathan/makcode'
     continue-on-error: false
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -307,8 +307,8 @@ jobs:
         id: committer
         uses: ./.github/actions/setup-git-committer
         with:
-          opencode-app-id: ${{ vars.OPENCODE_APP_ID }}
-          opencode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
+          makcode-app-id: ${{ vars.OPENCODE_APP_ID }}
+          makcode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
 
       - name: Prepare
         run: bun ./scripts/prepare.ts
@@ -316,7 +316,7 @@ jobs:
         env:
           OPENCODE_VERSION: ${{ needs.version.outputs.version }}
           OPENCODE_CHANNEL: ${{ (github.ref_name == 'beta' && 'beta') || 'prod' }}
-          OPENCODE_CLI_ARTIFACT: ${{ (runner.os == 'Windows' && 'opencode-cli-windows') || 'opencode-cli' }}
+          OPENCODE_CLI_ARTIFACT: ${{ (runner.os == 'Windows' && 'makcode-cli-windows') || 'makcode-cli' }}
           RUST_TARGET: ${{ matrix.settings.target }}
           GH_TOKEN: ${{ github.token }}
           GITHUB_RUN_ID: ${{ github.run_id }}
@@ -362,10 +362,10 @@ jobs:
         run: |
           if [[ "${{ matrix.settings.target }}" == "x86_64-apple-darwin" ]]; then
             APP_DIR="mac"
-            OUT_NAME="opencode-desktop-mac-x64.app.tar.gz"
+            OUT_NAME="makcode-desktop-mac-x64.app.tar.gz"
           elif [[ "${{ matrix.settings.target }}" == "aarch64-apple-darwin" ]]; then
             APP_DIR="mac-arm64"
-            OUT_NAME="opencode-desktop-mac-arm64.app.tar.gz"
+            OUT_NAME="makcode-desktop-mac-arm64.app.tar.gz"
           else
             echo "Unknown macOS target: ${{ matrix.settings.target }}"
             exit 1
@@ -384,7 +384,7 @@ jobs:
           $files = @()
           $files += Get-ChildItem "${{ github.workspace }}\packages\desktop\dist\*.exe" | Select-Object -ExpandProperty FullName
           $files += Get-ChildItem "${{ github.workspace }}\packages\desktop\dist\*unpacked\*.exe" | Select-Object -ExpandProperty FullName
-          $files += Get-ChildItem "${{ github.workspace }}\packages\desktop\dist\*unpacked\resources\opencode-cli.exe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+          $files += Get-ChildItem "${{ github.workspace }}\packages\desktop\dist\*unpacked\resources\makcode-cli.exe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
 
           foreach ($file in $files | Select-Object -Unique) {
             $sig = Get-AuthenticodeSignature $file
@@ -395,7 +395,7 @@ jobs:
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: opencode-desktop-${{ matrix.settings.target }}
+          name: makcode-desktop-${{ matrix.settings.target }}
           path: packages/desktop/dist/*
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -437,22 +437,22 @@ jobs:
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: opencode-cli
-          path: packages/opencode/dist
+          name: makcode-cli
+          path: packages/makcode/dist
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: opencode-cli-windows
-          path: packages/opencode/dist
+          name: makcode-cli-windows
+          path: packages/makcode/dist
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: opencode-cli-signed-windows
-          path: packages/opencode/dist
+          name: makcode-cli-signed-windows
+          path: packages/makcode/dist
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: opencode-preview-cli
+          name: makcode-preview-cli
           path: packages/cli/dist
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
@@ -464,7 +464,7 @@ jobs:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         if: needs.version.outputs.release
         with:
-          pattern: opencode-desktop-*
+          pattern: makcode-desktop-*
           path: /tmp/desktop
           merge-multiple: true
 
@@ -472,8 +472,8 @@ jobs:
         id: committer
         uses: ./.github/actions/setup-git-committer
         with:
-          opencode-app-id: ${{ vars.OPENCODE_APP_ID }}
-          opencode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
+          makcode-app-id: ${{ vars.OPENCODE_APP_ID }}
+          makcode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
 
       - name: Cache apt packages (AUR)
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -490,8 +490,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.AUR_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          git config --global user.email "opencode@sst.dev"
-          git config --global user.name "opencode"
+          git config --global user.email "makcode@sst.dev"
+          git config --global user.name "makcode"
           ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts || true
 
       - name: Upload desktop release assets

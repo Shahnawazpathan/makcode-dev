@@ -4,13 +4,13 @@ import { ProviderV2 } from "../../provider"
 import { Integration } from "../../integration"
 
 export const OpencodePlugin = define({
-  id: "opencode",
+  id: "makcode",
   effect: Effect.fn(function* (ctx) {
     const integrations = yield* Integration.Service
     let hasKey = false
     yield* ctx.catalog.transform(
       Effect.fn(function* (evt) {
-        const item = evt.provider.get(ProviderV2.ID.opencode)
+        const item = evt.provider.get(ProviderV2.ID.makcode)
         if (!item) return
         const integration = yield* integrations.get(Integration.ID.make(item.provider.id))
         hasKey = Boolean(

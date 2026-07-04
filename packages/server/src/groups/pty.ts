@@ -1,14 +1,14 @@
-import { Pty } from "@opencode-ai/core/pty"
-import { PtyID } from "@opencode-ai/core/pty/schema"
-import { PtyTicket } from "@opencode-ai/core/pty/ticket"
-import { Location } from "@opencode-ai/core/location"
+import { Pty } from "@makcode-ai/core/pty"
+import { PtyID } from "@makcode-ai/core/pty/schema"
+import { PtyTicket } from "@makcode-ai/core/pty/ticket"
+import { Location } from "@makcode-ai/core/location"
 import { Schema } from "effect"
 import { HttpApiEndpoint, HttpApiGroup, HttpApiSchema, OpenApi } from "effect/unstable/httpapi"
 import { ForbiddenError, PtyNotFoundError } from "../errors"
 import { LocationQuery, locationQueryOpenApi, LocationMiddleware } from "./location"
 
 export const PTY_CONNECT_TICKET_QUERY = "ticket"
-export const PTY_CONNECT_TOKEN_HEADER = "x-opencode-ticket"
+export const PTY_CONNECT_TOKEN_HEADER = "x-makcode-ticket"
 export const PTY_CONNECT_TOKEN_HEADER_VALUE = "1"
 
 const PTY_CONNECT_PATH = /^\/api\/pty\/[^/]+\/connect$/

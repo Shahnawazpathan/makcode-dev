@@ -8,20 +8,20 @@
       "dependsOn": [],
       "outputs": ["dist/**"]
     },
-    "opencode#test": {
+    "makcode#test": {
       "dependsOn": ["^build"],
       "outputs": [],
       "passThroughEnv": ["*"]
     },
-    "@opencode-ai/core#test": {
+    "@makcode-ai/core#test": {
       "dependsOn": ["^build"],
       "outputs": []
     },
-    "@opencode-ai/app#test": {
+    "@makcode-ai/app#test": {
       "dependsOn": ["^build"],
       "outputs": []
     },
-    "@opencode-ai/ui#test": {
+    "@makcode-ai/ui#test": {
       "dependsOn": ["^build"],
       "outputs": []
     }
