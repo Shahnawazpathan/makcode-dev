@@ -98,12 +98,12 @@ MakCode includes two built-in agents you can switch between with the `Tab` key.
 Also included is a **general** subagent for complex searches and multistep tasks.
 This is used internally and can be invoked using `@general` in messages.
 
-Learn more about [agents](https://opencode.ai/docs/agents).
+Learn more about agents in the MakCode documentation.
 
 ### Publishing a Release
 
 Releases are built automatically by [GitHub Actions](.github/workflows/release.yml).
-Push a version tag and the workflow builds macOS (arm64/x64) and Linux (arm64/x64)
+Push a version tag and the workflow builds macOS, Linux, and Windows
 binaries and attaches them to a GitHub release:
 
 ```bash
@@ -123,9 +123,7 @@ The installer expects release assets named:
 
 ### Documentation
 
-MakCode is a rebranded fork of [OpenCode](https://github.com/sst/opencode) and stays
-in sync with upstream. For configuration options,
-[**head over to the docs**](https://opencode.ai/docs).
+For configuration options and project documentation, see this repository.
 
 ---
 

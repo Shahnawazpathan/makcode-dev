@@ -487,7 +487,7 @@ function quantizeTheme(theme: TuiThemeCurrent, indexed: RGBA[]): TuiThemeCurrent
 }
 
 function splashTheme(theme: TuiThemeCurrent, indexed: RGBA[]): RunSplashTheme {
-  const left = nearestIndexed(indexed, theme.textMuted)
+  const left = nearestIndexed(indexed, theme.error)
   const right = nearestIndexed(indexed, theme.text)
   return {
     left,
@@ -599,7 +599,7 @@ function tone(body: ColorInput, start?: ColorInput): Tone {
 }
 
 const fallbackSplashIndexed = Array.from({ length: 256 }, (_, index) => RGBA.fromIndex(index))
-const fallbackSplashLeft = RGBA.fromIndex(67)
+const fallbackSplashLeft = RGBA.fromIndex(9)
 const fallbackSplashRight = RGBA.fromIndex(110)
 
 export const RUN_THEME_FALLBACK: RunTheme = {

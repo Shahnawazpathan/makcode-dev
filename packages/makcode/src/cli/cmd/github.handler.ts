@@ -361,7 +361,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run opencode
+      - name: Run MakCode
         uses: anomalyco/opencode/github@latest${envStr}
         with:
           model: ${provider}/${model}`,

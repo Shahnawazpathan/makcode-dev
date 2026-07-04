@@ -543,7 +543,7 @@ export function NewHome() {
           clearNotifications={clearNotifications}
           unseenCount={unseenCount}
           openSettings={openSettings}
-          openHelp={() => platform.openLink("https://opencode.ai/desktop-feedback")}
+          openHelp={() => platform.openLink("https://github.com/Shahnawazpathan/makcode-dev/issues")}
           language={language}
         />
 
@@ -635,7 +635,7 @@ export function NewHome() {
         <HomeUtilityNav
           class="flex lg:hidden"
           openSettings={openSettings}
-          openHelp={() => platform.openLink("https://opencode.ai/desktop-feedback")}
+          openHelp={() => platform.openLink("https://github.com/Shahnawazpathan/makcode-dev/issues")}
           language={language}
         />
       </div>

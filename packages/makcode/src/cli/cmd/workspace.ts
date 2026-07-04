@@ -5,7 +5,7 @@ import { stdin as input, stdout as output } from "process"
 import { cmd } from "./cmd"
 import { UI } from "../ui"
 import { commonRoot, context, create, discover, save, validateDirectory, type Config } from "@/workspace/config"
-import { scan } from "@/workspace/scanner"
+import { context as projectMapContext, loadProjectMap, scan } from "@/workspace/scanner"
 import { RunCommand } from "./run"
 
 type TaskArgs = {
@@ -106,8 +106,10 @@ export const TaskCommand = cmd<{}, TaskArgs>({
       return
     }
 
+    const map = await loadProjectMap(current.config)
     const prompt = [
       context(current.config),
+      map ? projectMapContext(map) : undefined,
       "",
       "Before editing, show an implementation plan, affected files, and reasoning.",
       "Only generate test code when an existing test framework is detected.",

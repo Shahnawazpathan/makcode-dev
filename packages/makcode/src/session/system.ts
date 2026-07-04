@@ -23,6 +23,7 @@ import { Reference } from "@makcode-ai/core/reference"
 import { MCP } from "@/mcp"
 import { PermissionV1 } from "@makcode-ai/core/v1/permission"
 import { discover, context as workspaceContext } from "@/workspace/config"
+import { context as projectMapContext, loadProjectMap } from "@/workspace/scanner"
 
 export function provider(model: Provider.Model) {
   if (model.api.id.includes("gpt-4") || model.api.id.includes("o1") || model.api.id.includes("o3"))
@@ -76,12 +77,16 @@ const layer = Layer.effect(
           yield* Effect.promise(async () => {
             const workspace = await discover(ctx.directory)
             if (!workspace) return undefined
+            const map = await loadProjectMap(workspace.config)
             return [
               "MakCode workspace context:",
               "<makcode_workspace>",
               workspaceContext(workspace.config),
+              map ? projectMapContext(map) : undefined,
               "</makcode_workspace>",
-            ].join("\n")
+            ]
+              .filter((part): part is string => part !== undefined)
+              .join("\n")
           }),
           references.length === 0
             ? undefined

@@ -63,6 +63,39 @@ export async function scan(config: Config) {
   return map
 }
 
+export async function loadProjectMap(config: Config) {
+  const file = projectMapPath(config.rootPath)
+  if (!existsSync(file)) return
+  return (await Bun.file(file).json()) as ProjectMap
+}
+
+export function context(map: ProjectMap) {
+  return [
+    "MakCode project map:",
+    JSON.stringify(
+      {
+        projectType: map.projectType,
+        projects: map.projects.map((project) => ({
+          name: project.name,
+          path: project.path,
+          packageManager: project.packageManager,
+          frameworks: project.frameworks,
+          database: project.database,
+          apiStyle: project.apiStyle,
+          importantFolders: project.importantFolders,
+          environmentFiles: project.environmentFiles.map((file) => ({
+            filename: file.filename,
+            location: file.location,
+            variables: file.variables,
+          })),
+        })),
+      },
+      null,
+      2,
+    ),
+  ].join("\n")
+}
+
 async function scanProject(name: ProjectScan["name"], projectPath: string): Promise<ProjectScan> {
   const packageJson = await readPackageJson(projectPath)
   const text = await gatherText(projectPath)

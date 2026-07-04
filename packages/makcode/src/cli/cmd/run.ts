@@ -1,13 +1,13 @@
 import type { PermissionV1 } from "@makcode-ai/core/v1/permission"
 import { FSUtil } from "@makcode-ai/core/fs-util"
-// CLI entry point for `opencode run` and `opencode --mini`.
+// CLI entry point for `makcode run` and `makcode --mini`.
 //
 // Handles three modes:
 //   1. Non-interactive (default): sends a single prompt, streams events to
 //      stdout, and exits when the session goes idle.
-//   2. Interactive local (`opencode --mini`): boots the split-footer direct mode
+//   2. Interactive local (`makcode --mini`): boots the split-footer direct mode
 //      with an in-process server (no external HTTP).
-//   3. Interactive attach (`opencode --mini --attach`): connects to a running
+//   3. Interactive attach (`makcode --mini --attach`): connects to a running
 //      opencode server and runs interactive mode against it.
 //
 // Also supports `--command` for slash-command execution, `--format json` for
@@ -189,7 +189,7 @@ export const RunCommand = effectCmd({
       })
       .option("attach", {
         type: "string",
-        describe: "attach to a running opencode server (e.g., http://localhost:4096)",
+        describe: "attach to a running MakCode server (e.g., http://localhost:4096)",
       })
       .option("password", {
         alias: ["p"],
