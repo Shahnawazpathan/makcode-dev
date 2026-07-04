@@ -8,6 +8,8 @@
 
 ### Installation
 
+#### macOS and Linux
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install | bash
 ```
@@ -15,6 +17,20 @@ curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/in
 > **Note:** the one-line installer requires this repository to be **public** and at
 > least one published release. The installer downloads the correct MakCode release
 > binary for your platform and places it in `~/.local/bin/makcode` by default.
+
+#### Windows
+
+Run PowerShell as your normal user:
+
+```powershell
+$InstallDir = "$env:LOCALAPPDATA\Programs\MakCode"
+New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
+Invoke-WebRequest "https://github.com/Shahnawazpathan/makcode-dev/releases/latest/download/makcode-windows-x64.zip" -OutFile "$env:TEMP\makcode-windows-x64.zip"
+Expand-Archive "$env:TEMP\makcode-windows-x64.zip" -DestinationPath $InstallDir -Force
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$InstallDir", "User")
+```
+
+Open a new terminal after installing so the updated `PATH` is available.
 
 After installing, run:
 
@@ -101,6 +117,9 @@ The installer expects release assets named:
 - `makcode-darwin-x64.zip`
 - `makcode-linux-arm64.tar.gz`
 - `makcode-linux-x64.tar.gz`
+- `makcode-windows-arm64.zip`
+- `makcode-windows-x64.zip`
+- `makcode-windows-x64-baseline.zip`
 
 ### Documentation
 
