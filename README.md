@@ -20,14 +20,8 @@ curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/in
 
 #### Windows
 
-Run PowerShell as your normal user:
-
 ```powershell
-$InstallDir = "$env:LOCALAPPDATA\Programs\MakCode"
-New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
-Invoke-WebRequest "https://github.com/Shahnawazpathan/makcode-dev/releases/latest/download/makcode-windows-x64.zip" -OutFile "$env:TEMP\makcode-windows-x64.zip"
-Expand-Archive "$env:TEMP\makcode-windows-x64.zip" -DestinationPath $InstallDir -Force
-[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$InstallDir", "User")
+irm https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install.ps1 | iex
 ```
 
 Open a new terminal after installing so the updated `PATH` is available.
@@ -50,6 +44,12 @@ Set `MAKCODE_INSTALL_DIR` to choose a different install location:
 
 ```bash
 MAKCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install | bash
+```
+
+On Windows:
+
+```powershell
+$env:MAKCODE_INSTALL_DIR="$env:LOCALAPPDATA\Programs\MakCode"; irm https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install.ps1 | iex
 ```
 
 #### Install from source
