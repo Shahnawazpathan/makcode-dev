@@ -27,6 +27,7 @@ import * as Stream from "effect/Stream"
 import { Command } from "../command"
 import { pathToFileURL, fileURLToPath } from "url"
 import { Config } from "@/config/config"
+import { ConfigV1 } from "@makcode-ai/core/v1/config/config"
 import { ConfigMarkdown } from "@/config/markdown"
 import { SessionSummary } from "./summary"
 import { NamedError } from "@makcode-ai/core/util/error"
@@ -80,6 +81,63 @@ IMPORTANT:
 - This tool provides your final answer - no further actions are taken after calling it`
 
 const STRUCTURED_OUTPUT_SYSTEM_PROMPT = `IMPORTANT: The user has requested structured output. You MUST use the StructuredOutput tool to provide your final response. Do NOT respond with plain text - you MUST call the StructuredOutput tool with your answer formatted according to the schema.`
+const LOOP_ENGINEERING_MARKER = "You are running MakCode Loop Engineering Mode."
+const LOOP_ENGINEERING_COMMAND_PREFIXES = [
+  LOOP_ENGINEERING_MARKER,
+  "You are running MakCode Goal Mode.",
+  "You are running MakCode Audit Mode.",
+  "You are a code reviewer.",
+]
+
+function loopEngineeringEnabled(cfg: ConfigV1.Info) {
+  if (cfg.loop_engineering === undefined) return true
+  if (typeof cfg.loop_engineering === "boolean") return cfg.loop_engineering
+  return cfg.loop_engineering.enabled ?? true
+}
+
+function loopEngineeringSystem() {
+  return `${LOOP_ENGINEERING_MARKER}
+
+Treat the user request as the outcome to achieve, not as a casual chat message.
+
+## Operating Loop
+
+Work like a senior engineer until the request is genuinely handled:
+
+1. Understand the request and restate the target outcome briefly.
+2. Inspect the codebase before editing.
+3. Identify affected module boundaries across backend, frontend, database, shared types, tests, configuration, and docs.
+4. Implement the smallest complete change that satisfies the request.
+5. Add or update focused tests when the project has an existing test framework.
+6. Run the most relevant verification commands available in the project.
+7. If verification fails, read the failure, fix the issue, and repeat the verification loop.
+8. Stop only when the request is complete, clearly blocked, or further changes require user input.
+
+## Full-Stack Behavior
+
+If the workspace has linked frontend and backend projects, treat them as one product module and apply required changes across both sides.
+
+## Output
+
+Keep the user updated while working.
+Final response must include what changed, verification run, and anything not completed.`
+}
+
+/** @internal Exported for focused tests. */
+export function applyLoopEngineeringPrompt(input: PromptInput, cfg: ConfigV1.Info): PromptInput {
+  if (!loopEngineeringEnabled(cfg)) return input
+  if (input.system?.includes(LOOP_ENGINEERING_MARKER)) return input
+
+  const index = input.parts.findIndex((part) => part.type === "text" && !part.ignored)
+  const part = input.parts[index]
+  if (!part || part.type !== "text") return input
+  if (LOOP_ENGINEERING_COMMAND_PREFIXES.some((prefix) => part.text.trimStart().startsWith(prefix))) return input
+
+  return {
+    ...input,
+    system: input.system ? `${input.system}\n\n${loopEngineeringSystem()}` : loopEngineeringSystem(),
+  }
+}
 
 function mcpResourceBase64Size(value: string) {
   const trimmed = value.replace(/\s/g, "")
@@ -1054,7 +1112,8 @@ const layer = Layer.effect(
     )(function* (input: PromptInput) {
       const session = yield* sessions.get(input.sessionID).pipe(Effect.orDie)
       yield* revert.cleanup(session)
-      const message = yield* createUserMessage(input)
+      const messageInput = applyLoopEngineeringPrompt(input, yield* config.get())
+      const message = yield* createUserMessage(messageInput)
       yield* sessions.touch(input.sessionID)
 
       const permissions: PermissionV1.Rule[] = []

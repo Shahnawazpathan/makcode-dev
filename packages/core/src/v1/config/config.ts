@@ -65,6 +65,19 @@ export const Info = Schema.Struct({
     description:
       "Automatically update to the latest version. Set to true to auto-update, false to disable, or 'notify' to show update notifications",
   }),
+  loop_engineering: Schema.optional(
+    Schema.Union([
+      Schema.Boolean,
+      Schema.Struct({
+        enabled: Schema.optional(Schema.Boolean).annotate({
+          description: "Enable automatic loop-engineering prompt wrapping. Defaults to true.",
+        }),
+      }),
+    ]),
+  ).annotate({
+    description:
+      "Enable loop engineering for normal prompts. Defaults to true; set false to send prompts unchanged.",
+  }),
   disabled_providers: Schema.optional(Schema.mutable(Schema.Array(Schema.String))).annotate({
     description: "Disable providers that are loaded automatically",
   }),

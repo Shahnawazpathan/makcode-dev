@@ -609,6 +609,18 @@ it.instance("validates config schema and throws on invalid fields", () =>
   }),
 )
 
+it.instance("accepts loop engineering config", () =>
+  Effect.gen(function* () {
+    const test = yield* TestInstance
+    yield* writeConfigEffect(test.directory, {
+      $schema: "https://opencode.ai/config.json",
+      loop_engineering: { enabled: false },
+    })
+    const config = yield* Config.use.get()
+    expect(config.loop_engineering).toEqual({ enabled: false })
+  }),
+)
+
 it.instance("throws error for invalid JSON", () =>
   Effect.gen(function* () {
     const test = yield* TestInstance

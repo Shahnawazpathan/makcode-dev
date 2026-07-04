@@ -300,6 +300,58 @@ describe("SessionPrompt input schemas", () => {
     expect(() => decode(bad)).toThrow()
   })
 
+  test("loop engineering wraps normal prompts by default", () => {
+    const input = {
+      sessionID,
+      parts: [{ type: "text" as const, text: "add profile settings" }],
+    }
+
+    const result = SessionPrompt.applyLoopEngineeringPrompt(input, {})
+    expect(result.parts[0]).toMatchObject({ type: "text", text: "add profile settings" })
+    expect(result.system).toContain("You are running MakCode Loop Engineering Mode.")
+  })
+
+  test("loop engineering preserves existing prompt system text", () => {
+    const input = {
+      sessionID,
+      system: "Return concise status updates.",
+      parts: [{ type: "text" as const, text: "add profile settings" }],
+    }
+
+    const result = SessionPrompt.applyLoopEngineeringPrompt(input, {})
+    expect(result.system).toContain("Return concise status updates.")
+    expect(result.system).toContain("You are running MakCode Loop Engineering Mode.")
+  })
+
+  test("loop engineering does not wrap the same prompt twice", () => {
+    const input = {
+      sessionID,
+      system: "You are running MakCode Loop Engineering Mode.",
+      parts: [{ type: "text" as const, text: "add profile settings" }],
+    }
+
+    expect(SessionPrompt.applyLoopEngineeringPrompt(input, {})).toBe(input)
+  })
+
+  test("loop engineering can be disabled from config", () => {
+    const input = {
+      sessionID,
+      parts: [{ type: "text" as const, text: "add profile settings" }],
+    }
+
+    expect(SessionPrompt.applyLoopEngineeringPrompt(input, { loop_engineering: false })).toBe(input)
+    expect(SessionPrompt.applyLoopEngineeringPrompt(input, { loop_engineering: { enabled: false } })).toBe(input)
+  })
+
+  test("loop engineering does not wrap command templates again", () => {
+    const input = {
+      sessionID,
+      parts: [{ type: "text" as const, text: "You are running MakCode Goal Mode.\n\nUser goal:\nship it" }],
+    }
+
+    expect(SessionPrompt.applyLoopEngineeringPrompt(input, {})).toBe(input)
+  })
+
   test("CommandInput round-trips core fields", () => {
     const decode = decodeUnknown(SessionPrompt.CommandInput)
     const expected = {
