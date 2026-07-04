@@ -1,16 +1,13 @@
 import { ServerAuth } from "../auth"
-import { UnauthorizedError } from "../errors"
-import { hasPtyConnectTicketURL } from "../groups/pty"
+import { UnauthorizedError } from "@makcode-ai/protocol/errors"
+import { Authorization } from "@makcode-ai/protocol/middleware/authorization"
+export { Authorization } from "@makcode-ai/protocol/middleware/authorization"
+import { hasPtyConnectTicketURL } from "@makcode-ai/protocol/groups/pty"
 import { Effect, Encoding, Layer, Redacted } from "effect"
 import { HttpEffect, HttpServerRequest, HttpServerResponse } from "effect/unstable/http"
-import { HttpApiMiddleware } from "effect/unstable/httpapi"
 
 const AUTH_TOKEN_QUERY = "auth_token"
 const WWW_AUTHENTICATE = 'Basic realm="Secure Area"'
-
-export class Authorization extends HttpApiMiddleware.Service<Authorization>()("@makcode/HttpApiAuthorization", {
-  error: UnauthorizedError,
-}) {}
 
 function emptyCredential() {
   return { username: "", password: Redacted.make("") }

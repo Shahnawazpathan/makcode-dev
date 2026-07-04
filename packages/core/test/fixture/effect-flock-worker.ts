@@ -1,7 +1,7 @@
 import fs from "fs/promises"
 import os from "os"
-import { Effect, Layer } from "effect"
-import { FSUtil } from "@makcode-ai/core/fs-util"
+import { Effect } from "effect"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
 import { EffectFlock } from "@makcode-ai/core/util/effect-flock"
 import { Global } from "@makcode-ai/core/global"
 
@@ -30,7 +30,7 @@ const testGlobal = Global.layerWith({
   log: os.tmpdir(),
 })
 
-const testLayer = EffectFlock.layer.pipe(Layer.provide(testGlobal), Layer.provide(FSUtil.defaultLayer))
+const testLayer = AppNodeBuilder.build(EffectFlock.node, [[Global.node, testGlobal]])
 
 async function job() {
   if (msg.ready) await fs.writeFile(msg.ready, String(process.pid))

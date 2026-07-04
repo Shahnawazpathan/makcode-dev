@@ -2,10 +2,9 @@ import fs from "fs/promises"
 import path from "path"
 import { describe, expect } from "bun:test"
 import { Effect, Exit, Layer } from "effect"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { FileSystem } from "@makcode-ai/core/filesystem"
-import { FSUtil } from "@makcode-ai/core/fs-util"
 import { Location } from "@makcode-ai/core/location"
-import { Ripgrep } from "@makcode-ai/core/ripgrep"
 import { AbsolutePath, RelativePath } from "@makcode-ai/core/schema"
 import { location } from "./fixture/location"
 import { tmpdir } from "./fixture/tmpdir"
@@ -13,15 +12,12 @@ import { it } from "./lib/effect"
 
 const provide = (directory: string) =>
   Effect.provide(
-    FileSystem.layer.pipe(
-      Layer.provide(
-        Layer.mergeAll(
-          FSUtil.defaultLayer,
-          Ripgrep.defaultLayer,
-          Layer.succeed(Location.Service, Location.Service.of(location({ directory: AbsolutePath.make(directory) }))),
-        ),
-      ),
-    ),
+    LayerNode.compile(FileSystem.node, [
+      [
+        Location.node,
+        Layer.succeed(Location.Service, Location.Service.of(location({ directory: AbsolutePath.make(directory) }))),
+      ],
+    ]),
   )
 
 const withTmp = <A, E, R>(f: (directory: string) => Effect.Effect<A, E, R>) =>

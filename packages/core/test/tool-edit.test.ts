@@ -3,6 +3,8 @@ import path from "path"
 import { fileURLToPath } from "url"
 import { describe, expect, test } from "bun:test"
 import { Effect, Layer } from "effect"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { FileMutation } from "@makcode-ai/core/file-mutation"
 import { FSUtil } from "@makcode-ai/core/fs-util"
 import { Location } from "@makcode-ai/core/location"
@@ -11,6 +13,7 @@ import { PermissionV2 } from "@makcode-ai/core/permission"
 import { AbsolutePath } from "@makcode-ai/core/schema"
 import { SessionV2 } from "@makcode-ai/core/session"
 import { ToolRegistry } from "@makcode-ai/core/tool/registry"
+import { ToolOutputStore } from "@makcode-ai/core/tool-output-store"
 import { EditTool } from "@makcode-ai/core/tool/edit"
 import { location } from "./fixture/location"
 import { tmpdir } from "./fixture/tmpdir"
@@ -71,26 +74,34 @@ const filesystem = Layer.effect(
         Effect.sync(() => writes.push(target)).pipe(Effect.andThen(fs.writeFileString(target, content, options))),
     })
   }),
-).pipe(Layer.provide(FSUtil.defaultLayer))
+).pipe(Layer.provide(LayerNode.compile(FSUtil.node)))
 
 const withTool = <A, E, R>(directory: string, body: (registry: ToolRegistry.Interface) => Effect.Effect<A, E, R>) => {
   const activeLocation = Layer.succeed(
     Location.Service,
     Location.Service.of(location({ directory: AbsolutePath.make(directory) })),
   )
-  const resolution = LocationMutation.layer.pipe(Layer.provide(filesystem), Layer.provide(activeLocation))
-  const mutation = FileMutation.layer.pipe(Layer.provide(filesystem))
-  const registry = ToolRegistry.defaultLayer.pipe(Layer.provide(permission))
-  const edit = EditTool.layer.pipe(
-    Layer.provide(registry),
-    Layer.provide(permission),
-    Layer.provide(resolution),
-    Layer.provide(mutation),
-    Layer.provide(filesystem),
-  )
   return Effect.gen(function* () {
     return yield* body(yield* ToolRegistry.Service)
-  }).pipe(Effect.provide(Layer.mergeAll(registry, resolution, mutation, edit)))
+  }).pipe(
+    Effect.provide(
+      AppNodeBuilder.build(
+        LayerNode.group([
+          ToolRegistry.node,
+          ToolRegistry.toolsNode,
+          LocationMutation.node,
+          FileMutation.node,
+          EditTool.node,
+        ]),
+        [
+          [FSUtil.node, filesystem],
+          [Location.node, activeLocation],
+          [PermissionV2.node, permission],
+          [ToolOutputStore.node, ToolOutputStore.nodeWithoutConfig],
+        ],
+      ),
+    ),
+  )
 }
 
 const call = (input: typeof EditTool.Input.Type, id = "call-edit") => ({
@@ -125,11 +136,16 @@ describe("EditTool", () => {
                   value: "Edited file successfully: hello.txt\nReplacements: 1\n```diff\n-before\n+after\n```",
                 })
                 expect(settled.output?.structured).toEqual({
-                  operation: "write",
-                  target: yield* Effect.promise(() => fs.realpath(target)),
-                  resource: "hello.txt",
-                  existed: true,
                   replacements: 1,
+                  files: [
+                    {
+                      file: "hello.txt",
+                      status: "modified",
+                      additions: 1,
+                      deletions: 1,
+                      patch: expect.stringContaining("-before\n+after"),
+                    },
+                  ],
                 })
                 expect(yield* Effect.promise(() => fs.readFile(target, "utf8"))).toBe("after\nrest\n")
                 expect(assertions).toMatchObject([{ sessionID, action: "edit", resources: ["hello.txt"], save: ["*"] }])

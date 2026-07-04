@@ -6,11 +6,12 @@ import { fileURLToPath } from "url"
 import { UI } from "@/cli/ui"
 import { errorMessage } from "@makcode-ai/tui/util/error"
 import { withTimeout } from "@/util/timeout"
-import { withNetworkOptions, resolveNetworkOptionsNoConfig } from "@/cli/network"
+import { withNetworkOptions, resolveNetworkOptionsNoConfig, hasArg } from "@/cli/network"
 import { Filesystem } from "@/util/filesystem"
 import type { GlobalEvent } from "@makcode-ai/sdk/v2"
 import type { EventSource } from "@makcode-ai/tui/context/sdk"
 import { writeHeapSnapshot } from "v8"
+import { ServerAuth } from "@/server/auth"
 import { validateSession } from "../tui/validate-session"
 import { win32InstallCtrlCGuard } from "@makcode-ai/tui/terminal-win32"
 import { ensureWorkspaceOrWizard } from "./workspace"
@@ -104,6 +105,21 @@ export const TuiThreadCommand = cmd({
       .option("agent", {
         type: "string",
         describe: "agent to use",
+      })
+      .option("auto", {
+        type: "boolean",
+        describe: "auto-approve permissions that are not explicitly denied (dangerous!)",
+        default: false,
+      })
+      .option("yolo", {
+        type: "boolean",
+        hidden: true,
+        default: false,
+      })
+      .option("dangerously-skip-permissions", {
+        type: "boolean",
+        hidden: true,
+        default: false,
       })
       .option("mini", {
         type: "boolean",
@@ -214,19 +230,16 @@ export const TuiThreadCommand = cmd({
       const config = await TuiConfig.get()
 
       const network = resolveNetworkOptionsNoConfig(args)
-      const external =
-        process.argv.includes("--port") ||
-        process.argv.includes("--hostname") ||
-        process.argv.includes("--mdns") ||
-        network.mdns ||
-        network.port !== 0 ||
-        network.hostname !== "127.0.0.1"
+      const external = hasArg("--port") || hasArg("--hostname") || network.mdns === true
+
+      const headers = external ? ServerAuth.headers() : undefined
 
       const transport = external
         ? {
             url: (await client.call("server", network)).url,
             fetch: undefined,
             events: undefined,
+            headers,
           }
         : {
             url: "http://makcode.internal",
@@ -240,6 +253,7 @@ export const TuiThreadCommand = cmd({
           sessionID: args.session,
           directory: cwd,
           fetch: transport.fetch,
+          headers,
         })
       } catch (error) {
         UI.error(errorMessage(error))
@@ -267,6 +281,7 @@ export const TuiThreadCommand = cmd({
             pluginHost: createLegacyTuiPluginHost(),
             directory: cwd,
             fetch: transport.fetch,
+            headers: transport.headers,
             events: transport.events,
             args: {
               continue: args.continue,
@@ -275,6 +290,7 @@ export const TuiThreadCommand = cmd({
               model: args.model,
               prompt,
               fork: args.fork,
+              auto: args.auto || args.yolo || args["dangerously-skip-permissions"],
             },
           }),
         )

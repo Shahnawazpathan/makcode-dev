@@ -1,35 +1,52 @@
+import { AgentV2 } from "@makcode-ai/core/agent"
+import { AISDK } from "@makcode-ai/core/aisdk"
+import { Catalog } from "@makcode-ai/core/catalog"
+import { CommandV2 } from "@makcode-ai/core/command"
 import { Credential } from "@makcode-ai/core/credential"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNodePlatform } from "@makcode-ai/core/effect/app-node-platform"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { EventV2 } from "@makcode-ai/core/event"
 import { FileSystem } from "@makcode-ai/core/filesystem"
 import { FSUtil } from "@makcode-ai/core/fs-util"
-import { Global } from "@makcode-ai/core/global"
+import { Integration } from "@makcode-ai/core/integration"
+import { Location } from "@makcode-ai/core/location"
 import { Npm } from "@makcode-ai/core/npm"
 import { PluginV2 } from "@makcode-ai/core/plugin"
-import { RepositoryCache } from "@makcode-ai/core/repository-cache"
-import { Ripgrep } from "@makcode-ai/core/ripgrep"
-import { SkillDiscovery } from "@makcode-ai/core/skill/discovery"
+import { Reference } from "@makcode-ai/core/reference"
+import { SkillV2 } from "@makcode-ai/core/skill"
 import { Effect, Layer } from "effect"
 import { tempLocationLayer } from "../fixture/location"
 
-export const PluginTestLayer = Layer.mergeAll(FileSystem.locationLayer, PluginV2.locationLayer).pipe(
-  Layer.provideMerge(
-    Layer.mergeAll(
-      Credential.defaultLayer,
-      EventV2.defaultLayer,
-      FSUtil.defaultLayer,
-      Global.defaultLayer,
-      Layer.succeed(
-        Npm.Service,
-        Npm.Service.of({
-          add: () => Effect.succeed({ directory: "", entrypoint: undefined }),
-          install: () => Effect.void,
-          which: () => Effect.succeed(undefined),
-        }),
-      ),
-      RepositoryCache.defaultLayer,
-      SkillDiscovery.defaultLayer,
-      Ripgrep.defaultLayer,
-      tempLocationLayer,
-    ),
-  ),
+const npmLayer = Layer.succeed(
+  Npm.Service,
+  Npm.Service.of({
+    add: () => Effect.succeed({ directory: "", entrypoint: undefined }),
+    install: () => Effect.void,
+    which: () => Effect.succeed(undefined),
+  }),
+)
+
+export const PluginTestLayer = AppNodeBuilder.build(
+  LayerNode.group([
+    FileSystem.node,
+    FSUtil.node,
+    Location.node,
+    Npm.node,
+    Credential.node,
+    EventV2.node,
+    LayerNodePlatform.httpClient,
+    PluginV2.node,
+    AgentV2.node,
+    AISDK.node,
+    Catalog.node,
+    CommandV2.node,
+    Integration.node,
+    Reference.node,
+    SkillV2.node,
+  ]),
+  [
+    [Location.node, tempLocationLayer],
+    [Npm.node, npmLayer],
+  ],
 )

@@ -2,18 +2,15 @@ import { describe, expect } from "bun:test"
 import { $ } from "bun"
 import fs from "fs/promises"
 import path from "path"
-import { Effect, Layer, Schema } from "effect"
+import { Effect, Schema } from "effect"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
 import { ProjectV2 } from "@makcode-ai/core/project"
-import { Database } from "@makcode-ai/core/database/database"
-import { FSUtil } from "@makcode-ai/core/fs-util"
-import { Git } from "@makcode-ai/core/git"
 import { AbsolutePath } from "@makcode-ai/core/schema"
 import { Hash } from "@makcode-ai/core/util/hash"
-import { ProjectDirectories } from "@makcode-ai/core/project/directories"
 import { tmpdir } from "./fixture/tmpdir"
 import { testEffect } from "./lib/effect"
 
-const it = testEffect(Layer.mergeAll(ProjectV2.defaultLayer, Database.defaultLayer, ProjectDirectories.defaultLayer))
+const it = testEffect(AppNodeBuilder.build(ProjectV2.node))
 
 function remoteID(remote: string) {
   return ProjectV2.ID.make(Hash.fast(`git-remote:${remote}`))

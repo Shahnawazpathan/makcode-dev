@@ -1,7 +1,7 @@
 import { Message, Model, Part, Session, SessionStatus, SnapshotFileDiff, UserMessage } from "@makcode-ai/sdk/v2"
-import { SessionTurn } from "@makcode-ai/ui/session-turn"
-import { SessionReview } from "@makcode-ai/ui/session-review"
-import { DataProvider } from "@makcode-ai/ui/context"
+import { SessionTurn } from "@makcode-ai/session-ui/session-turn"
+import { SessionReview } from "@makcode-ai/session-ui/session-review"
+import { DataProvider } from "@makcode-ai/session-ui/context"
 import { FileComponentProvider } from "@makcode-ai/ui/context/file"
 import { WorkerPoolProvider } from "@makcode-ai/ui/context/worker-pool"
 import { createAsync, query, useParams } from "@solidjs/router"
@@ -17,15 +17,15 @@ import { DateTime } from "luxon"
 import { createStore } from "solid-js/store"
 import NotFound from "../[...404]"
 import { Tabs } from "@makcode-ai/ui/tabs"
-import { MessageNav } from "@makcode-ai/ui/message-nav"
-import { FileSSR } from "@makcode-ai/ui/file-ssr"
+import { MessageNav } from "@makcode-ai/session-ui/message-nav"
+import { FileSSR } from "@makcode-ai/session-ui/file-ssr"
 import { clientOnly } from "@solidjs/start"
 import { Meta, Title } from "@solidjs/meta"
 import { Base64 } from "js-base64"
 import { getRequestEvent } from "solid-js/web"
 
 const ClientOnlyWorkerPoolProvider = clientOnly(() =>
-  import("@makcode-ai/ui/pierre/worker").then((m) => ({
+  import("@makcode-ai/session-ui/pierre/worker").then((m) => ({
     default: (props: { children: any }) => (
       <WorkerPoolProvider pools={m.getWorkerPools()}>{props.children}</WorkerPoolProvider>
     ),
@@ -281,7 +281,7 @@ export default function () {
                             <div class="flex gap-3 items-center">
                               <IconButton
                                 as={"a"}
-                                href="https://github.com/shahnawaz-pathan/makcode"
+                                href="https://github.com/anomalyco/makcode"
                                 target="_blank"
                                 icon="github"
                                 variant="ghost"

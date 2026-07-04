@@ -1,7 +1,7 @@
 {
   "name": "@makcode-ai/desktop",
   "private": true,
-  "version": "1.17.9",
+  "version": "1.17.13",
   "type": "module",
   "license": "MIT",
   "homepage": "https://makcode.ai",

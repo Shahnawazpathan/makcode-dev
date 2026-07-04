@@ -1,15 +1,16 @@
 import fs from "fs/promises"
 import path from "path"
-import { pathToFileURL } from "url"
 import { describe, expect } from "bun:test"
 import { Effect, Layer } from "effect"
-import { FSUtil } from "@makcode-ai/core/fs-util"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { PermissionV2 } from "@makcode-ai/core/permission"
 import { AbsolutePath } from "@makcode-ai/core/schema"
 import { SessionV2 } from "@makcode-ai/core/session"
 import { SkillV2 } from "@makcode-ai/core/skill"
 import { SkillTool } from "@makcode-ai/core/tool/skill"
 import { ToolRegistry } from "@makcode-ai/core/tool/registry"
+import { ToolOutputStore } from "@makcode-ai/core/tool-output-store"
 import { tmpdir } from "./fixture/tmpdir"
 import { it } from "./lib/effect"
 import { toolIdentity, executeTool, settleTool, toolDefinitions } from "./lib/tool"
@@ -64,14 +65,14 @@ describe("SkillTool", () => {
               list: () => Effect.succeed(current),
             }),
           )
-          const registry = ToolRegistry.defaultLayer.pipe(Layer.provide(permission))
-          const tool = SkillTool.layer.pipe(
-            Layer.provide(registry),
-            Layer.provide(permission),
-            Layer.provide(FSUtil.defaultLayer),
-            Layer.provide(skills),
+          const skillToolLayer = AppNodeBuilder.build(
+            LayerNode.group([ToolRegistry.node, ToolRegistry.toolsNode, SkillTool.node]),
+            [
+              [PermissionV2.node, permission],
+              [SkillV2.node, skills],
+              [ToolOutputStore.node, ToolOutputStore.nodeWithoutConfig],
+            ],
           )
-          const layer = Layer.mergeAll(permission, skills, registry, tool)
 
           return yield* Effect.gen(function* () {
             const registry = yield* ToolRegistry.Service
@@ -89,9 +90,7 @@ describe("SkillTool", () => {
               type: "text",
               value: SkillTool.toModelOutput(info, [reference]),
             })
-            expect(SkillTool.toModelOutput(info, [reference])).toContain(
-              `Base directory for this skill: ${pathToFileURL(directory).href}`,
-            )
+            expect(SkillTool.toModelOutput(info, [reference])).toContain(`Base directory for this skill: ${directory}`)
             expect(
               yield* settleTool(registry, {
                 sessionID,
@@ -122,7 +121,7 @@ describe("SkillTool", () => {
               }),
             ).toEqual({ type: "error", value: "Unable to load skill effect" })
             deny = false
-            const flat = new SkillV2.Info({
+            const flat = SkillV2.Info.make({
               name: "public",
               description: "Public guidance",
               location: AbsolutePath.make(path.join(tmp.path, "public.md")),
@@ -142,7 +141,7 @@ describe("SkillTool", () => {
                 call: { type: "tool-call", id: "call-flat-skill", name: "skill", input: { name: "public" } },
               }),
             ).toEqual({ type: "text", value: SkillTool.toModelOutput(flat, []) })
-          }).pipe(Effect.provide(layer))
+          }).pipe(Effect.provide(skillToolLayer))
         }),
       ),
     ),

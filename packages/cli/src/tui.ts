@@ -1,6 +1,7 @@
 import { run } from "@makcode-ai/tui"
 import { TuiConfig } from "@makcode-ai/tui/config"
 import { Effect } from "effect"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
 import { Global } from "@makcode-ai/core/global"
 
 export function runTui(transport: { url: string; headers: RequestInit["headers"] }) {
@@ -14,7 +15,7 @@ export function runTui(transport: { url: string; headers: RequestInit["headers"]
       async start() {},
       async dispose() {},
     },
-  }).pipe(Effect.provide(Global.defaultLayer))
+  }).pipe(Effect.provide(AppNodeBuilder.build(Global.node)))
 }
 
 const legacyDefaults: Record<string, unknown> = {

@@ -1,7 +1,8 @@
 import { describe, expect } from "bun:test"
-import { Tool } from "@makcode-ai/core/public"
+import { Tool } from "@makcode-ai/core/tool/tool"
 import { ApplicationTools } from "@makcode-ai/core/tool/application-tools"
-import { PermissionV2 } from "@makcode-ai/core/permission"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { SessionV2 } from "@makcode-ai/core/session"
 import { SessionMessage } from "@makcode-ai/core/session/message"
 import { AgentV2 } from "@makcode-ai/core/agent"
@@ -9,19 +10,14 @@ import { ToolRegistry } from "@makcode-ai/core/tool/registry"
 import { executeTool, settleTool, toolDefinitions } from "./lib/tool"
 import { ToolOutputStore } from "@makcode-ai/core/tool-output-store"
 import { Tools } from "@makcode-ai/core/tool/tools"
-import { Deferred, Effect, Exit, Fiber, Layer, Schema, Scope } from "effect"
+import { Deferred, Effect, Exit, Fiber, Schema, Scope } from "effect"
 import { testEffect } from "./lib/effect"
 
-const permission = Layer.mock(PermissionV2.Service, {
-  assert: () => Effect.void,
-})
-const applications = ApplicationTools.layer
-const registry = ToolRegistry.layer.pipe(
-  Layer.provide(permission),
-  Layer.provide(applications),
-  Layer.provide(ToolOutputStore.defaultLayer),
+const it = testEffect(
+  AppNodeBuilder.build(LayerNode.group([ApplicationTools.node, ToolRegistry.node, ToolRegistry.toolsNode]), [
+    [ToolOutputStore.node, ToolOutputStore.nodeWithoutConfig],
+  ]),
 )
-const it = testEffect(Layer.mergeAll(applications, registry))
 
 const sessionID = SessionV2.ID.make("ses_application_tool")
 const agent = AgentV2.ID.make("build")

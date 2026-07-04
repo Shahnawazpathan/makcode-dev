@@ -3,56 +3,34 @@ import { $ } from "bun"
 import fs from "fs/promises"
 import path from "path"
 import { eq } from "drizzle-orm"
-import { Effect, Layer } from "effect"
+import { Effect } from "effect"
 import { MoveSession } from "@makcode-ai/core/control-plane/move-session"
 import { Database } from "@makcode-ai/core/database/database"
-import { FSUtil } from "@makcode-ai/core/fs-util"
-import { Git } from "@makcode-ai/core/git"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { EventV2 } from "@makcode-ai/core/event"
 import { Project } from "@makcode-ai/core/project"
 import { ProjectTable } from "@makcode-ai/core/project/sql"
 import { ProjectDirectories } from "@makcode-ai/core/project/directories"
 import { AbsolutePath } from "@makcode-ai/core/schema"
 import { SessionV2 } from "@makcode-ai/core/session"
-import { SessionExecution } from "@makcode-ai/core/session/execution"
 import { SessionProjector } from "@makcode-ai/core/session/projector"
 import { SessionTable } from "@makcode-ai/core/session/sql"
 import { SessionStore } from "@makcode-ai/core/session/store"
 import { tmpdir } from "./fixture/tmpdir"
 import { testEffect } from "./lib/effect"
 
-const project = Project.layer.pipe(
-  Layer.provide(Database.defaultLayer),
-  Layer.provide(FSUtil.defaultLayer),
-  Layer.provide(Git.defaultLayer),
-  Layer.provide(ProjectDirectories.defaultLayer),
-)
-const sessions = SessionV2.layer.pipe(
-  Layer.provide(Database.defaultLayer),
-  Layer.provide(EventV2.defaultLayer),
-  Layer.provide(project),
-  Layer.provide(SessionStore.defaultLayer),
-  Layer.provide(SessionExecution.noopLayer),
-)
-const layer = MoveSession.layer.pipe(
-  Layer.provide(Database.defaultLayer),
-  Layer.provide(FSUtil.defaultLayer),
-  Layer.provide(Git.defaultLayer),
-  Layer.provide(EventV2.defaultLayer),
-  Layer.provide(project),
-  Layer.provide(sessions),
-)
 const it = testEffect(
-  Layer.mergeAll(
-    layer,
-    Database.defaultLayer,
-    EventV2.defaultLayer,
-    ProjectDirectories.defaultLayer,
-    project,
-    SessionProjector.defaultLayer,
-    SessionStore.defaultLayer,
-    SessionExecution.noopLayer,
-    sessions,
+  AppNodeBuilder.build(
+    LayerNode.group([
+      MoveSession.node,
+      Database.node,
+      EventV2.node,
+      ProjectDirectories.node,
+      Project.node,
+      SessionProjector.node,
+      SessionStore.node,
+    ]),
   ),
 )
 
