@@ -1,17 +1,7 @@
+<h1 align="center">MakCode</h1>
+
 <p align="center">
-  <a href="https://makcode.ai">
-    <picture>
-      <source srcset="packages/console/app/src/asset/logo-ornate-dark.svg" media="(prefers-color-scheme: dark)">
-      <source srcset="packages/console/app/src/asset/logo-ornate-light.svg" media="(prefers-color-scheme: light)">
-      <img src="packages/console/app/src/asset/logo-ornate-light.svg" alt="MakCode logo">
-    </picture>
-  </a>
-</p>
-<p align="center">The open source AI coding agent.</p>
-<p align="center">
-  <a href="https://makcode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
-  <a href="https://www.npmjs.com/package/makcode-ai"><img alt="npm" src="https://img.shields.io/npm/v/makcode-ai?style=flat-square" /></a>
-  <a href="https://github.com/shahnawaz-pathan/makcode/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/shahnawaz-pathan/makcode/publish.yml?style=flat-square&branch=dev" /></a>
+  The open source AI coding agent for single full-stack projects and linked frontend/backend workspaces.
 </p>
 
 <p align="center">
@@ -39,14 +29,12 @@
   <a href="README.vi.md">Tiếng Việt</a>
 </p>
 
-[![MakCode Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://makcode.ai)
-
 ---
 
 ### Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/opencode-dev/main/install | bash
+curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install | bash
 ```
 
 The installer downloads the correct MakCode release binary for your platform
@@ -63,7 +51,7 @@ makcode
 Set `MAKCODE_INSTALL_DIR` to choose a different install location:
 
 ```bash
-MAKCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/opencode-dev/main/install | bash
+MAKCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install | bash
 ```
 
 Make sure the install directory is in your `PATH`.
@@ -90,7 +78,7 @@ Create a GitHub release:
 ```bash
 gh release create v1.0.0 \
   packages/makcode/dist/makcode-darwin-arm64.zip \
-  --repo Shahnawazpathan/opencode-dev \
+  --repo Shahnawazpathan/makcode-dev \
   --title "MakCode v1.0.0"
 ```
 

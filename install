@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="${MAKCODE_REPO:-Shahnawazpathan/opencode-dev}"
+REPO="${MAKCODE_REPO:-Shahnawazpathan/makcode-dev}"
 VERSION="${VERSION:-latest}"
 INSTALL_DIR="${MAKCODE_INSTALL_DIR:-$HOME/.local/bin}"
 

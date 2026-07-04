@@ -5,7 +5,7 @@ MakCode is an AI coding CLI that runs from your terminal.
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/opencode-dev/main/install | bash
+curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install | bash
 ```
 
 Then run:
@@ -19,7 +19,7 @@ The installer downloads a release binary and installs it to
 location:
 
 ```bash
-MAKCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/opencode-dev/main/install | bash
+MAKCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install | bash
 ```
 
 ## Build Locally
