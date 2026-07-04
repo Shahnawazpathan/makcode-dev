@@ -140,7 +140,7 @@ export const dict = {
   "provider.connect.makcodeZen.line2":
     "Med én enkelt API-nøkkel får du tilgang til modeller som Claude, GPT, Gemini, GLM og flere.",
   "provider.connect.makcodeZen.visit.prefix": "Besøk ",
-  "provider.connect.makcodeZen.visit.link": "makcode.ai/zen",
+  "provider.connect.makcodeZen.visit.link": "opencode.ai/zen",
   "provider.connect.makcodeZen.visit.suffix": " for å hente API-nøkkelen din.",
   "provider.connect.oauth.code.visit.prefix": "Besøk ",
   "provider.connect.oauth.code.visit.link": "denne lenken",

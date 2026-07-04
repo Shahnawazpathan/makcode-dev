@@ -784,7 +784,7 @@ function defaultModelFromConfig(
   // First-session ACP startup must not scan historical sessions just to infer
   // a default. Configured model, makcode provider, then sorted best model keep
   // the protocol response deterministic without extra session/message reads.
-  const makcodeProvider = providers[ProviderV2.ID.make("makcode")]
+  const makcodeProvider = providers[ProviderV2.ID.make("opencode")]
   const makcodeModel = makcodeProvider ? Provider.sort(Object.values(makcodeProvider.models))[0] : undefined
   if (makcodeProvider && makcodeModel) return { providerID: makcodeProvider.id, modelID: makcodeModel.id }
 

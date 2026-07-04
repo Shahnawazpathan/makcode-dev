@@ -449,7 +449,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://makcode.ai/",
+            "HTTP-Referer": "https://opencode.ai/",
             "X-Title": "makcode",
             "X-Source": "makcode",
           },
@@ -460,7 +460,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://makcode.ai/",
+            "HTTP-Referer": "https://opencode.ai/",
             "X-Title": "makcode",
           },
         },
@@ -470,7 +470,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: provider.source === "config",
         options: {
           headers: {
-            "HTTP-Referer": "https://makcode.ai/",
+            "HTTP-Referer": "https://opencode.ai/",
             "X-Title": "makcode",
             "X-BILLING-INVOKE-ORIGIN": "MakCode",
           },
@@ -481,7 +481,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: false,
         options: {
           headers: {
-            "http-referer": "https://makcode.ai/",
+            "http-referer": "https://opencode.ai/",
             "x-title": "makcode",
           },
         },
@@ -587,7 +587,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://makcode.ai/",
+            "HTTP-Referer": "https://opencode.ai/",
             "X-Title": "makcode",
           },
         },
@@ -845,7 +845,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://makcode.ai/",
+            "HTTP-Referer": "https://opencode.ai/",
             "X-Title": "makcode",
           },
         },

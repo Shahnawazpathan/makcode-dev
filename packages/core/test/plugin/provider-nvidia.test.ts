@@ -39,7 +39,7 @@ describe("NvidiaPlugin", () => {
       yield* addPlugin()
       expect((yield* catalog.provider.get(ProviderV2.ID.make("nvidia")))?.request.headers).toEqual({
         Existing: "value",
-        "HTTP-Referer": "https://makcode.ai/",
+        "HTTP-Referer": "https://opencode.ai/",
         "X-Title": "makcode",
         "X-BILLING-INVOKE-ORIGIN": "MakCode",
       })
@@ -62,7 +62,7 @@ describe("NvidiaPlugin", () => {
       yield* addPlugin()
 
       expect((yield* catalog.provider.get(ProviderV2.ID.make("nvidia")))?.request.headers).toEqual({
-        "HTTP-Referer": "https://makcode.ai/",
+        "HTTP-Referer": "https://opencode.ai/",
         "X-Title": "makcode",
         "X-BILLING-INVOKE-ORIGIN": "MakCode",
       })
@@ -88,7 +88,7 @@ describe("NvidiaPlugin", () => {
       yield* addPlugin()
 
       expect((yield* catalog.provider.get(ProviderV2.ID.make("nvidia")))?.request.headers).toEqual({
-        "HTTP-Referer": "https://makcode.ai/",
+        "HTTP-Referer": "https://opencode.ai/",
         "X-Title": "makcode",
         "X-BILLING-INVOKE-ORIGIN": "CustomOrigin",
       })

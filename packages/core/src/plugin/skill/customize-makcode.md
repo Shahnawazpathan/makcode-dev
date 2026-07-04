@@ -4,7 +4,7 @@ Use this built-in skill only when editing MakCode's own configuration,
 commands, agents, skills, plugins, MCP servers, or permission rules.
 
 MakCode config is strict. Prefer the published schema at
-https://makcode.ai/config.json when confirming exact field names or shapes.
+https://opencode.ai/config.json when confirming exact field names or shapes.
 
 Project files commonly live in:
 

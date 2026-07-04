@@ -8,7 +8,7 @@ import {
   type ExecuteResult,
   type JsonSchema,
   type ToolDefinition,
-} from "@opencode-ai/codemode"
+} from "@makcode-ai/codemode"
 import { MCP } from "@/mcp"
 import { McpCatalog } from "@/mcp/catalog"
 import { Agent } from "@/agent/agent"

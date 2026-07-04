@@ -56,10 +56,10 @@ function model(input: {
 }) {
   return {
     id: input.id,
-    providerID: "makcode",
+    providerID: "opencode",
     api: {
       id: "makcode",
-      url: "https://makcode.ai",
+      url: "https://opencode.ai",
       npm: "@ai-sdk/openai-compatible",
     },
     name: input.name,
@@ -938,7 +938,7 @@ test("direct footer shows editable prompts and additional queued work while runn
           commands={() => []}
           providers={() => undefined}
           currentModel={() => ({
-            providerID: "makcode",
+            providerID: "opencode",
             modelID: "a-model-name-long-enough-to-force-responsive-truncation",
           })}
           variants={() => []}
@@ -1027,7 +1027,7 @@ test("direct footer shows editable prompts and additional queued work while runn
 test("direct footer separates a lone context hint from model and command hint", async () => {
   const app = await renderFooter({
     providers: [provider()],
-    currentModel: { providerID: "makcode", modelID: "gpt-5" },
+    currentModel: { providerID: "opencode", modelID: "gpt-5" },
     currentVariant: "xhigh",
     subagents: {
       tabs: [subagent({ sessionID: "s-1", label: "Explore", description: "Inspect auth flow" })],
@@ -1055,7 +1055,7 @@ test("direct footer separates a lone context hint from model and command hint", 
 test("direct footer hides the subagent hint when only completed subagents remain", async () => {
   const app = await renderFooter({
     providers: [provider()],
-    currentModel: { providerID: "makcode", modelID: "gpt-5" },
+    currentModel: { providerID: "opencode", modelID: "gpt-5" },
     currentVariant: "xhigh",
     subagents: {
       tabs: [subagent({ sessionID: "s-1", label: "Explore", description: "Inspect auth flow", status: "completed" })],
@@ -1293,7 +1293,7 @@ test("direct permission rejection submits through keymap return binding", async 
 
 test("direct model panel renders current model selector", async () => {
   const [providers] = createSignal<RunProvider[] | undefined>([provider()])
-  const [current] = createSignal<RunInput["model"]>({ providerID: "makcode", modelID: "gpt-5" })
+  const [current] = createSignal<RunInput["model"]>({ providerID: "opencode", modelID: "gpt-5" })
 
   const app = await testRender(
     () => (

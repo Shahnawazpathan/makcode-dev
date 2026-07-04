@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://makcode.ai">
+  <a href="https://opencode.ai">
     <picture>
       <source srcset="packages/console/app/src/asset/logo-ornate-dark.svg" media="(prefers-color-scheme: dark)">
       <source srcset="packages/console/app/src/asset/logo-ornate-light.svg" media="(prefers-color-scheme: light)">
@@ -9,9 +9,9 @@
 </p>
 <p align="center">AI-kodeagent med åpen kildekode.</p>
 <p align="center">
-  <a href="https://makcode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
+  <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
   <a href="https://www.npmjs.com/package/makcode-ai"><img alt="npm" src="https://img.shields.io/npm/v/makcode-ai?style=flat-square" /></a>
-  <a href="https://github.com/shahnawaz-pathan/makcode/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/shahnawaz-pathan/makcode/publish.yml?style=flat-square&branch=dev" /></a>
+  <a href="https://github.com/Shahnawazpathan/makcode-dev/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/shahnawaz-pathan/makcode/publish.yml?style=flat-square&branch=dev" /></a>
 </p>
 
 <p align="center">
@@ -39,7 +39,7 @@
   <a href="README.vi.md">Tiếng Việt</a>
 </p>
 
-[![MakCode Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://makcode.ai)
+[![MakCode Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://opencode.ai)
 
 ---
 
@@ -47,7 +47,7 @@
 
 ```bash
 # YOLO
-curl -fsSL https://makcode.ai/install | bash
+curl -fsSL https://opencode.ai/install | bash
 
 # Pakkehåndterere
 npm i -g makcode-ai@latest        # eller bun/pnpm/yarn
@@ -66,7 +66,7 @@ nix run nixpkgs#makcode           # eller github:shahnawaz-pathan/makcode for ny
 
 ### Desktop-app (BETA)
 
-MakCode er også tilgjengelig som en desktop-app. Last ned direkte fra [releases-siden](https://github.com/shahnawaz-pathan/makcode/releases) eller [makcode.ai/download](https://makcode.ai/download).
+MakCode er også tilgjengelig som en desktop-app. Last ned direkte fra [releases-siden](https://github.com/Shahnawazpathan/makcode-dev/releases) eller [opencode.ai/download](https://opencode.ai/download).
 
 | Plattform             | Nedlasting                         |
 | --------------------- | ---------------------------------- |
@@ -93,8 +93,8 @@ Installasjonsskriptet bruker følgende prioritet for installasjonsstien:
 
 ```bash
 # Eksempler
-OPENCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://makcode.ai/install | bash
-XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://makcode.ai/install | bash
+OPENCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
+XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
 ```
 
 ### Agents
@@ -110,11 +110,11 @@ MakCode har to innebygde agents du kan bytte mellom med `Tab`-tasten.
 Det finnes også en **general**-subagent for komplekse søk og flertrinnsoppgaver.
 Den brukes internt og kan kalles via `@general` i meldinger.
 
-Les mer om [agents](https://makcode.ai/docs/agents).
+Les mer om [agents](https://opencode.ai/docs/agents).
 
 ### Dokumentasjon
 
-For mer info om hvordan du konfigurerer MakCode, [**se dokumentasjonen**](https://makcode.ai/docs).
+For mer info om hvordan du konfigurerer MakCode, [**se dokumentasjonen**](https://opencode.ai/docs).
 
 ### Bidra
 

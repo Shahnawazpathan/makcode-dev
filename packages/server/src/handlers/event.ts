@@ -1,5 +1,5 @@
 import { EventV2 } from "@makcode-ai/core/event"
-import { MakCodeEvent } from "@makcode-ai/protocol/groups/event"
+import { OpenCodeEvent } from "@makcode-ai/protocol/groups/event"
 import { Effect, Schema, Stream } from "effect"
 import { HttpServerResponse } from "effect/unstable/http"
 import { HttpApiBuilder } from "effect/unstable/httpapi"
@@ -13,7 +13,7 @@ function eventData(data: unknown): Sse.Event {
     _tag: "Event",
     event: "message",
     id: undefined,
-    data: JSON.stringify(Schema.encodeUnknownSync(MakCodeEvent)(data)),
+    data: JSON.stringify(Schema.encodeUnknownSync(OpenCodeEvent)(data)),
   }
 }
 

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://makcode.ai/desktop-theme.json",
+  "$id": "https://opencode.ai/desktop-theme.json",
   "title": "MakCode Desktop Theme",
   "description": "A theme definition for the MakCode desktop application",
   "type": "object",

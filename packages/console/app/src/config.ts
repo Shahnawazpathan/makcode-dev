@@ -3,11 +3,11 @@
  */
 export const config = {
   // Base URL
-  baseUrl: "https://makcode.ai",
+  baseUrl: "https://opencode.ai",
 
   // GitHub
   github: {
-    repoUrl: "https://github.com/shahnawaz-pathan/makcode",
+    repoUrl: "https://github.com/Shahnawazpathan/makcode-dev",
     starsFormatted: {
       compact: "160K",
       full: "160,000",

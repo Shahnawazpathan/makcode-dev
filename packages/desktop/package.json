@@ -4,10 +4,10 @@
   "version": "1.17.13",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://makcode.ai",
+  "homepage": "https://opencode.ai",
   "author": {
     "name": "MakCode",
-    "email": "hello@makcode.ai"
+    "email": "hello@opencode.ai"
   },
   "scripts": {
     "typecheck": "tsgo -b",

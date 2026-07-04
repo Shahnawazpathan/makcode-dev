@@ -125,7 +125,7 @@ export const dict = {
   "provider.connect.makcodeZen.line2":
     "Com uma única chave de API você terá acesso a modelos como Claude, GPT, Gemini, GLM e mais.",
   "provider.connect.makcodeZen.visit.prefix": "Visite ",
-  "provider.connect.makcodeZen.visit.link": "makcode.ai/zen",
+  "provider.connect.makcodeZen.visit.link": "opencode.ai/zen",
   "provider.connect.makcodeZen.visit.suffix": " para obter sua chave de API.",
   "provider.connect.oauth.code.visit.prefix": "Visite ",
   "provider.connect.oauth.code.visit.link": "este link",

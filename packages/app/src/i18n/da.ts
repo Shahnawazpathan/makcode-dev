@@ -137,7 +137,7 @@ export const dict = {
   "provider.connect.makcodeZen.line2":
     "Med en enkelt API-nøgle får du adgang til modeller som Claude, GPT, Gemini, GLM og flere.",
   "provider.connect.makcodeZen.visit.prefix": "Besøg ",
-  "provider.connect.makcodeZen.visit.link": "makcode.ai/zen",
+  "provider.connect.makcodeZen.visit.link": "opencode.ai/zen",
   "provider.connect.makcodeZen.visit.suffix": " for at hente din API-nøgle.",
   "provider.connect.oauth.code.visit.prefix": "Besøg ",
   "provider.connect.oauth.code.visit.link": "dette link",

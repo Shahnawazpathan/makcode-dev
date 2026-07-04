@@ -10242,7 +10242,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.active({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@makcode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.active({\n  ...\n})"
           }
         ]
       }
@@ -10886,7 +10886,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.revert.stage({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@makcode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.revert.stage({\n  ...\n})"
           }
         ]
       }
@@ -10963,7 +10963,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.revert.clear({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@makcode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.revert.clear({\n  ...\n})"
           }
         ]
       }
@@ -11030,7 +11030,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.revert.commit({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@makcode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.revert.commit({\n  ...\n})"
           }
         ]
       }
@@ -11216,7 +11216,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.history({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@makcode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.history({\n  ...\n})"
           }
         ]
       }
@@ -11373,7 +11373,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.events({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@makcode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.events({\n  ...\n})"
           }
         ]
       }
@@ -11441,7 +11441,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.interrupt({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@makcode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.interrupt({\n  ...\n})"
           }
         ]
       }
@@ -11535,7 +11535,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.message({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@makcode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.message({\n  ...\n})"
           }
         ]
       }
@@ -13054,7 +13054,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.permission.create({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@makcode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.permission.create({\n  ...\n})"
           }
         ]
       },
@@ -13231,7 +13231,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.permission.get({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@makcode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.v2.session.permission.get({\n  ...\n})"
           }
         ]
       }

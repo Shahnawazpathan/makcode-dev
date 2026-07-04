@@ -1,6 +1,6 @@
 /**
  * Token estimation for budgeting model-facing text. Copied from
- * `@opencode-ai/core/util/token` (chars / 4) so this package stays
+ * `@makcode-ai/core/util/token` (chars / 4) so this package stays
  * dependency-free; keep the two in sync if the heuristic ever changes.
  */
 export * as Token from "./token.js"

@@ -2,7 +2,7 @@ import { Integration } from "@makcode-ai/core/integration"
 import { Effect } from "effect"
 import { HttpApiBuilder, HttpApiSchema } from "effect/unstable/httpapi"
 import { Api } from "../api"
-import { InvalidRequestError } from "@opencode-ai/protocol/errors"
+import { InvalidRequestError } from "@makcode-ai/protocol/errors"
 import { response } from "../location"
 
 const authorize = <A, R>(effect: Effect.Effect<A, Integration.AuthorizationError, R>) =>

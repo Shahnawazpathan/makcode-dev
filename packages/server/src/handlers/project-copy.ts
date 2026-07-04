@@ -4,7 +4,7 @@ import { Git } from "@makcode-ai/core/git"
 import { Effect } from "effect"
 import { HttpApiBuilder, HttpApiSchema } from "effect/unstable/httpapi"
 import { Api } from "../api"
-import { ProjectCopyError } from "@opencode-ai/protocol/groups/project-copy"
+import { ProjectCopyError } from "@makcode-ai/protocol/groups/project-copy"
 
 export const ProjectCopyHandler = HttpApiBuilder.group(Api, "server.projectCopy", (handlers) =>
   Effect.succeed(

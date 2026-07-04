@@ -114,7 +114,7 @@ for (const item of targets) {
         name: `@makcode-ai/${name}`,
         version: Script.version,
         license: "MIT",
-        repository: { type: "git", url: "git+https://github.com/shahnawaz-pathan/makcode.git" },
+        repository: { type: "git", url: "git+https://github.com/Shahnawazpathan/makcode-dev.git" },
         os: [item.os],
         cpu: [item.arch],
       },

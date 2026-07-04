@@ -1,4 +1,4 @@
-# @opencode-ai/codemode
+# @makcode-ai/codemode
 
 Effect-native confined code execution over explicit, schema-described tools.
 
@@ -25,7 +25,7 @@ Within this workspace:
 ```json
 {
   "dependencies": {
-    "@opencode-ai/codemode": "workspace:*"
+    "@makcode-ai/codemode": "workspace:*"
   }
 }
 ```
@@ -37,7 +37,7 @@ Hosts interact with CodeMode through `effect` (tool `run` implementations, `Effe
 Define tools with Effect Schema, then place them in the object tree exposed to programs as `tools`:
 
 ```ts
-import { CodeMode, Tool } from "@opencode-ai/codemode"
+import { CodeMode, Tool } from "@makcode-ai/codemode"
 import { Effect, Schema } from "effect"
 
 const lookupOrder = Tool.make({
@@ -274,7 +274,7 @@ Failures are data:
 Unknown host failures, defects, invalid outputs, and copying failures are sanitized. To return a safe operational refusal, fail with `toolError`:
 
 ```ts
-import { toolError } from "@opencode-ai/codemode"
+import { toolError } from "@makcode-ai/codemode"
 
 run: ({ id }) => (authorized(id) ? loadOrder(id) : Effect.fail(toolError("Order is unavailable")))
 ```

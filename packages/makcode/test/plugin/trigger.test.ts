@@ -41,7 +41,7 @@ function withProject<A, E, R>(source: string, self: Effect.Effect<A, E, R>) {
             path.join(test.directory, "makcode.json"),
             JSON.stringify(
               {
-                $schema: "https://makcode.ai/config.json",
+                $schema: "https://opencode.ai/config.json",
                 plugin: [pathToFileURL(file).href],
               },
               null,

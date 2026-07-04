@@ -445,13 +445,13 @@ export function DialogConnectProvider(props: { provider: string; directory?: Acc
     return (
       <div class="flex flex-col gap-6">
         <Switch>
-          <Match when={provider().id === "makcode"}>
+          <Match when={provider().id === "opencode"}>
             <div class="flex flex-col gap-4">
               <div class="text-14-regular text-text-base">{language.t("provider.connect.makcodeZen.line1")}</div>
               <div class="text-14-regular text-text-base">{language.t("provider.connect.makcodeZen.line2")}</div>
               <div class="text-14-regular text-text-base">
                 {language.t("provider.connect.makcodeZen.visit.prefix")}
-                <Link href="https://makcode.ai/zen" tabIndex={-1}>
+                <Link href="https://opencode.ai/zen" tabIndex={-1}>
                   {language.t("provider.connect.makcodeZen.visit.link")}
                 </Link>
                 {language.t("provider.connect.makcodeZen.visit.suffix")}

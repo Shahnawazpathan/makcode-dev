@@ -46,7 +46,7 @@ describe("LLMGatewayPlugin", () => {
       yield* addPlugin()
       expect((yield* catalog.provider.get(ProviderV2.ID.make("llmgateway")))?.request.headers).toEqual({
         Existing: "value",
-        "HTTP-Referer": "https://makcode.ai/",
+        "HTTP-Referer": "https://opencode.ai/",
         "X-Title": "makcode",
         "X-Source": "makcode",
       })

@@ -2,11 +2,11 @@ import { test, expect } from "bun:test"
 import { parseGitHubRemote } from "../../src/cli/cmd/github"
 
 test("parses https URL with .git suffix", () => {
-  expect(parseGitHubRemote("https://github.com/sst/makcode.git")).toEqual({ owner: "sst", repo: "makcode" })
+  expect(parseGitHubRemote("https://github.com/Shahnawazpathan/makcode-dev.git")).toEqual({ owner: "sst", repo: "makcode" })
 })
 
 test("parses https URL without .git suffix", () => {
-  expect(parseGitHubRemote("https://github.com/sst/makcode")).toEqual({ owner: "sst", repo: "makcode" })
+  expect(parseGitHubRemote("https://github.com/Shahnawazpathan/makcode-dev")).toEqual({ owner: "sst", repo: "makcode" })
 })
 
 test("parses git@ URL with .git suffix", () => {
@@ -18,11 +18,11 @@ test("parses git@ URL without .git suffix", () => {
 })
 
 test("parses ssh:// URL with .git suffix", () => {
-  expect(parseGitHubRemote("ssh://git@github.com/sst/makcode.git")).toEqual({ owner: "sst", repo: "makcode" })
+  expect(parseGitHubRemote("ssh://git@github.com/Shahnawazpathan/makcode-dev.git")).toEqual({ owner: "sst", repo: "makcode" })
 })
 
 test("parses ssh:// URL without .git suffix", () => {
-  expect(parseGitHubRemote("ssh://git@github.com/sst/makcode")).toEqual({ owner: "sst", repo: "makcode" })
+  expect(parseGitHubRemote("ssh://git@github.com/Shahnawazpathan/makcode-dev")).toEqual({ owner: "sst", repo: "makcode" })
 })
 
 test("parses git protocol URLs from package metadata", () => {

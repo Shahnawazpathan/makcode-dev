@@ -51,9 +51,9 @@ import { memoMap } from "@makcode-ai/core/effect/memo-map"
 import { BackgroundJob } from "@/background/job"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { EventV2Bridge } from "@/event-v2-bridge"
-import { LayerNode } from "@opencode-ai/core/effect/layer-node"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { AppNodeBuilderV1 } from "./app-node-builder-v1"
-import { SessionProjector } from "@opencode-ai/core/session/projector"
+import { SessionProjector } from "@makcode-ai/core/session/projector"
 
 export const AppLayer = AppNodeBuilderV1.build(
   LayerNode.group([

@@ -1,8 +1,8 @@
 import { afterEach, expect, test } from "bun:test"
 import { mkdir, unlink } from "fs/promises"
 import path from "path"
-import { LayerNode } from "@opencode-ai/core/effect/layer-node"
-import { AppNodeBuilder } from "@opencode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
 import { Effect, Layer } from "effect"
 import { ModelsDev } from "@makcode-ai/core/models-dev"
 import { FSUtil } from "@makcode-ai/core/fs-util"
@@ -77,7 +77,7 @@ const providerLayer = (flags: Partial<RuntimeFlags.Info> = {}) =>
 const list = Provider.use.list()
 
 const paid = (providers: Record<string, { models: Record<string, { cost: { input: number } }> }>) => {
-  const item = providers[ProviderV2.ID.make("makcode")]
+  const item = providers[ProviderV2.ID.make("opencode")]
   expect(item).toBeDefined()
   return Object.values(item.models).filter((model) => model.cost.input > 0).length
 }
@@ -1150,7 +1150,7 @@ it.instance("ModelNotFoundError suggests catalog models for unloaded providers",
   Effect.gen(function* () {
     yield* remove("OPENCODE_API_KEY")
     const error = yield* Provider.use
-      .getModel(ProviderV2.ID.makcode, ModelV2.ID.make("claude-haiku-fake-model"))
+      .getModel(ProviderV2.ID.opencode, ModelV2.ID.make("claude-haiku-fake-model"))
       .pipe(Effect.flip)
     if (!Provider.ModelNotFoundError.isInstance(error)) throw error
     expect(error.suggestions ?? []).toContain("claude-haiku-4-5")
@@ -1237,7 +1237,7 @@ it.instance(
   Effect.gen(function* () {
     const providers = yield* list
     expect(providers[ProviderV2.ID.make("nvidia")].options.headers).toEqual({
-      "HTTP-Referer": "https://makcode.ai/",
+      "HTTP-Referer": "https://opencode.ai/",
       "X-Title": "makcode",
       "X-BILLING-INVOKE-ORIGIN": "MakCode",
     })
@@ -1250,7 +1250,7 @@ it.instance(
   Effect.gen(function* () {
     const providers = yield* list
     expect(providers[ProviderV2.ID.make("nvidia")].options.headers).toEqual({
-      "HTTP-Referer": "https://makcode.ai/",
+      "HTTP-Referer": "https://opencode.ai/",
       "X-Title": "makcode",
       "X-BILLING-INVOKE-ORIGIN": "MakCode",
     })

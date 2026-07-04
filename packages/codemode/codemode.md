@@ -1,6 +1,6 @@
 # CodeMode - Status, Decisions, and Remaining Work
 
-This document is the working plan for `@opencode-ai/codemode` and its OpenCode integration.
+This document is the working plan for `@makcode-ai/codemode` and its OpenCode integration.
 It captures every locked decision, everything already implemented, and a detailed TODO of what
 remains - enough context that someone (human or agent) can pick up any item cold.
 
@@ -19,7 +19,7 @@ the context window when users connect many MCP servers.
 
 Architecture split (locked):
 
-- **`packages/codemode` (`@opencode-ai/codemode`)** - the generic, host-agnostic runtime:
+- **`packages/codemode` (`@makcode-ai/codemode`)** - the generic, host-agnostic runtime:
   a hand-rolled, Effect-native, tree-walking interpreter over acorn ASTs (TypeScript stripped
   via `typescript`'s `transpileModule`), the tool runtime/data boundary, discovery/search, and
   `Tool.make`. It knows nothing about OpenCode, MCP, permissions, or rendering.
@@ -40,8 +40,8 @@ From issue #34787 and design discussion. Do not relitigate these casually.
 
 ### Core direction
 
-- Generic CodeMode lives in its own package: `@opencode-ai/codemode` (repo scope convention;
-  the issue's `@opencode/codemode` name was normalized to the `@opencode-ai/*` convention).
+- Generic CodeMode lives in its own package: `@makcode-ai/codemode` (repo scope convention;
+  the issue's `@opencode/codemode` name was normalized to the `@makcode-ai/*` convention).
 - **Keep the hand-rolled interpreter.** No QuickJS/V8/sandbox-engine dependency. We own and
   test the whole surface; the model only needs orchestration syntax, not a full runtime.
 - Naming: `CodeMode`, `Tool`, `ToolError`, `UnknownTool` (diagnostic kind), `$codemode`
@@ -157,11 +157,11 @@ and `bun run typecheck`; from `packages/opencode`, `bun run typecheck` and
 
 - `packages/codemode` created from the experiments implementation: `src/{index,codemode,tool,
 tool-error,tool-runtime}.ts`, README, AGENTS.md, tests.
-- `package.json`: name `@opencode-ai/codemode`, deps `acorn@8.15.0`, `typescript: catalog:`,
+- `package.json`: name `@makcode-ai/codemode`, deps `acorn@8.15.0`, `typescript: catalog:`,
   `effect: catalog:` (both repos pin effect `4.0.0-beta.83`; opencode's effect patch only
   touches `unstable/httpapi`, which this package doesn't use).
 - Tests converted vitest -> `bun:test`. Only src change from verbatim: the `CurrentToolCall`
-  Context.Service key string renamed to `@opencode-ai/codemode/CurrentToolCall`.
+  Context.Service key string renamed to `@makcode-ai/codemode/CurrentToolCall`.
 
 ### Wave 1a - forgiving JS semantics (done)
 
@@ -296,7 +296,7 @@ error - logs are plain pre-formatted lines now), attachments: accumulated }` thr
 - **Deletions/deps**: `src/session/rune/` (all five files) and
   `test/session/rune-parity.test.ts` (superseded by this package's `test/parity.test.ts`)
   deleted; `acorn` removed from opencode deps, `typescript` moved back to devDependencies,
-  `"@opencode-ai/codemode": "workspace:*"` added; `bun install` run (lockfile updated).
+  `"@makcode-ai/codemode": "workspace:*"` added; `bun install` run (lockfile updated).
 - **Tests**: both opencode suites rewritten against the adapter design -
   `code-mode.test.ts` (34: grouping, description/signature rendering incl. the large-catalog
   search fallback, execution, permission flow + denial, metadata streaming, attachment
@@ -540,7 +540,7 @@ adapter needed **no changes**.
 **Fix 4 - token-budgeted catalog (was bytes)** (user direction: signatures need a token
 budget; namespaces must always be present):
 
-- `src/token.ts` added: copy of `@opencode-ai/core/util/token` (`round(chars / 4)`), so
+- `src/token.ts` added: copy of `@makcode-ai/core/util/token` (`round(chars / 4)`), so
   the package stays dependency-free; keep in sync if the core heuristic changes.
 - `DiscoveryOptions.maxInlineCatalogBytes` -> `maxInlineCatalogTokens` (default 4,000
   estimated tokens ~ the old 16,000 bytes at 4 chars/token - behavior parity, not a size

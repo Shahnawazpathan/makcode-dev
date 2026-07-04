@@ -2,7 +2,7 @@ import { QuestionV2 } from "@makcode-ai/core/question"
 import { Effect } from "effect"
 import { HttpApiBuilder, HttpApiSchema } from "effect/unstable/httpapi"
 import { Api } from "../api"
-import { QuestionNotFoundError } from "@opencode-ai/protocol/errors"
+import { QuestionNotFoundError } from "@makcode-ai/protocol/errors"
 import { response } from "../location"
 
 function missingRequest(id: QuestionV2.ID) {

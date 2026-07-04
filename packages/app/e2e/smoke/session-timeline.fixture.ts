@@ -26,7 +26,7 @@ const sourceID = "ses_smoke_source"
 const targetID = "ses_smoke_target"
 const directory = "C:/MakCode/SmokeProject"
 const projectID = "proj_smoke_timeline"
-const model = { providerID: "makcode", modelID: "claude-opus-4-6", variant: "max" }
+const model = { providerID: "opencode", modelID: "claude-opus-4-6", variant: "max" }
 
 type MessageInfo = Record<string, unknown> & { id: string; role: "user" | "assistant" }
 type MessagePart = Record<string, unknown> & { id: string; type: string; text?: string; tool?: string }
@@ -259,7 +259,7 @@ export const fixture = {
       },
     ],
     connected: ["makcode"],
-    default: { providerID: "makcode", modelID: "claude-opus-4-6" },
+    default: { providerID: "opencode", modelID: "claude-opus-4-6" },
   },
   sessions: [
     {

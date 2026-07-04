@@ -28,7 +28,7 @@ import { LayerNodePlatform } from "@makcode-ai/core/effect/app-node-platform"
 
 const FIXTURES_DIR = path.join(import.meta.dir, "../fixtures/recordings")
 
-const zenURL = (connection: string) => `https://console.makcode.ai/proxy/connections/${connection}/v1`
+const zenURL = (connection: string) => `https://console.opencode.ai/proxy/connections/${connection}/v1`
 
 const replayOpenAIOAuth = {
   type: "oauth",
@@ -161,7 +161,7 @@ const RECORDED_SCENARIOS = [
   {
     id: "makcode-proxy",
     name: "MakCode proxy",
-    providerID: ProviderV2.ID.makcode,
+    providerID: ProviderV2.ID.opencode,
     modelID: "gpt-5.2-codex",
     cassette: "session/native-zen-tool-loop",
     protocol: "openai-responses",
@@ -169,7 +169,7 @@ const RECORDED_SCENARIOS = [
     canRecord: () => Boolean(process.env.OPENCODE_RECORD_CONSOLE_TOKEN && process.env.OPENCODE_RECORD_ZEN_ORG_ID),
     config: (model) =>
       providerConfig({
-        providerID: ProviderV2.ID.makcode,
+        providerID: ProviderV2.ID.opencode,
         name: "MakCode Zen",
         env: ["OPENCODE_CONSOLE_TOKEN"],
         npm: "@ai-sdk/openai-compatible",
@@ -291,7 +291,7 @@ const writeConfig = (directory: string, scenario: RecordedScenario, model: Model
   Effect.promise(() =>
     Bun.write(
       path.join(directory, "makcode.json"),
-      JSON.stringify({ $schema: "https://makcode.ai/config.json", ...scenario.config(model) }),
+      JSON.stringify({ $schema: "https://opencode.ai/config.json", ...scenario.config(model) }),
     ),
   )
 

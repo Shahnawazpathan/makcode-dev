@@ -2482,10 +2482,10 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
   test("preserves metadata using providerID key when store is false", () => {
     const makcodeModel = {
       ...openaiModel,
-      providerID: "makcode",
+      providerID: "opencode",
       api: {
         id: "makcode-test",
-        url: "https://api.makcode.ai",
+        url: "https://api.opencode.ai",
         npm: "@ai-sdk/openai-compatible",
       },
     }
@@ -2516,10 +2516,10 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
   test("preserves itemId across all providerOptions keys", () => {
     const makcodeModel = {
       ...openaiModel,
-      providerID: "makcode",
+      providerID: "opencode",
       api: {
         id: "makcode-test",
-        url: "https://api.makcode.ai",
+        url: "https://api.opencode.ai",
         npm: "@ai-sdk/openai-compatible",
       },
     }

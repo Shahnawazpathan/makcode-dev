@@ -1,6 +1,6 @@
 import { Layer, ManagedRuntime } from "effect"
-import { AppNodeBuilder } from "@opencode-ai/core/effect/app-node-builder"
-import { LayerNode } from "@opencode-ai/core/effect/layer-node"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 
 import { Plugin } from "@/plugin"
 import { LSP } from "@/lsp/lsp"

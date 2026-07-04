@@ -1,6 +1,6 @@
 import { expect, mock, beforeEach } from "bun:test"
 import { EventEmitter } from "events"
-import { LayerNode } from "@opencode-ai/core/effect/layer-node"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Deferred, Effect, Layer, Option } from "effect"
 import { awaitWithTimeout, testEffect } from "../lib/effect"
 import type { MCP as MCPNS } from "../../src/mcp/index"

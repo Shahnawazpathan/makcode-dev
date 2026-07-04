@@ -74,7 +74,7 @@ describe("plugin.workspace", () => {
           path.join(dir, "makcode.json"),
           JSON.stringify(
             {
-              $schema: "https://makcode.ai/config.json",
+              $schema: "https://opencode.ai/config.json",
               plugin: [pathToFileURL(file).href],
             },
             null,

@@ -34,7 +34,7 @@ test("shows the V2 thinking level control while relevant", async ({ page }) => {
         },
       ],
       connected: ["makcode"],
-      default: { providerID: "makcode", modelID: "thinking-model" },
+      default: { providerID: "opencode", modelID: "thinking-model" },
     },
     sessions: [
       {

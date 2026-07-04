@@ -132,8 +132,8 @@ export function Header(props: { githubStars: string; links?: readonly HeaderLink
             <strong>{i18n.t("header.github")}</strong>
             <span>[{props.githubStars}]</span>
           </a>
-          <a data-slot="header-button" data-variant="contrast" href="https://makcode.ai/">
-            <strong>{i18n.t("header.tryMakCode")}</strong>
+          <a data-slot="header-button" data-variant="contrast" href="https://opencode.ai/">
+            <strong>{i18n.t("header.tryOpenCode")}</strong>
           </a>
           <button
             data-slot="menu-button"
@@ -231,12 +231,12 @@ export function Footer(props: {
     { href: "#geo-breakdown", label: i18n.t("nav.geoBreakdown") },
   ]
   const legal = [
-    { href: "https://makcode.ai/legal/terms-of-service", label: i18n.t("footer.terms") },
-    { href: "https://makcode.ai/legal/privacy-policy", label: i18n.t("footer.privacy") },
+    { href: "https://opencode.ai/legal/terms-of-service", label: i18n.t("footer.terms") },
+    { href: "https://opencode.ai/legal/privacy-policy", label: i18n.t("footer.privacy") },
   ]
   const connect = [
-    { href: "mailto:hello@makcode.ai", label: i18n.t("footer.contact") },
-    { href: "https://makcode.ai/discord", label: i18n.t("footer.community") },
+    { href: "mailto:hello@opencode.ai", label: i18n.t("footer.contact") },
+    { href: "https://opencode.ai/discord", label: i18n.t("footer.community") },
     { href: "https://x.com/makcode", label: "X" },
     { href: githubLink.href, label: i18n.t("header.github") },
     { href: "https://www.youtube.com/@anomaly-co", label: i18n.t("footer.youtube") },
@@ -246,7 +246,7 @@ export function Footer(props: {
     <footer data-component="footer">
       <SectionBridge label={i18n.t("nav.geoBreakdown").toUpperCase()} href="#geo-breakdown" />
       <div data-slot="footer-grid">
-        <a data-slot="footer-mark" href="https://makcode.ai" aria-label={i18n.t("footer.homeAria")}>
+        <a data-slot="footer-mark" href="https://opencode.ai" aria-label={i18n.t("footer.homeAria")}>
           <MakCodeMark />
         </a>
         <FooterColumn title={i18n.t("footer.modelData")} links={modelStats} localHref={localHref} />

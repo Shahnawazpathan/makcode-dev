@@ -1,5 +1,5 @@
 import { expect } from "bun:test"
-import { LayerNode } from "@opencode-ai/core/effect/layer-node"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Context, Deferred, Effect, Fiber, Layer, Logger } from "effect"
 import { CrossSpawnSpawner } from "@makcode-ai/core/cross-spawn-spawner"
 import { AppLayer } from "../../src/effect/app-runtime"

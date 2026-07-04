@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test"
-import { LayerNode } from "@opencode-ai/core/effect/layer-node"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Effect } from "effect"
 import path from "path"
 import { unlink } from "fs/promises"

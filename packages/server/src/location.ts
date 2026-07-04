@@ -1,7 +1,7 @@
-import { Location } from "@opencode-ai/core/location"
-import { LocationServiceMap } from "@opencode-ai/core/location-services"
-import { AbsolutePath } from "@opencode-ai/core/schema"
-import { WorkspaceV2 } from "@opencode-ai/core/workspace"
+import { Location } from "@makcode-ai/core/location"
+import { LocationServiceMap } from "@makcode-ai/core/location-services"
+import { AbsolutePath } from "@makcode-ai/core/schema"
+import { WorkspaceV2 } from "@makcode-ai/core/workspace"
 import { Effect, Layer } from "effect"
 import { HttpServerRequest } from "effect/unstable/http"
 import { HttpApiMiddleware } from "effect/unstable/httpapi"
@@ -31,7 +31,7 @@ function ref(request: HttpServerRequest.HttpServerRequest): Location.Ref {
   const workspaceID = query.get("location[workspace]") || request.headers["x-opencode-workspace"]
   const directory =
     query.get("location[directory]") ||
-    (request.headers["x-opencode-directory"] ? decode(request.headers["x-opencode-directory"]) : process.cwd())
+    (request.headers["x-makcode-directory"] ? decode(request.headers["x-makcode-directory"]) : process.cwd())
   return Location.Ref.make({
     directory: AbsolutePath.make(directory),
     workspaceID: workspaceID ? WorkspaceV2.ID.make(workspaceID) : undefined,

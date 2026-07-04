@@ -13,7 +13,7 @@ import { ConfigProviderV1 } from "../../v1/config/provider"
 import { ConfigProviderOptionsV1 } from "../../v1/config/provider-options"
 import { ConfigV1 } from "../../v1/config/config"
 
-const defaultServer = "https://console.makcode.ai"
+const defaultServer = "https://console.opencode.ai"
 const clientID = "makcode-cli"
 const methodID = Integration.MethodID.make("device")
 const RemoteResponse = Schema.Struct({ config: ConfigV1.Info })
@@ -36,7 +36,7 @@ const Org = Schema.Struct({ id: Schema.String, name: Schema.String })
 
 function oauth(http: HttpClient.HttpClient) {
   return {
-    integrationID: Integration.ID.make("makcode"),
+    integrationID: Integration.ID.make("opencode"),
     method: {
       id: methodID,
       type: "oauth",
@@ -84,7 +84,7 @@ export const OpencodePlugin = define<HttpClient.HttpClient | EventV2.Service | S
     let providers: typeof ConfigV1.Info.Type.provider | undefined
 
     const load = Effect.fn("OpencodePlugin.load")(function* () {
-      const connection = yield* ctx.integration.connection.active("makcode")
+      const connection = yield* ctx.integration.connection.active("opencode")
       const credential = connection
         ? yield* ctx.integration.connection.resolve(connection).pipe(Effect.catch(() => Effect.succeed(undefined)))
         : undefined
@@ -99,18 +99,18 @@ export const OpencodePlugin = define<HttpClient.HttpClient | EventV2.Service | S
     })
 
     yield* ctx.integration.transform((draft) => {
-      draft.update("makcode", (integration) => {
+      draft.update("opencode", (integration) => {
         integration.name = "MakCode"
       })
       draft.method.update(oauth(http))
-      draft.method.update({ integrationID: "makcode", method: { type: "key", label: "API key (service account)" } })
+      draft.method.update({ integrationID: "opencode", method: { type: "key", label: "API key (service account)" } })
     })
 
-    connected = (yield* ctx.integration.connection.active("makcode")) !== undefined
+    connected = (yield* ctx.integration.connection.active("opencode")) !== undefined
     yield* ctx.catalog.transform((catalog) => {
       for (const [providerID, item] of Object.entries(providers ?? {})) {
         catalog.provider.update(providerID, (provider) => {
-          provider.integrationID = Integration.ID.make("makcode")
+          provider.integrationID = Integration.ID.make("opencode")
           if (item.name !== undefined) provider.name = item.name
           provider.api = item.npm
             ? { type: "aisdk", package: item.npm, url: item.api }
@@ -162,7 +162,7 @@ export const OpencodePlugin = define<HttpClient.HttpClient | EventV2.Service | S
         }
       }
 
-      const item = catalog.provider.get(ProviderV2.ID.makcode)
+      const item = catalog.provider.get(ProviderV2.ID.opencode)
       if (!item) return
       const hasKey = Boolean(process.env.OPENCODE_API_KEY || connected || item.provider.request.body.apiKey)
       catalog.provider.update(item.provider.id, (provider) => {
@@ -179,7 +179,7 @@ export const OpencodePlugin = define<HttpClient.HttpClient | EventV2.Service | S
 
     const refresh = () => loading.withPermit(load().pipe(Effect.andThen(ctx.catalog.reload())))
     yield* events.subscribe(Integration.Event.ConnectionUpdated).pipe(
-      Stream.filter((event) => event.data.integrationID === Integration.ID.make("makcode")),
+      Stream.filter((event) => event.data.integrationID === Integration.ID.make("opencode")),
       Stream.runForEach(refresh),
       Effect.forkScoped({ startImmediately: true }),
     )

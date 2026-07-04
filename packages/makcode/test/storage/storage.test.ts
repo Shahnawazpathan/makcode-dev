@@ -1,6 +1,6 @@
 import { describe, expect } from "bun:test"
 import path from "path"
-import { LayerNode } from "@opencode-ai/core/effect/layer-node"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Effect, Exit, Layer } from "effect"
 import { FSUtil } from "@makcode-ai/core/fs-util"
 import { CrossSpawnSpawner } from "@makcode-ai/core/cross-spawn-spawner"

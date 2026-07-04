@@ -1,6 +1,6 @@
 import { NodeFileSystem } from "@effect/platform-node"
 import { describe, expect } from "bun:test"
-import { LayerNode } from "@opencode-ai/core/effect/layer-node"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Effect, Layer } from "effect"
 import { provideTmpdirInstance, testInstanceStoreLayer, TestInstance } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"

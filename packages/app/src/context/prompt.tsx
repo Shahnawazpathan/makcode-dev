@@ -12,7 +12,7 @@ import { useTabs, type Tab } from "./tabs"
 import { ServerConnection } from "./server"
 import { requireServerKey } from "@/utils/session-route"
 import { useSettings } from "./settings"
-import type { FilePartSource } from "@opencode-ai/sdk/v2/client"
+import type { FilePartSource } from "@makcode-ai/sdk/v2/client"
 
 interface PartBase {
   content: string

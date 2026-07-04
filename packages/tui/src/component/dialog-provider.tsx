@@ -18,7 +18,7 @@ import { useClipboard } from "../context/clipboard"
 
 const PROVIDER_PRIORITY: Record<string, number> = {
   makcode: 0,
-  "makcode-go": 1,
+  "opencode-go": 1,
   openai: 2,
   "github-copilot": 3,
   anthropic: 4,
@@ -62,7 +62,7 @@ export function providerOptions(list: { id: string; name: string }[]): ProviderO
           makcode: "(Recommended)",
           anthropic: "(API key)",
           openai: "(ChatGPT Plus/Pro or API key)",
-          "makcode-go": "Low cost subscription for everyone",
+          "opencode-go": "Low cost subscription for everyone",
         }[provider.id],
         category: provider.id in PROVIDER_PRIORITY ? "Popular" : "Providers",
       })),
@@ -375,18 +375,18 @@ function ApiMethod(props: ApiMethodProps) {
                 key.
               </text>
               <text fg={theme.text}>
-                Go to <span style={{ fg: theme.primary }}>https://makcode.ai/zen</span> to get a key
+                Go to <span style={{ fg: theme.primary }}>https://opencode.ai/zen</span> to get a key
               </text>
             </box>
           ),
-          "makcode-go": (
+          "opencode-go": (
             <box gap={1}>
               <text fg={theme.textMuted}>
                 MakCode Go is a $10 per month subscription that provides reliable access to popular open coding models
                 with generous usage limits.
               </text>
               <text fg={theme.text}>
-                Go to <span style={{ fg: theme.primary }}>https://makcode.ai/go</span> and enable MakCode Go
+                Go to <span style={{ fg: theme.primary }}>https://opencode.ai/go</span> and enable MakCode Go
               </text>
             </box>
           ),

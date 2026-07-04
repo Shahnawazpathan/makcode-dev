@@ -31,9 +31,9 @@ const xml = `<?xml version="1.0" encoding="UTF-8"?>
 
   <content_rating type="oars-1.1" />
 
-  <url type="bugtracker">https://github.com/shahnawaz-pathan/makcode/issues</url>
-  <url type="homepage">https://makcode.ai</url>
-  <url type="vcs-browser">https://github.com/shahnawaz-pathan/makcode</url>
+  <url type="bugtracker">https://github.com/Shahnawazpathan/makcode-dev/issues</url>
+  <url type="homepage">https://opencode.ai</url>
+  <url type="vcs-browser">https://github.com/Shahnawazpathan/makcode-dev</url>
 
   <screenshots>
     <screenshot type="default">

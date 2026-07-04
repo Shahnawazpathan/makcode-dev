@@ -50,7 +50,7 @@ jobs:
 
       - name: Install MakCode
         if: steps.changes.outputs.has_changes == 'true'
-        run: curl -fsSL https://makcode.ai/install | bash
+        run: curl -fsSL https://opencode.ai/install | bash
 
       - name: Sync locale docs with MakCode
         if: steps.changes.outputs.has_changes == 'true'

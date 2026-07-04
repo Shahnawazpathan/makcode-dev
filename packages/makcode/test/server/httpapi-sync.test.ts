@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, mock } from "bun:test"
-import { LayerNode } from "@opencode-ai/core/effect/layer-node"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Context, Effect, Layer } from "effect"
 import { Flag } from "@makcode-ai/core/flag/flag"
 import { SyncPaths } from "../../src/server/routes/instance/httpapi/groups/sync"
