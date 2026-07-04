@@ -1240,6 +1240,10 @@ function fromModelsDevModel(provider: ModelsDev.Provider, model: ModelsDev.Model
   }
 }
 
+function displayName(name: string) {
+  return name.replaceAll("OpenCode", "MakCode").replaceAll("opencode", "MakCode")
+}
+
 export function fromModelsDevProvider(provider: ModelsDev.Provider): Info {
   const models: Record<string, Model> = {}
   for (const [key, model] of Object.entries(provider.models)) {
@@ -1267,7 +1271,7 @@ export function fromModelsDevProvider(provider: ModelsDev.Provider): Info {
   return {
     id: ProviderV2.ID.make(provider.id),
     source: "custom",
-    name: provider.name,
+    name: displayName(provider.name),
     env: [...(provider.env ?? [])],
     options: {},
     models,

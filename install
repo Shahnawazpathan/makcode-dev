@@ -23,9 +23,11 @@ esac
 mkdir -p "$INSTALL_DIR"
 
 if [ "$VERSION" = "latest" ]; then
-  BASE_URL="https://github.com/$REPO/releases/latest/download"
+  BASE_URLS=("https://github.com/$REPO/releases/latest/download")
+elif [[ "$VERSION" == v* ]]; then
+  BASE_URLS=("https://github.com/$REPO/releases/download/$VERSION")
 else
-  BASE_URL="https://github.com/$REPO/releases/download/$VERSION"
+  BASE_URLS=("https://github.com/$REPO/releases/download/$VERSION" "https://github.com/$REPO/releases/download/v$VERSION")
 fi
 
 TMP="$(mktemp -d)"
@@ -33,11 +35,15 @@ trap 'rm -rf "$TMP"' EXIT
 
 if [ "$OS" = "darwin" ]; then
   ASSET="makcode-$OS-$ARCH.zip"
-  curl -fsSL "$BASE_URL/$ASSET" -o "$TMP/$ASSET"
+  for BASE_URL in "${BASE_URLS[@]}"; do
+    curl -fsSL "$BASE_URL/$ASSET" -o "$TMP/$ASSET" && break
+  done
   unzip -q "$TMP/$ASSET" -d "$TMP"
 else
   ASSET="makcode-$OS-$ARCH.tar.gz"
-  curl -fsSL "$BASE_URL/$ASSET" -o "$TMP/$ASSET"
+  for BASE_URL in "${BASE_URLS[@]}"; do
+    curl -fsSL "$BASE_URL/$ASSET" -o "$TMP/$ASSET" && break
+  done
   tar -xzf "$TMP/$ASSET" -C "$TMP"
 fi
 

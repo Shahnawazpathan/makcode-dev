@@ -194,7 +194,8 @@ function build(input: SplashWriterInput, kind: "entry" | "exit", ctx: Scrollback
       })
     }
 
-    push(lines, body_left, top, "MakCode", right, undefined, TextAttributes.BOLD)
+    push(lines, body_left, top, "Mak", left, undefined, TextAttributes.BOLD)
+    push(lines, body_left + 3, top, "Code", right, undefined, TextAttributes.BOLD)
     if (input.detail) {
       push(
         lines,

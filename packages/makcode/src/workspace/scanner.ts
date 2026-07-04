@@ -2,7 +2,7 @@ import path from "path"
 import { existsSync, readdirSync, statSync } from "fs"
 import { projectMapPath, type Config } from "./config"
 
-type ProjectScan = {
+export type ProjectScan = {
   name: "root" | "frontend" | "backend"
   path: string
   packageManager: string | null

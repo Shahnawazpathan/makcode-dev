@@ -1,11 +1,12 @@
 import type { Argv } from "yargs"
 import path from "path"
 import readline from "readline"
+import { existsSync } from "fs"
 import { stdin as input, stdout as output } from "process"
 import { cmd } from "./cmd"
 import { UI } from "../ui"
-import { commonRoot, context, create, discover, save, validateDirectory, type Config } from "@/workspace/config"
-import { context as projectMapContext, loadProjectMap, scan } from "@/workspace/scanner"
+import { allowedPaths, commonRoot, context, create, discover, save, validateDirectory, type Config } from "@/workspace/config"
+import { context as projectMapContext, loadProjectMap, scan, type ProjectScan } from "@/workspace/scanner"
 import { RunCommand } from "./run"
 
 type TaskArgs = {
@@ -13,6 +14,10 @@ type TaskArgs = {
   dryRun?: boolean
   preview?: boolean
   diff?: boolean
+}
+
+type VerifyArgs = {
+  build?: boolean
 }
 
 export const InitCommand = cmd({
@@ -73,6 +78,120 @@ export const ScanCommand = cmd({
     const map = await scan(current.config)
     UI.println(`Scanned ${map.projects.length} project${map.projects.length === 1 ? "" : "s"}.`)
     UI.println(`Saved: ${path.join(current.config.rootPath, ".makcode", "project-map.json")}`)
+  },
+})
+
+export const DoctorCommand = cmd({
+  command: "doctor",
+  describe: "check MakCode workspace health",
+  handler: async () => {
+    const current = await discover()
+    if (!current) {
+      UI.error("No MakCode workspace configuration found. Run `makcode init` first.")
+      process.exitCode = 1
+      return
+    }
+
+    const map = await scan(current.config)
+    const checks = [
+      {
+        ok: existsSync(current.file),
+        label: "Workspace config",
+        detail: current.file,
+      },
+      {
+        ok: allowedPaths(current.config).every((item) => existsSync(item)),
+        label: "Linked project paths",
+        detail: allowedPaths(current.config).join(", "),
+      },
+      {
+        ok: current.config.projectType === "single" || Boolean(current.config.frontendPath && current.config.backendPath),
+        label: "Full-stack linkage",
+        detail:
+          current.config.projectType === "single"
+            ? "single project"
+            : `frontend ${current.config.frontendPath}, backend ${current.config.backendPath}`,
+      },
+      ...map.projects.flatMap((project) => projectChecks(project)),
+    ]
+
+    UI.println("MakCode doctor")
+    UI.println(`Workspace: ${current.config.rootPath}`)
+    checks.forEach((check) => {
+      UI.println(
+        `${check.ok ? UI.Style.TEXT_SUCCESS_BOLD + "[ok]" : UI.Style.TEXT_DANGER_BOLD + "[x]"}${UI.Style.TEXT_NORMAL} ${check.label}: ${check.detail}`,
+      )
+    })
+
+    const failed = checks.filter((check) => !check.ok)
+    if (failed.length === 0) {
+      UI.println("")
+      UI.println(UI.Style.TEXT_SUCCESS_BOLD + "Ready" + UI.Style.TEXT_NORMAL + " - workspace looks healthy.")
+      return
+    }
+
+    process.exitCode = 1
+    UI.println("")
+    UI.println(UI.Style.TEXT_WARNING_BOLD + "Fix recommended" + UI.Style.TEXT_NORMAL + ` - ${failed.length} check${failed.length === 1 ? "" : "s"} failed.`)
+  },
+})
+
+export const VerifyCommand = cmd<{}, VerifyArgs>({
+  command: "verify",
+  describe: "run detected project verification scripts",
+  builder: (yargs: Argv) =>
+    yargs.option("build", {
+      describe: "also run build scripts",
+      type: "boolean",
+    }),
+  handler: async (args) => {
+    const current = await discover()
+    if (!current) {
+      UI.error("No MakCode workspace configuration found. Run `makcode init` first.")
+      process.exitCode = 1
+      return
+    }
+
+    const map = await scan(current.config)
+    const jobs = (
+      await Promise.all(
+        map.projects.map(async (project) => ({
+          project,
+          scripts: await verificationScripts(project.path, Boolean(args.build)),
+        })),
+      )
+    ).filter((job) => job.scripts.length > 0)
+
+    if (jobs.length === 0) {
+      UI.println("No verification scripts found.")
+      UI.println("Add package scripts such as typecheck, lint, test, or run `makcode verify --build` when build scripts exist.")
+      return
+    }
+
+    UI.println("MakCode verify")
+    const results = await jobs.reduce(
+      async (previous, job) => [
+        ...(await previous),
+        ...(await job.scripts.reduce(
+          async (innerPrevious, script) => [
+            ...(await innerPrevious),
+            await runVerification(job.project, script),
+          ],
+          Promise.resolve([] as Array<{ ok: boolean }>),
+        )),
+      ],
+      Promise.resolve([] as Array<{ ok: boolean }>),
+    )
+
+    if (results.every((result) => result.ok)) {
+      UI.println("")
+      UI.println(UI.Style.TEXT_SUCCESS_BOLD + "Verified" + UI.Style.TEXT_NORMAL + " - all detected checks passed.")
+      return
+    }
+
+    process.exitCode = 1
+    UI.println("")
+    UI.println(UI.Style.TEXT_DANGER_BOLD + "Failed" + UI.Style.TEXT_NORMAL + " - fix failing checks and run again.")
   },
 })
 
@@ -139,6 +258,77 @@ export const TaskCommand = cmd<{}, TaskArgs>({
     } as never)
   },
 })
+
+function projectChecks(project: ProjectScan) {
+  return [
+    {
+      ok: Boolean(project.packageManager),
+      label: `${project.name} package manager`,
+      detail: project.packageManager ?? "not detected",
+    },
+    {
+      ok: true,
+      label: `${project.name} framework`,
+      detail: project.frameworks.join(", ") || "not detected",
+    },
+    {
+      ok: project.importantFolders.length > 0,
+      label: `${project.name} structure`,
+      detail: project.importantFolders.join(", ") || "no common source folders detected",
+    },
+    {
+      ok: true,
+      label: `${project.name} environment files`,
+      detail: project.environmentFiles.map((file) => file.filename).join(", ") || "none detected",
+    },
+  ]
+}
+
+async function verificationScripts(projectPath: string, includeBuild: boolean) {
+  const packageJson = await readPackageJson(projectPath)
+  if (!packageJson?.scripts) return []
+  return ["typecheck", "lint", "test", includeBuild ? "build" : undefined].filter(
+    (script): script is string => script !== undefined && packageJson.scripts[script] !== undefined,
+  )
+}
+
+async function readPackageJson(projectPath: string) {
+  const file = path.join(projectPath, "package.json")
+  if (!existsSync(file)) return
+  try {
+    return (await Bun.file(file).json()) as { scripts?: Record<string, string> }
+  } catch {
+    return
+  }
+}
+
+async function runVerification(project: ProjectScan, script: string) {
+  const command = verifyCommand(project.packageManager, script)
+  if (!command) {
+    UI.println(
+      `${UI.Style.TEXT_WARNING_BOLD}!${UI.Style.TEXT_NORMAL} ${project.name} ${script}: package manager not detected`,
+    )
+    return { ok: false }
+  }
+
+  UI.println(`${UI.Style.TEXT_INFO_BOLD}>${UI.Style.TEXT_NORMAL} ${project.name}: ${command.join(" ")}`)
+  const proc = Bun.spawn(command, {
+    cwd: project.path,
+    stdout: "inherit",
+    stderr: "inherit",
+    stdin: "inherit",
+  })
+  const ok = (await proc.exited) === 0
+  UI.println(
+    `${ok ? UI.Style.TEXT_SUCCESS_BOLD + "[ok]" : UI.Style.TEXT_DANGER_BOLD + "[x]"}${UI.Style.TEXT_NORMAL} ${project.name}: ${script}`,
+  )
+  return { ok }
+}
+
+function verifyCommand(packageManager: string | null, script: string) {
+  if (!packageManager) return
+  return [packageManager, "run", script]
+}
 
 export async function ensureWorkspaceOrWizard(project?: string) {
   // Only offer the interactive wizard on a real terminal; piped/scripted
