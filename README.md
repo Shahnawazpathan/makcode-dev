@@ -46,56 +46,60 @@
 ### Installation
 
 ```bash
-# YOLO
-curl -fsSL https://makcode.ai/install | bash
-
-# Package managers
-npm i -g makcode-ai@latest        # or bun/pnpm/yarn
-scoop install makcode             # Windows
-choco install makcode             # Windows
-brew install shahnawaz-pathan/tap/makcode # macOS and Linux (recommended, always up to date)
-brew install makcode              # macOS and Linux (official brew formula, updated less)
-sudo pacman -S makcode            # Arch Linux (Stable)
-paru -S makcode-bin               # Arch Linux (Latest from AUR)
-mise use -g makcode               # Any OS
-nix run nixpkgs#makcode           # or github:shahnawaz-pathan/makcode for latest dev branch
+curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/opencode-dev/main/install | bash
 ```
 
-> [!TIP]
-> Remove versions older than 0.1.x before installing.
+The installer downloads the correct MakCode release binary for your platform
+and places it in `~/.local/bin/makcode` by default.
 
-### Desktop App (BETA)
+After installing, run:
 
-MakCode is also available as a desktop application. Download directly from the [releases page](https://github.com/shahnawaz-pathan/makcode/releases) or [makcode.ai/download](https://makcode.ai/download).
-
-| Platform              | Download                           |
-| --------------------- | ---------------------------------- |
-| macOS (Apple Silicon) | `makcode-desktop-mac-arm64.dmg`   |
-| macOS (Intel)         | `makcode-desktop-mac-x64.dmg`     |
-| Windows               | `makcode-desktop-windows-x64.exe` |
-| Linux                 | `.deb`, `.rpm`, or `.AppImage`     |
-
-```bash
-# macOS (Homebrew)
-brew install --cask makcode-desktop
-# Windows (Scoop)
-scoop bucket add extras; scoop install extras/makcode-desktop
+```sh
+makcode
 ```
 
 #### Installation Directory
 
-The install script respects the following priority order for the installation path:
-
-1. `$OPENCODE_INSTALL_DIR` - Custom installation directory
-2. `$XDG_BIN_DIR` - XDG Base Directory Specification compliant path
-3. `$HOME/bin` - Standard user binary directory (if it exists or can be created)
-4. `$HOME/.makcode/bin` - Default fallback
+Set `MAKCODE_INSTALL_DIR` to choose a different install location:
 
 ```bash
-# Examples
-OPENCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://makcode.ai/install | bash
-XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://makcode.ai/install | bash
+MAKCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/opencode-dev/main/install | bash
 ```
+
+Make sure the install directory is in your `PATH`.
+
+### Publishing a Release
+
+Build the current machine's binary:
+
+```bash
+cd packages/makcode
+bun run script/build.ts --single --skip-embed-web-ui
+```
+
+Package the macOS Apple Silicon binary:
+
+```bash
+cd packages/makcode
+rm -f dist/makcode-darwin-arm64.zip
+(cd dist/makcode-darwin-arm64/bin && zip -q ../../makcode-darwin-arm64.zip makcode)
+```
+
+Create a GitHub release:
+
+```bash
+gh release create v1.0.0 \
+  packages/makcode/dist/makcode-darwin-arm64.zip \
+  --repo Shahnawazpathan/opencode-dev \
+  --title "MakCode v1.0.0"
+```
+
+The installer expects release assets named like:
+
+- `makcode-darwin-arm64.zip`
+- `makcode-darwin-x64.zip`
+- `makcode-linux-arm64.tar.gz`
+- `makcode-linux-x64.tar.gz`
 
 ### Agents
 
