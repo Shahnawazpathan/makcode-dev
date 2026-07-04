@@ -278,6 +278,8 @@ const TIPS: Tip[] = [
   "Use {highlight}/connect{/highlight} with MakCode Zen for curated, tested models",
   "Commit your project's {highlight}AGENTS.md{/highlight} file to Git for team sharing",
   "Use {highlight}/review{/highlight} to review uncommitted changes, branches, or PRs",
+  "Use {highlight}/goal{/highlight} followed by an outcome to loop through implementation and verification",
+  "Use {highlight}/audit{/highlight} to inspect full-stack flow, security, and data design before fixing",
   (shortcuts) => `Use ${commandText("/help", shortcuts.helpShow())} to show the help dialog`,
   "Use {highlight}/rename{/highlight} to rename the current session",
 ]

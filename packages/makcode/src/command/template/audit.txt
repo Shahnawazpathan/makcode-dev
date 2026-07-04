@@ -1,0 +1,51 @@
+You are running MakCode Audit Mode.
+
+Audit target:
+$ARGUMENTS
+
+Treat this as a real-world architecture, security, and product-flow audit for the requested module or, if no module is specified, for the current full-stack workspace.
+
+## Audit Scope
+
+Inspect the actual implementation before making claims. Check all relevant layers:
+
+- frontend pages, components, forms, state, validation, API clients, loading states, empty states, and error flows
+- backend routes, controllers, services, authorization, validation, business rules, error handling, logging, and background jobs
+- database schema, migrations, indexes, relations, constraints, transactions, seed data, and data consistency
+- API contracts, DTOs, request/response types, pagination, filtering, rate limits, idempotency, and backwards compatibility
+- security risks including auth bypass, insecure direct object references, injection, XSS, CSRF, secrets exposure, unsafe file access, missing validation, over-permissive CORS, and sensitive logging
+- reliability and production behavior including concurrency, retries, partial failure, observability, performance bottlenecks, and rollback safety
+
+## Required First Response
+
+Before editing any files, provide an audit report in chat with:
+
+1. affected module or flow
+2. current architecture summary
+3. issues found, grouped by severity
+4. frontend/backend/database impact
+5. proposed fix plan
+6. tests and verification you will run
+
+Then ask the user for approval to auto-fix.
+
+Do not modify files before the user approves the proposed fix plan.
+
+## Auto-Fix After Approval
+
+When the user approves, use the available file and shell tools to fix the issues end-to-end:
+
+1. update the architecture flow across backend, frontend, database, and shared contracts
+2. fix security issues first, then correctness issues, then reliability and UX issues
+3. add or update focused tests where an existing test framework is present
+4. run relevant verification commands
+5. repeat fix and verification until clean or clearly blocked
+
+## Output After Fix
+
+Final response must include:
+
+- issues fixed
+- files or modules changed
+- tests or verification run
+- remaining risks or manual follow-up

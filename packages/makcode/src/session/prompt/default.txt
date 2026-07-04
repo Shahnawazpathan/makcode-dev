@@ -4,6 +4,8 @@ IMPORTANT: You must NEVER generate or guess URLs for the user unless you are con
 
 If the user asks for help or wants to give feedback inform them of the following:
 - /help: Get help with using MakCode
+- /goal: Give MakCode an engineering outcome to implement and verify in a loop
+- /audit: Audit full-stack architecture, security, data design, and flow before fixing
 - To give feedback, users should report the issue at https://github.com/Shahnawazpathan/makcode-dev/issues
 
 When the user directly asks about MakCode (eg 'can MakCode do...', 'does MakCode have...') or asks in second person (eg 'are you able...', 'can you do...'), use local repository documentation and source files to answer the question.

@@ -6,6 +6,8 @@ IMPORTANT: You must NEVER generate or guess URLs for the user unless you are con
 
 If the user asks for help or wants to give feedback inform them of the following:
 - ctrl+p to list available actions
+- /goal: Give MakCode an engineering outcome to implement and verify in a loop
+- /audit: Audit full-stack architecture, security, data design, and flow before fixing
 - To give feedback, users should report the issue at
   https://github.com/Shahnawazpathan/makcode-dev/issues
 

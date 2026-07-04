@@ -9,6 +9,8 @@ import { MCP } from "../mcp"
 import { Skill } from "../skill"
 import PROMPT_INITIALIZE from "./template/initialize.txt"
 import PROMPT_REVIEW from "./template/review.txt"
+import PROMPT_GOAL from "./template/goal.txt"
+import PROMPT_AUDIT from "./template/audit.txt"
 import { LegacyEvent } from "@makcode-ai/schema/legacy-event"
 
 type State = {
@@ -46,6 +48,9 @@ export function hints(template: string) {
 export const Default = {
   INIT: "init",
   REVIEW: "review",
+  GOAL: "goal",
+  GOAL_ALIAS: "gaol",
+  AUDIT: "audit",
 } as const
 
 export interface Interface {
@@ -85,6 +90,33 @@ const layer = Layer.effect(
         },
         subtask: true,
         hints: hints(PROMPT_REVIEW),
+      }
+      commands[Default.GOAL] = {
+        name: Default.GOAL,
+        description: "loop on an engineering goal until implemented and verified",
+        source: "command",
+        get template() {
+          return PROMPT_GOAL
+        },
+        hints: hints(PROMPT_GOAL),
+      }
+      commands[Default.GOAL_ALIAS] = {
+        name: Default.GOAL_ALIAS,
+        description: "alias for /goal",
+        source: "command",
+        get template() {
+          return PROMPT_GOAL
+        },
+        hints: hints(PROMPT_GOAL),
+      }
+      commands[Default.AUDIT] = {
+        name: Default.AUDIT,
+        description: "audit full-stack architecture, security, data design, and flow before fixing",
+        source: "command",
+        get template() {
+          return PROMPT_AUDIT
+        },
+        hints: hints(PROMPT_AUDIT),
       }
 
       for (const [name, command] of Object.entries(cfg.command ?? {})) {
