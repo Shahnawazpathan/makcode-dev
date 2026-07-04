@@ -1,5 +1,5 @@
 import MarkdownShikiWorkerUrl from "./markdown-shiki.worker.ts?worker&url"
-import { MakCodeTheme } from "@makcode-ai/ui/context/marked"
+import { OpenCodeTheme } from "@makcode-ai/ui/context/marked"
 import {
   applyMarkdownWorkerResponse,
   shouldReleaseMarkdownWorkerState,
@@ -117,6 +117,6 @@ function getWorker() {
   }
   worker.onerror = (event) => fail(event.message || "Markdown highlighting worker failed")
   worker.onmessageerror = () => fail("Markdown worker response failed")
-  worker.postMessage({ type: "init", theme: MakCodeTheme } satisfies MarkdownWorkerRequest)
+  worker.postMessage({ type: "init", theme: OpenCodeTheme } satisfies MarkdownWorkerRequest)
   return worker
 }

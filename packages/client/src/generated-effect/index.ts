@@ -1,2 +1,2 @@
 export { ClientError } from "./client-error"
-export * as MakCode from "./client"
+export * as OpenCode from "./client"
