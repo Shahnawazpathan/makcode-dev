@@ -121,7 +121,10 @@ export function contains(config: Config, filepath: string) {
 }
 
 export function commonRoot(paths: string[]) {
-  const parts = paths.map((item) => path.resolve(item).split(path.sep).filter(Boolean))
+  const resolved = paths.map((item) => path.resolve(item))
+  const root = path.parse(resolved[0] ?? process.cwd()).root
+  if (resolved.some((item) => path.parse(item).root.toLowerCase() !== root.toLowerCase())) return root
+  const parts = resolved.map((item) => item.slice(path.parse(item).root.length).split(path.sep).filter(Boolean))
   const prefix: string[] = []
   for (const segment of parts[0] ?? []) {
     if (parts.every((item) => item[prefix.length] === segment)) {
@@ -130,7 +133,6 @@ export function commonRoot(paths: string[]) {
     }
     break
   }
-  const root = path.parse(path.resolve(paths[0] ?? process.cwd())).root
   return path.join(root, ...prefix)
 }
 

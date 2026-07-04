@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { mkdir } from "fs/promises"
 import path from "path"
-import { allowedPaths, contains, context, create, save } from "../../src/workspace/config"
+import { allowedPaths, commonRoot, contains, context, create, save } from "../../src/workspace/config"
 import { context as projectMapContext, loadProjectMap, scan } from "../../src/workspace/scanner"
 import { tmpdir } from "../fixture/fixture"
 
@@ -48,5 +48,16 @@ describe("MakCode linked workspace context", () => {
     expect(projectMapContext(map)).toContain("React")
     expect(projectMapContext(map)).toContain("Express")
     expect(projectMapContext(map)).toContain("Prisma")
+  })
+
+  test("computes a shared Windows root without duplicating the drive segment", () => {
+    if (process.platform !== "win32") return
+
+    expect(
+      commonRoot([
+        "C:\\Users\\shahn\\Documents\\Github\\marina-app",
+        "C:\\Users\\shahn\\Documents\\Github\\marina",
+      ]),
+    ).toBe("C:\\Users\\shahn\\Documents\\Github")
   })
 })
