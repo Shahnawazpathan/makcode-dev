@@ -156,7 +156,7 @@ function ok<T>(data: T) {
   return Promise.resolve({
     data,
     error: undefined,
-    request: new Request("https://makcode.test"),
+    request: new Request("https://opencode.test"),
     response: new Response(),
   })
 }

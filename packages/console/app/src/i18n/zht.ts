@@ -44,8 +44,8 @@ export const dict = {
   "notFound.docs": "文件",
   "notFound.github": "GitHub",
   "notFound.discord": "Discord",
-  "notFound.logoLightAlt": "makcode 淺色標誌",
-  "notFound.logoDarkAlt": "makcode 深色標誌",
+  "notFound.logoLightAlt": "opencode 淺色標誌",
+  "notFound.logoDarkAlt": "opencode 深色標誌",
 
   "user.logout": "登出",
 
@@ -99,8 +99,8 @@ export const dict = {
   "temp.feature.models.afterLink": "支援 75+ 家 LLM 供應商，包括本地模型",
   "temp.screenshot.caption": "使用 tokyonight 主題的 MakCode TUI",
   "temp.screenshot.alt": "使用 tokyonight 主題的 MakCode TUI",
-  "temp.logoLightAlt": "makcode 淺色標誌",
-  "temp.logoDarkAlt": "makcode 深色標誌",
+  "temp.logoLightAlt": "opencode 淺色標誌",
+  "temp.logoDarkAlt": "opencode 深色標誌",
 
   "home.banner.badge": "新",
   "home.banner.text": "桌面應用已推出 Beta",
@@ -630,7 +630,7 @@ export const dict = {
   "workspace.lite.subscription.resetsIn": "重置時間：",
   "workspace.lite.subscription.useBalance": "達到使用限制後使用您的可用餘額",
   "workspace.lite.subscription.selectProvider":
-    "在您的 makcode 設定中選擇「MakCode Go」作為提供商，即可使用 Go 模型。",
+    "在您的 opencode 設定中選擇「MakCode Go」作為提供商，即可使用 Go 模型。",
   "workspace.lite.providers.title": "提供商",
   "workspace.lite.providers.description": "控制用於路由的提供商。",
   "workspace.lite.providers.useChina": "啟用部署在中國的模型",

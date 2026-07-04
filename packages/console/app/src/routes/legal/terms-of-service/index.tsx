@@ -71,7 +71,7 @@ export default function TermsOfService() {
                 RIGHT TO PARTICIPATE IN A CLASS ACTION LAWSUIT OR CLASS-WIDE ARBITRATION.
               </p>
 
-              <h2 id="what-is-makcode">What is MakCode?</h2>
+              <h2 id="what-is-opencode">What is MakCode?</h2>
               <p>
                 MakCode is an AI-powered coding agent that helps you write, understand, and modify code using large
                 language models. Certain of these large language models are provided by third parties ("Third Party
@@ -246,7 +246,7 @@ export default function TermsOfService() {
                 any Third Party Model.
               </p>
 
-              <h2 id="will-makcode-ever-change-the-services">Will MakCode ever change the Services?</h2>
+              <h2 id="will-opencode-ever-change-the-services">Will MakCode ever change the Services?</h2>
               <p>
                 We're always trying to improve our Services, so they may change over time. We may suspend or discontinue
                 any part of the Services, or we may introduce new features or impose limits on certain features or

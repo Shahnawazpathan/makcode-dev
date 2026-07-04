@@ -112,14 +112,14 @@ export default {
           const emails = (await fetch("https://api.github.com/user/emails", {
             headers: {
               Authorization: `Bearer ${response.tokenset.access}`,
-              "User-Agent": "makcode",
+              "User-Agent": "opencode",
               Accept: "application/vnd.github+json",
             },
           }).then((x) => x.json())) as any
           const user = (await fetch("https://api.github.com/user", {
             headers: {
               Authorization: `Bearer ${response.tokenset.access}`,
-              "User-Agent": "makcode",
+              "User-Agent": "opencode",
               Accept: "application/vnd.github+json",
             },
           }).then((x) => x.json())) as any

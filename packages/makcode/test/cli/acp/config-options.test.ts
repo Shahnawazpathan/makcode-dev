@@ -12,13 +12,13 @@ import {
   verifierConfig,
 } from "./helpers"
 
-describe("makcode acp config option subprocess", () => {
+describe("opencode acp config option subprocess", () => {
   cliIt.live(
     'model option is listed with category "model"',
-    ({ home, llm, makcode }) =>
+    ({ home, llm, opencode }) =>
       Effect.gen(function* () {
         const acp = yield* createAcpClient(
-          { makcode },
+          { opencode },
           { OPENCODE_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
         )
         yield* initialize(acp)
@@ -33,10 +33,10 @@ describe("makcode acp config option subprocess", () => {
 
   cliIt.live(
     "model switch updates currentValue",
-    ({ home, llm, makcode }) =>
+    ({ home, llm, opencode }) =>
       Effect.gen(function* () {
         const acp = yield* createAcpClient(
-          { makcode },
+          { opencode },
           { OPENCODE_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
         )
         yield* initialize(acp)
@@ -60,10 +60,10 @@ describe("makcode acp config option subprocess", () => {
 
   cliIt.live(
     'effort option is listed with category "thought_level" when selected model supports variants',
-    ({ home, llm, makcode }) =>
+    ({ home, llm, opencode }) =>
       Effect.gen(function* () {
         const acp = yield* createAcpClient(
-          { makcode },
+          { opencode },
           { OPENCODE_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
         )
         yield* initialize(acp)
@@ -78,10 +78,10 @@ describe("makcode acp config option subprocess", () => {
 
   cliIt.live(
     "effort switch updates currentValue",
-    ({ home, llm, makcode }) =>
+    ({ home, llm, opencode }) =>
       Effect.gen(function* () {
         const acp = yield* createAcpClient(
-          { makcode },
+          { opencode },
           { OPENCODE_CONFIG_CONTENT: JSON.stringify(verifierConfig(llm.url)) },
         )
         yield* initialize(acp)

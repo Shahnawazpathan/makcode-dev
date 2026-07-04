@@ -330,7 +330,7 @@ export const Event = {
 
 export function plan(input: { slug: string; time: { created: number } }, instance: InstanceContext) {
   const base = instance.project.vcs
-    ? path.join(instance.worktree, ".makcode", "plans")
+    ? path.join(instance.worktree, ".opencode", "plans")
     : path.join(Global.Path.data, "plans")
   return path.join(base, [input.time.created, input.slug].join("-") + ".md")
 }
@@ -473,7 +473,7 @@ export interface Interface {
   ) => Effect.Effect<Option.Option<SessionV1.WithParts>, NotFound>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/Session") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Session") {}
 
 export const use = serviceUse(Service)
 

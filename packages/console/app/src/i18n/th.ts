@@ -43,8 +43,8 @@ export const dict = {
   "notFound.docs": "เอกสาร",
   "notFound.github": "GitHub",
   "notFound.discord": "Discord",
-  "notFound.logoLightAlt": "โลโก้ makcode แบบสว่าง",
-  "notFound.logoDarkAlt": "โลโก้ makcode แบบมืด",
+  "notFound.logoLightAlt": "โลโก้ opencode แบบสว่าง",
+  "notFound.logoDarkAlt": "โลโก้ opencode แบบมืด",
 
   "user.logout": "ออกจากระบบ",
 
@@ -98,8 +98,8 @@ export const dict = {
   "temp.feature.models.afterLink": "รวมถึงโมเดล Local",
   "temp.screenshot.caption": "MakCode TUI พร้อมธีม tokyonight",
   "temp.screenshot.alt": "MakCode TUI พร้อมธีม tokyonight",
-  "temp.logoLightAlt": "โลโก้ makcode แบบสว่าง",
-  "temp.logoDarkAlt": "โลโก้ makcode แบบมืด",
+  "temp.logoLightAlt": "โลโก้ opencode แบบสว่าง",
+  "temp.logoDarkAlt": "โลโก้ opencode แบบมืด",
 
   "home.banner.badge": "ใหม่",
   "home.banner.text": "แอปเดสก์ท็อปพร้อมใช้งานในเวอร์ชันเบต้า",
@@ -649,7 +649,7 @@ export const dict = {
   "workspace.lite.subscription.resetsIn": "รีเซ็ตใน",
   "workspace.lite.subscription.useBalance": "ใช้ยอดคงเหลือของคุณหลังจากถึงขีดจำกัดการใช้งาน",
   "workspace.lite.subscription.selectProvider":
-    'เลือก "MakCode Go" เป็นผู้ให้บริการในการตั้งค่า makcode ของคุณเพื่อใช้โมเดล Go',
+    'เลือก "MakCode Go" เป็นผู้ให้บริการในการตั้งค่า opencode ของคุณเพื่อใช้โมเดล Go',
   "workspace.lite.providers.title": "ผู้ให้บริการ",
   "workspace.lite.providers.description": "ควบคุมผู้ให้บริการที่ใช้สำหรับการกำหนดเส้นทาง",
   "workspace.lite.providers.useChina": "เปิดใช้โมเดลที่โฮสต์ในจีน",

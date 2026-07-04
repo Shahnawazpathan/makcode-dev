@@ -21,8 +21,8 @@ const options = {
   },
   "mdns-domain": {
     type: "string" as const,
-    describe: "custom domain name for mDNS service (default: makcode.local)",
-    default: "makcode.local",
+    describe: "custom domain name for mDNS service (default: opencode.local)",
+    default: "opencode.local",
   },
   cors: {
     type: "string" as const,

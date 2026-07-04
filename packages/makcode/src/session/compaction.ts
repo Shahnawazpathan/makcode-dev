@@ -149,7 +149,7 @@ export interface Interface {
   }) => Effect.Effect<void>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/SessionCompaction") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/SessionCompaction") {}
 
 export const use = serviceUse(Service)
 

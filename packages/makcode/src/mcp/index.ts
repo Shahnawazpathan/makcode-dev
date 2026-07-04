@@ -38,13 +38,13 @@ import { McpEvent } from "@makcode-ai/schema/mcp-event"
 const DEFAULT_TIMEOUT = 30_000
 const CLIENT_OPTIONS = {
   capabilities: {
-    // https://github.com/anomalyco/makcode/issues/11948
+    // https://github.com/anomalyco/opencode/issues/11948
     // sampling: {},
-    // https://github.com/anomalyco/makcode/issues/23066
+    // https://github.com/anomalyco/opencode/issues/23066
     // elicitation: {},
-    // https://github.com/anomalyco/makcode/issues/2308
+    // https://github.com/anomalyco/opencode/issues/2308
     roots: {},
-    // https://github.com/anomalyco/makcode/issues/28567
+    // https://github.com/anomalyco/opencode/issues/28567
     // tasks: {},
   },
 } satisfies ClientOptions
@@ -73,7 +73,7 @@ export class NotFoundError extends Schema.TaggedErrorClass<NotFoundError>()("MCP
 type MCPClient = Client
 
 function createClient(directory: string) {
-  const client = new Client({ name: "makcode", version: InstallationVersion }, CLIENT_OPTIONS)
+  const client = new Client({ name: "opencode", version: InstallationVersion }, CLIENT_OPTIONS)
   client.setRequestHandler(ListRootsRequestSchema, () =>
     Promise.resolve({ roots: [{ uri: pathToFileURL(directory).href }] }),
   )
@@ -197,7 +197,7 @@ export interface Interface {
   readonly getAuthStatus: (mcpName: string) => Effect.Effect<AuthStatus>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/MCP") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/MCP") {}
 
 export const use = serviceUse(Service)
 
@@ -313,7 +313,7 @@ const layer = Layer.effect(
                 return events
                   .publish(TuiEvent.ToastShow, {
                     title: "MCP Authentication Required",
-                    message: `Server "${key}" requires authentication. Run: makcode mcp auth ${key}`,
+                    message: `Server "${key}" requires authentication. Run: opencode mcp auth ${key}`,
                     variant: "warning",
                     duration: 8000,
                   })
@@ -350,7 +350,7 @@ const layer = Layer.effect(
         cwd,
         env: {
           ...process.env,
-          ...(cmd === "makcode" ? { BUN_BE_BUN: "1" } : {}),
+          ...(cmd === "opencode" ? { BUN_BE_BUN: "1" } : {}),
           ...mcp.environment,
         },
       })

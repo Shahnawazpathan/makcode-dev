@@ -139,8 +139,8 @@ const icons = {
   },
 }
 
-const spriteID = "makcode-v2-icon-sprite"
-const symbol = (name: keyof typeof icons) => `makcode-v2-icon-${name}`
+const spriteID = "opencode-v2-icon-sprite"
+const symbol = (name: keyof typeof icons) => `opencode-v2-icon-${name}`
 let spriteInserted = false
 
 function ensureSprite() {

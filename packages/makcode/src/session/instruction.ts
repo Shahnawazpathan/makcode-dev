@@ -43,7 +43,7 @@ export interface Interface {
   ) => Effect.Effect<{ filepath: string; content: string }[], FSUtil.Error>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/Instruction") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Instruction") {}
 
 const layer: Layer.Layer<
   Service,

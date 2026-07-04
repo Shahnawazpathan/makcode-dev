@@ -96,7 +96,7 @@ export const loadProjectsQuery = (scope: ServerScope, sdk: OpencodeClient) =>
         sdk.project.list().then((x) => {
           return (x.data ?? [])
             .filter((p) => !!p?.id)
-            .filter((p) => !!p.worktree && !p.worktree.includes("makcode-test"))
+            .filter((p) => !!p.worktree && !p.worktree.includes("opencode-test"))
             .slice()
             .sort((a, b) => cmp(a.id, b.id))
         }),

@@ -11,7 +11,7 @@ import { LocaleLinks } from "~/component/locale-links"
 import { config } from "~/config"
 import { useI18n } from "~/context/i18n"
 import { useLanguage } from "~/context/language"
-import desktopAppIcon from "../../asset/lander/makcode-desktop-icon.png"
+import desktopAppIcon from "../../asset/lander/opencode-desktop-icon.png"
 import type { DownloadPlatform } from "./types"
 
 type OS = "macOS" | "Windows" | "Linux" | null
@@ -125,27 +125,27 @@ export default function Download() {
                 </code>
                 <CopyStatus />
               </button>
-              <button data-component="cli-row" onClick={handleCopyClick("npm i -g makcode-ai")}>
+              <button data-component="cli-row" onClick={handleCopyClick("npm i -g opencode-ai")}>
                 <code>
-                  npm i -g <strong>makcode-ai</strong>
+                  npm i -g <strong>opencode-ai</strong>
                 </code>
                 <CopyStatus />
               </button>
-              <button data-component="cli-row" onClick={handleCopyClick("bun add -g makcode-ai")}>
+              <button data-component="cli-row" onClick={handleCopyClick("bun add -g opencode-ai")}>
                 <code>
-                  bun add -g <strong>makcode-ai</strong>
+                  bun add -g <strong>opencode-ai</strong>
                 </code>
                 <CopyStatus />
               </button>
-              <button data-component="cli-row" onClick={handleCopyClick("brew install shahnawaz-pathan/tap/makcode")}>
+              <button data-component="cli-row" onClick={handleCopyClick("brew install anomalyco/tap/opencode")}>
                 <code>
-                  brew install <strong>shahnawaz-pathan/tap/makcode</strong>
+                  brew install <strong>anomalyco/tap/opencode</strong>
                 </code>
                 <CopyStatus />
               </button>
-              <button data-component="cli-row" onClick={handleCopyClick("paru -S makcode")}>
+              <button data-component="cli-row" onClick={handleCopyClick("paru -S opencode")}>
                 <code>
-                  paru -S <strong>makcode</strong>
+                  paru -S <strong>opencode</strong>
                 </code>
                 <CopyStatus />
               </button>
@@ -157,9 +157,9 @@ export default function Download() {
               <span>[2]</span> {i18n.t("download.section.desktop")}
             </div>
             <div data-component="section-content">
-              <button data-component="cli-row" onClick={handleCopyClick("brew install --cask makcode-desktop")}>
+              <button data-component="cli-row" onClick={handleCopyClick("brew install --cask opencode-desktop")}>
                 <code>
-                  brew install --cask <strong>makcode-desktop</strong>
+                  brew install --cask <strong>opencode-desktop</strong>
                 </code>
                 <CopyStatus />
               </button>

@@ -44,8 +44,8 @@ export const dict = {
   "notFound.docs": "Documentation",
   "notFound.github": "GitHub",
   "notFound.discord": "Discord",
-  "notFound.logoLightAlt": "makcode logo light",
-  "notFound.logoDarkAlt": "makcode logo dark",
+  "notFound.logoLightAlt": "opencode logo light",
+  "notFound.logoDarkAlt": "opencode logo dark",
 
   "user.logout": "Se déconnecter",
 
@@ -96,8 +96,8 @@ export const dict = {
   "temp.feature.models.afterLink": ", y compris les modèles locaux",
   "temp.screenshot.caption": "MakCode TUI avec le thème tokyonight",
   "temp.screenshot.alt": "MakCode TUI avec le thème tokyonight",
-  "temp.logoLightAlt": "makcode logo light",
-  "temp.logoDarkAlt": "makcode logo dark",
+  "temp.logoLightAlt": "opencode logo light",
+  "temp.logoDarkAlt": "opencode logo dark",
 
   "home.banner.badge": "Nouveau",
   "home.banner.text": "Application desktop disponible en bêta",
@@ -662,7 +662,7 @@ export const dict = {
   "workspace.lite.subscription.useBalance":
     "Utilisez votre solde disponible après avoir atteint les limites d'utilisation",
   "workspace.lite.subscription.selectProvider":
-    'Sélectionnez "MakCode Go" comme fournisseur dans votre configuration makcode pour utiliser les modèles Go.',
+    'Sélectionnez "MakCode Go" comme fournisseur dans votre configuration opencode pour utiliser les modèles Go.',
   "workspace.lite.providers.title": "Fournisseurs",
   "workspace.lite.providers.description": "Contrôlez les fournisseurs utilisés pour le routage.",
   "workspace.lite.providers.useChina": "Activer les modèles hébergés en Chine",

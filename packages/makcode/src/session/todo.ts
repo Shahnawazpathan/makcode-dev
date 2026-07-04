@@ -18,7 +18,7 @@ export interface Interface {
   readonly get: (sessionID: SessionID) => Effect.Effect<Info[]>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/SessionTodo") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/SessionTodo") {}
 
 const layer = Layer.effect(
   Service,

@@ -50,7 +50,7 @@ const bootstrapFixture = Effect.gen(function* () {
   )
   yield* Effect.promise(() =>
     Bun.write(
-      path.join(dir, "makcode.json"),
+      path.join(dir, "opencode.json"),
       JSON.stringify({
         $schema: "https://opencode.ai/config.json",
         plugin: [pathToFileURL(pluginFile).href],

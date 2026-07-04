@@ -46,7 +46,7 @@ import { ModelV2 } from "@makcode-ai/core/model"
 import { Provider } from "@/provider/provider"
 import type { Command } from "@/command"
 
-export const AuthMethodID = "makcode-login"
+export const AuthMethodID = "opencode-login"
 
 export type Error = ACPError.Error
 type ServiceConnection = Pick<AgentSideConnection, "sessionUpdate"> &
@@ -70,7 +70,7 @@ export type Interface = {
   readonly cancel: (input: CancelNotification) => Effect.Effect<void, Error>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/ACP/Service") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/ACP/Service") {}
 
 export function make(input: {
   sdk: OpencodeClient
@@ -92,15 +92,15 @@ export function make(input: {
   const initialize = Effect.fn("ACP.initialize")(function* (params: InitializeRequest) {
     const started = performance.now()
     const authMethod: AuthMethod = {
-      description: "Run `makcode auth login` in the terminal",
-      name: "Login with makcode",
+      description: "Run `opencode auth login` in the terminal",
+      name: "Login with opencode",
       id: AuthMethodID,
     }
 
     if (params.clientCapabilities?._meta?.["terminal-auth"] === true) {
       authMethod._meta = {
         "terminal-auth": {
-          command: "makcode",
+          command: "opencode",
           args: ["auth", "login"],
           label: "MakCode Login",
         },
@@ -782,11 +782,11 @@ function defaultModelFromConfig(
   if (configured && providers[configured.providerID]?.models[configured.modelID]) return configured
 
   // First-session ACP startup must not scan historical sessions just to infer
-  // a default. Configured model, makcode provider, then sorted best model keep
+  // a default. Configured model, opencode provider, then sorted best model keep
   // the protocol response deterministic without extra session/message reads.
-  const makcodeProvider = providers[ProviderV2.ID.make("opencode")]
-  const makcodeModel = makcodeProvider ? Provider.sort(Object.values(makcodeProvider.models))[0] : undefined
-  if (makcodeProvider && makcodeModel) return { providerID: makcodeProvider.id, modelID: makcodeModel.id }
+  const opencodeProvider = providers[ProviderV2.ID.make("opencode")]
+  const opencodeModel = opencodeProvider ? Provider.sort(Object.values(opencodeProvider.models))[0] : undefined
+  if (opencodeProvider && opencodeModel) return { providerID: opencodeProvider.id, modelID: opencodeModel.id }
 
   const best = Provider.sort(Object.values(providers).flatMap((provider) => Object.values(provider.models)))[0]
   if (best) return { providerID: best.providerID, modelID: best.id }

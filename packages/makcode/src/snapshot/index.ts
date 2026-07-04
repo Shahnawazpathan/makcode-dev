@@ -44,7 +44,7 @@ export interface Interface {
   readonly diffFull: (from: string, to: string) => Effect.Effect<FileDiff[]>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/Snapshot") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Snapshot") {}
 
 const layer: Layer.Layer<Service, never, FSUtil.Service | AppProcess.Service | Config.Service> = Layer.effect(
   Service,

@@ -94,9 +94,9 @@ export function WslServerSettings(props: {
       <For each={props.servers()}>
         {(item) => {
           const key = ServerConnection.Key.make(item.config.id)
-          const check = () => wsl.data?.makcodeChecks[item.config.distro]
-          const makcodeAction = () => wslOpencodeAction(check())
-          const busy = () => wsl.data?.job?.kind === "install-makcode" && wsl.data.job.distro === item.config.distro
+          const check = () => wsl.data?.opencodeChecks[item.config.distro]
+          const opencodeAction = () => wslOpencodeAction(check())
+          const busy = () => wsl.data?.job?.kind === "install-opencode" && wsl.data.job.distro === item.config.distro
           return (
             <div class="settings-v2-servers-row">
               <div class="settings-v2-servers-lead">
@@ -117,7 +117,7 @@ export function WslServerSettings(props: {
                 <Show when={props.controller.canDefault() && props.controller.defaultKey() === key}>
                   <Tag>{language.t("dialog.server.status.default")}</Tag>
                 </Show>
-                <Show when={makcodeAction()}>
+                <Show when={opencodeAction()}>
                   {(label) => (
                     <ButtonV2
                       size="small"

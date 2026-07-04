@@ -422,7 +422,7 @@ describe("session.llm-native.request", () => {
         provider: { ...providerInfo, id: ProviderV2.ID.make("google") },
         auth: undefined,
       }),
-    ).toEqual({ type: "unsupported", reason: "provider is not openai, makcode, or anthropic" })
+    ).toEqual({ type: "unsupported", reason: "provider is not openai, opencode, or anthropic" })
     expect(
       LLMNativeRuntime.status({
         model: baseModel,
@@ -475,7 +475,7 @@ describe("session.llm-native.request", () => {
     ).toMatchObject({ type: "supported", apiKey: "test-anthropic-key" })
   })
 
-  test("prefers console provider api key over stored makcode auth", () => {
+  test("prefers console provider api key over stored opencode auth", () => {
     expect(
       LLMNativeRuntime.status({
         model: { ...baseModel, providerID: ProviderV2.ID.make("opencode") },

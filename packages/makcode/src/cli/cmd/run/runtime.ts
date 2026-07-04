@@ -1,4 +1,4 @@
-// Top-level orchestrator for `makcode --mini`.
+// Top-level orchestrator for `opencode --mini`.
 //
 // Wires the boot sequence, lifecycle (renderer + footer), stream transport,
 // and prompt queue together into a single session loop. Two entry points:
@@ -734,7 +734,7 @@ async function runInteractiveRuntime(input: RunRuntimeInput, deps: RunRuntimeDep
 // the in-process server, so no external HTTP server is needed.
 export async function runInteractiveLocalMode(input: RunLocalInput): Promise<void> {
   const sdk = createOpencodeClient({
-    baseUrl: "http://makcode.internal",
+    baseUrl: "http://opencode.internal",
     fetch: input.fetch,
     directory: input.directory,
   })

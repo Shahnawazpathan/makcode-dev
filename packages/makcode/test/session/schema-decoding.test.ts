@@ -53,7 +53,7 @@ describe("Session.Info", () => {
       projectID,
       workspaceID,
       directory: "/tmp/proj",
-      path: "packages/makcode",
+      path: "packages/opencode",
       parentID: sessionIDChild,
       summary: {
         additions: 10,
@@ -238,7 +238,7 @@ describe("SessionStatus.Info", () => {
         reason: "free_tier_limit",
         provider: "opencode",
         title: "Free limit reached",
-        message: "Subscribe to MakCode Go.",
+        message: "Subscribe to OpenCode Go.",
         label: "subscribe",
         link: "https://opencode.ai/go",
       },

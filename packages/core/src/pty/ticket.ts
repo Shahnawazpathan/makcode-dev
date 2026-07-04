@@ -22,7 +22,7 @@ export interface Interface {
   consume(input: Scope & { readonly ticket: string }): Effect.Effect<boolean>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/PtyTicket") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/PtyTicket") {}
 
 function matches(record: Scope, input: Scope) {
   return (

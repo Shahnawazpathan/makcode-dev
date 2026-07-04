@@ -19,7 +19,7 @@ function readyState(input: Partial<WslServersState> = {}): WslServersState {
     installed: [],
     online: [],
     distroProbes: {},
-    makcodeChecks: {},
+    opencodeChecks: {},
     pendingRestart: false,
     servers: [],
     job: null,
@@ -52,7 +52,7 @@ describe("WSL server settings presentation", () => {
     expect(
       wslOpencodeAction({
         distro: "Debian",
-        resolvedPath: "/usr/local/bin/makcode",
+        resolvedPath: "/usr/local/bin/opencode",
         version: "1.2.2",
         expectedVersion: "1.2.3",
         matchesDesktop: false,
@@ -62,7 +62,7 @@ describe("WSL server settings presentation", () => {
     expect(
       wslOpencodeAction({
         distro: "Debian",
-        resolvedPath: "/usr/local/bin/makcode",
+        resolvedPath: "/usr/local/bin/opencode",
         version: "1.2.3",
         expectedVersion: "1.2.3",
         matchesDesktop: true,
@@ -188,14 +188,14 @@ describe("WSL server settings presentation", () => {
         distroProbes: {
           Debian: { name: "Debian", canExecute: true, hasBash: true, hasCurl: true, error: null },
         },
-        makcodeChecks: {
+        opencodeChecks: {
           Debian: {
             distro: "Debian",
-            resolvedPath: "/home/me/.makcode/bin/makcode",
+            resolvedPath: "/home/me/.opencode/bin/opencode",
             version: null,
             expectedVersion: "1.2.3",
             matchesDesktop: null,
-            error: "makcode is installed but could not run",
+            error: "opencode is installed but could not run",
           },
         },
       },
@@ -211,7 +211,7 @@ describe("WSL server settings presentation", () => {
       label: { key: "wsl.onboarding.installOpencode" },
       tone: "warning",
     })
-    expect(model.primaryButton.action).toBe("install-makcode")
+    expect(model.primaryButton.action).toBe("install-opencode")
   })
 
   test("delegates addable probe plans to one batch command", async () => {

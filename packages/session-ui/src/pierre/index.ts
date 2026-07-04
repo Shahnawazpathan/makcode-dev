@@ -53,11 +53,11 @@ const unsafeCSS = `
   background-color: var(--diffs-bg-selection-text);
 }
 
-::highlight(makcode-find) {
+::highlight(opencode-find) {
   background-color: rgb(from var(--surface-warning-base) r g b / 0.35);
 }
 
-::highlight(makcode-find-current) {
+::highlight(opencode-find-current) {
   background-color: rgb(from var(--surface-warning-strong) r g b / 0.55);
 }
 

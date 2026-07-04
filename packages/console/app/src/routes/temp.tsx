@@ -113,7 +113,7 @@ export default function Home() {
             <h3 data-component="title">npm</h3>
             <button data-copy data-slot="button">
               <span>
-                npm install -g <strong>makcode-ai</strong>
+                npm install -g <strong>opencode-ai</strong>
               </span>
               <CopyStatus />
             </button>
@@ -122,7 +122,7 @@ export default function Home() {
             <h3 data-component="title">bun</h3>
             <button data-copy data-slot="button">
               <span>
-                bun install -g <strong>makcode-ai</strong>
+                bun install -g <strong>opencode-ai</strong>
               </span>
               <CopyStatus />
             </button>
@@ -131,7 +131,7 @@ export default function Home() {
             <h3 data-component="title">homebrew</h3>
             <button data-copy data-slot="button">
               <span>
-                brew install <strong>makcode</strong>
+                brew install <strong>opencode</strong>
               </span>
               <CopyStatus />
             </button>
@@ -140,7 +140,7 @@ export default function Home() {
             <h3 data-component="title">paru</h3>
             <button data-copy data-slot="button">
               <span>
-                paru -S <strong>makcode-bin</strong>
+                paru -S <strong>opencode-bin</strong>
               </span>
               <CopyStatus />
             </button>
@@ -158,10 +158,10 @@ export default function Home() {
 
         <footer data-component="footer">
           <div data-slot="cell">
-            <a href="https://x.com/makcode">{i18n.t("footer.x")}</a>
+            <a href="https://x.com/opencode">{i18n.t("footer.x")}</a>
           </div>
           <div data-slot="cell">
-            <a href="https://github.com/Shahnawazpathan/makcode-dev">{i18n.t("footer.github")}</a>
+            <a href="https://github.com/anomalyco/opencode">{i18n.t("footer.github")}</a>
           </div>
           <div data-slot="cell">
             <a href="https://opencode.ai/discord">{i18n.t("footer.discord")}</a>

@@ -37,7 +37,7 @@ export function evaluate(permission: string, pattern: string, ...rulesets: Permi
   )
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/Permission") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Permission") {}
 
 const layer = Layer.effect(
   Service,

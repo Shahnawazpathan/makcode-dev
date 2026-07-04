@@ -56,8 +56,8 @@ const v2ApiLayer = HttpRouter.serve(
   { disableListenLog: true, disableLogger: true },
 ).pipe(Layer.provideMerge(NodeHttpServer.layerTest))
 
-const noAuthLayer = ServerAuth.Config.configLayer({ password: Option.none(), username: "makcode" })
-const secretLayer = ServerAuth.Config.configLayer({ password: Option.some("secret"), username: "makcode" })
+const noAuthLayer = ServerAuth.Config.configLayer({ password: Option.none(), username: "opencode" })
+const secretLayer = ServerAuth.Config.configLayer({ password: Option.some("secret"), username: "opencode" })
 const kitSecretLayer = ServerAuth.Config.configLayer({ password: Option.some("secret"), username: "kit" })
 
 const it = testEffect(apiLayer.pipe(Layer.provide(noAuthLayer)))
@@ -90,8 +90,8 @@ describe("HttpApi authorization middleware", () => {
       const [missing, badPassword, good] = yield* Effect.all(
         [
           getProbe(),
-          getProbe({ authorization: basic("makcode", "wrong") }),
-          getProbe({ authorization: basic("makcode", "secret") }),
+          getProbe({ authorization: basic("opencode", "wrong") }),
+          getProbe({ authorization: basic("opencode", "secret") }),
         ],
         { concurrency: "unbounded" },
       )
@@ -107,7 +107,7 @@ describe("HttpApi authorization middleware", () => {
   itKitSecret.live("respects configured basic auth username", () =>
     Effect.gen(function* () {
       const [defaultUser, configuredUser] = yield* Effect.all(
-        [getProbe({ authorization: basic("makcode", "secret") }), getProbe({ authorization: basic("kit", "secret") })],
+        [getProbe({ authorization: basic("opencode", "secret") }), getProbe({ authorization: basic("kit", "secret") })],
         { concurrency: "unbounded" },
       )
 
@@ -118,7 +118,7 @@ describe("HttpApi authorization middleware", () => {
 
   itSecret.live("accepts auth token query credentials", () =>
     Effect.gen(function* () {
-      const response = yield* HttpClient.get(`/probe?auth_token=${encodeURIComponent(token("makcode", "secret"))}`)
+      const response = yield* HttpClient.get(`/probe?auth_token=${encodeURIComponent(token("opencode", "secret"))}`)
 
       expect(response.status).toBe(200)
     }),
@@ -127,8 +127,8 @@ describe("HttpApi authorization middleware", () => {
   itSecret.live("prefers auth token query credentials over basic auth", () =>
     Effect.gen(function* () {
       const response = yield* HttpClientRequest.get(
-        `/probe?auth_token=${encodeURIComponent(token("makcode", "secret"))}`,
-      ).pipe(HttpClientRequest.setHeader("authorization", basic("makcode", "wrong")), HttpClient.execute)
+        `/probe?auth_token=${encodeURIComponent(token("opencode", "secret"))}`,
+      ).pipe(HttpClientRequest.setHeader("authorization", basic("opencode", "wrong")), HttpClient.execute)
 
       expect(response.status).toBe(200)
     }),
@@ -137,7 +137,7 @@ describe("HttpApi authorization middleware", () => {
   itSecret.live("preserves handler errors when basic auth succeeds", () =>
     Effect.gen(function* () {
       const response = yield* HttpClientRequest.get("/missing").pipe(
-        HttpClientRequest.setHeader("authorization", basic("makcode", "secret")),
+        HttpClientRequest.setHeader("authorization", basic("opencode", "secret")),
         HttpClient.execute,
       )
 
@@ -147,7 +147,7 @@ describe("HttpApi authorization middleware", () => {
 
   itSecret.live("preserves handler errors when auth token query succeeds", () =>
     Effect.gen(function* () {
-      const response = yield* HttpClient.get(`/missing?auth_token=${encodeURIComponent(token("makcode", "secret"))}`)
+      const response = yield* HttpClient.get(`/missing?auth_token=${encodeURIComponent(token("opencode", "secret"))}`)
 
       expect(response.status).toBe(404)
     }),

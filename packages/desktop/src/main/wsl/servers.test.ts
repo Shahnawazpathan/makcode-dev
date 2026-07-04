@@ -55,7 +55,7 @@ test("clears cached distro probes when removing a WSL server", () => {
       {
         Debian: {
           distro: "Debian",
-          resolvedPath: "/home/luke/.makcode/bin/makcode",
+          resolvedPath: "/home/luke/.opencode/bin/opencode",
           version: "1.16.2",
           expectedVersion: "1.16.2",
           matchesDesktop: true,
@@ -64,7 +64,7 @@ test("clears cached distro probes when removing a WSL server", () => {
       },
       "Debian",
     ),
-  ).toEqual({ distroProbes: {}, makcodeChecks: {} })
+  ).toEqual({ distroProbes: {}, opencodeChecks: {} })
 })
 
 test("opens terminals for distro names containing spaces", () => {
@@ -115,7 +115,7 @@ test("ignores stale background MakCode checks after removing a WSL server", asyn
         onExit: () => undefined,
       },
       url: "http://127.0.0.1:4096",
-      username: "makcode",
+      username: "opencode",
       password: "secret",
     }),
     testControllerOptions(),
@@ -128,7 +128,7 @@ test("ignores stale background MakCode checks after removing a WSL server", asyn
   await new Promise((resolve) => setTimeout(resolve, 0))
 
   expect(controller.getState().servers).toEqual([])
-  expect(controller.getState().makcodeChecks).toEqual({})
+  expect(controller.getState().opencodeChecks).toEqual({})
 })
 
 test("ignores stale startup MakCode checks after removing a WSL server", async () => {
@@ -147,10 +147,10 @@ test("ignores stale startup MakCode checks after removing a WSL server", async (
   await new Promise((resolve) => setTimeout(resolve, 0))
 
   expect(controller.getState().servers).toEqual([])
-  expect(controller.getState().makcodeChecks).toEqual({})
+  expect(controller.getState().opencodeChecks).toEqual({})
 })
 
-test("probes addable distros in parallel before checking OpenCode", async () => {
+test("probes addable distros in parallel before checking MakCode", async () => {
   persistedServers = []
   const started: string[] = []
   const release = new Map<string, () => void>()
@@ -181,7 +181,7 @@ test("probes addable distros in parallel before checking OpenCode", async () => 
   expect(Object.keys(controller.getState().opencodeChecks)).toEqual(["Debian", "Ubuntu"])
 })
 
-test("does not check OpenCode in addable distros that cannot execute commands", async () => {
+test("does not check MakCode in addable distros that cannot execute commands", async () => {
   persistedServers = []
   const opencode: string[] = []
   const controller = createWslServersController("1.16.2", async () => new Promise<never>(() => undefined), {
@@ -225,7 +225,7 @@ function testControllerOptions() {
       await new Promise<void>((resolve) => {
         releaseOpencodeResolve = resolve
       })
-      return "/home/me/.makcode/bin/makcode"
+      return "/home/me/.opencode/bin/opencode"
     },
   }
 }

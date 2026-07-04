@@ -17,14 +17,14 @@ const WWW_AUTHENTICATE = 'Basic realm="Secure Area"'
 // full handler, so a downstream failure can make the next auth alternative run
 // and remap an authorized NotFound into Unauthorized.
 export class Authorization extends HttpApiMiddleware.Service<Authorization>()(
-  "@makcode/ExperimentalHttpApiAuthorization",
+  "@opencode/ExperimentalHttpApiAuthorization",
   {
     error: HttpApiError.UnauthorizedNoContent,
   },
 ) {}
 
 export class PtyConnectAuthorization extends HttpApiMiddleware.Service<PtyConnectAuthorization>()(
-  "@makcode/ExperimentalHttpApiPtyConnectAuthorization",
+  "@opencode/ExperimentalHttpApiPtyConnectAuthorization",
   {
     error: HttpApiError.UnauthorizedNoContent,
   },

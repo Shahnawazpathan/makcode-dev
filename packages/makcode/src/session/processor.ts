@@ -76,7 +76,7 @@ interface ProcessorContext extends Input {
 
 type StreamEvent = LLMEvent
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/SessionProcessor") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/SessionProcessor") {}
 
 const layer = Layer.effect(
   Service,

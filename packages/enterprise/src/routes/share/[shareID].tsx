@@ -179,7 +179,7 @@ export default function () {
               modelParam = "unknown"
             }
             const version = `v${info().version}`
-            return `https://social-cards.sst.dev/makcode-share/${encodedTitle}.png?model=${modelParam}&version=${version}&id=${data().shareID}`
+            return `https://social-cards.sst.dev/opencode-share/${encodedTitle}.png?model=${modelParam}&version=${version}&id=${data().shareID}`
           })
 
           return (
@@ -187,7 +187,7 @@ export default function () {
               <Show when={info().title}>
                 <Title>{info().title} | MakCode</Title>
               </Show>
-              <Meta name="description" content="makcode - The AI coding agent built for the terminal." />
+              <Meta name="description" content="opencode - The AI coding agent built for the terminal." />
               <Meta property="og:image" content={ogImage()} />
               <Meta name="twitter:image" content={ogImage()} />
               <ClientOnlyWorkerPoolProvider>
@@ -281,7 +281,7 @@ export default function () {
                             <div class="flex gap-3 items-center">
                               <IconButton
                                 as={"a"}
-                                href="https://github.com/anomalyco/makcode"
+                                href="https://github.com/anomalyco/opencode"
                                 target="_blank"
                                 icon="github"
                                 variant="ghost"

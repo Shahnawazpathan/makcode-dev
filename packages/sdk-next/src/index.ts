@@ -1,4 +1,4 @@
-export * as OpenCode from "./opencode"
+export * as MakCode from "./opencode"
 export * as Tool from "./tool"
 
 export { ClientError } from "@makcode-ai/client/effect"

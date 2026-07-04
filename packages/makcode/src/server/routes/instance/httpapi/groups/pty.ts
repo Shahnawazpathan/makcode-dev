@@ -130,7 +130,7 @@ export const PtyApi = HttpApi.make("pty")
   )
   .annotateMerge(
     OpenApi.annotations({
-      title: "makcode experimental HttpApi",
+      title: "opencode experimental HttpApi",
       version: "0.0.1",
       description: "Experimental HttpApi surface for selected instance routes.",
     }),

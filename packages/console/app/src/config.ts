@@ -7,7 +7,7 @@ export const config = {
 
   // GitHub
   github: {
-    repoUrl: "https://github.com/Shahnawazpathan/makcode-dev",
+    repoUrl: "https://github.com/anomalyco/opencode",
     starsFormatted: {
       compact: "160K",
       full: "160,000",
@@ -16,8 +16,8 @@ export const config = {
 
   // Social links
   social: {
-    twitter: "https://x.com/makcode",
-    discord: "https://discord.gg/makcode",
+    twitter: "https://x.com/opencode",
+    discord: "https://discord.gg/opencode",
   },
 
   // Static stats (used on landing page)

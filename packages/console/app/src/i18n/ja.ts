@@ -43,8 +43,8 @@ export const dict = {
   "notFound.docs": "ドキュメント",
   "notFound.github": "GitHub",
   "notFound.discord": "Discord",
-  "notFound.logoLightAlt": "makcodeのロゴ（ライト）",
-  "notFound.logoDarkAlt": "makcodeのロゴ（ダーク）",
+  "notFound.logoLightAlt": "opencodeのロゴ（ライト）",
+  "notFound.logoDarkAlt": "opencodeのロゴ（ダーク）",
 
   "user.logout": "ログアウト",
 
@@ -98,8 +98,8 @@ export const dict = {
   "temp.feature.models.afterLink": "を通じて75以上のLLMプロバイダーをサポート",
   "temp.screenshot.caption": "tokyonight テーマを使用した MakCode TUI",
   "temp.screenshot.alt": "tokyonight テーマの MakCode TUI",
-  "temp.logoLightAlt": "makcodeのロゴ（ライト）",
-  "temp.logoDarkAlt": "makcodeのロゴ（ダーク）",
+  "temp.logoLightAlt": "opencodeのロゴ（ライト）",
+  "temp.logoDarkAlt": "opencodeのロゴ（ダーク）",
 
   "home.banner.badge": "新着",
   "home.banner.text": "デスクトップアプリのベータ版が利用可能",
@@ -654,7 +654,7 @@ export const dict = {
   "workspace.lite.subscription.resetsIn": "リセットまで",
   "workspace.lite.subscription.useBalance": "利用限度額に達したら利用可能な残高を使用する",
   "workspace.lite.subscription.selectProvider":
-    "Go モデルを使用するには、makcode の設定で「MakCode Go」をプロバイダーとして選択してください。",
+    "Go モデルを使用するには、opencode の設定で「MakCode Go」をプロバイダーとして選択してください。",
   "workspace.lite.providers.title": "プロバイダー",
   "workspace.lite.providers.description": "ルーティングに使用するプロバイダーを管理します。",
   "workspace.lite.providers.useChina": "中国でホストされているモデルを有効にする",

@@ -51,14 +51,14 @@ export const ServerApi = makeApi({
   sessionLocationMiddleware: SessionLocationMiddleware,
 })
 
-export const RootHttpApi = HttpApi.make("makcode-root")
+export const RootHttpApi = HttpApi.make("opencode-root")
   .addHttpApi(ControlApi)
   .addHttpApi(ControlPlaneApi)
   .addHttpApi(GlobalApi)
   .middleware(SchemaErrorMiddleware)
   .middleware(Authorization)
 
-export const InstanceHttpApi = HttpApi.make("makcode-instance")
+export const InstanceHttpApi = HttpApi.make("opencode-instance")
   .addHttpApi(ConfigApi)
   .addHttpApi(ExperimentalApi)
   .addHttpApi(FileApi)
@@ -76,7 +76,7 @@ export const InstanceHttpApi = HttpApi.make("makcode-instance")
   .addHttpApi(WorkspaceApi)
   .middleware(SchemaErrorMiddleware)
 
-export const MakCodeHttpApi = HttpApi.make("makcode")
+export const MakCodeHttpApi = HttpApi.make("opencode")
   .addHttpApi(RootHttpApi)
   .addHttpApi(EventApi)
   .addHttpApi(InstanceHttpApi)

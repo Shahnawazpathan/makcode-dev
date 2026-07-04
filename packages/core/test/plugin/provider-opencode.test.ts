@@ -7,7 +7,7 @@ import { Integration } from "@makcode-ai/core/integration"
 import { ModelV2 } from "@makcode-ai/core/model"
 import { PluginV2 } from "@makcode-ai/core/plugin"
 import { PluginHost } from "@makcode-ai/core/plugin/host"
-import { OpencodePlugin } from "@makcode-ai/core/plugin/provider/makcode"
+import { OpencodePlugin } from "@makcode-ai/core/plugin/provider/opencode"
 import { ProviderV2 } from "@makcode-ai/core/provider"
 import { testEffect } from "../lib/effect"
 import { PluginTestLayer } from "./fixture"
@@ -75,14 +75,14 @@ describe("OpencodePlugin", () => {
         {
           id: Integration.MethodID.make("device"),
           type: "oauth",
-          label: "MakCode Console account",
+          label: "OpenCode Console account",
         },
         { type: "key", label: "API key (service account)" },
       ])
     }),
   )
 
-  it.live("loads providers and models from the connected MakCode server", () =>
+  it.live("loads providers and models from the connected OpenCode server", () =>
     Effect.acquireUseRelease(
       Effect.sync(() => {
         const authorization: Array<string | null> = []
@@ -368,7 +368,7 @@ describe("OpencodePlugin", () => {
     ),
   )
 
-  it.effect("ignores non-makcode providers and models", () =>
+  it.effect("ignores non-opencode providers and models", () =>
     withEnv({ OPENCODE_API_KEY: undefined }, () =>
       Effect.gen(function* () {
         const catalog = yield* Catalog.Service
@@ -394,7 +394,7 @@ describe("OpencodePlugin", () => {
     ),
   )
 
-  it.effect("prefers gpt-5-nano as the makcode small model", () =>
+  it.effect("prefers gpt-5-nano as the opencode small model", () =>
     Effect.gen(function* () {
       const catalog = yield* Catalog.Service
       const providerID = ProviderV2.ID.opencode

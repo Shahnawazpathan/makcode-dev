@@ -1,6 +1,6 @@
 import type { Argv } from "yargs"
 import path from "path"
-import readline from "readline/promises"
+import readline from "readline"
 import { stdin as input, stdout as output } from "process"
 import { cmd } from "./cmd"
 import { UI } from "../ui"
@@ -139,13 +139,51 @@ export const TaskCommand = cmd<{}, TaskArgs>({
 })
 
 export async function ensureWorkspaceOrWizard(project?: string) {
+  // Only offer the interactive wizard on a real terminal; piped/scripted
+  // invocations must keep upstream behavior and start the TUI directly.
+  if (!process.stdin.isTTY || !process.stdout.isTTY) return false
   if (project || (await discover())) return false
   await runWizard()
   return true
 }
 
-export async function runWizard(existing?: Config) {
+type LineReader = {
+  question: (prompt: string) => Promise<string>
+  close: () => void
+}
+
+// rl.question loses lines that arrive between questions (piped stdin delivers
+// them in one chunk), so buffer every line and hand them out in order.
+function createLineReader(): LineReader {
   const rl = readline.createInterface({ input, output })
+  const pending: string[] = []
+  const waiting: Array<(value: string) => void> = []
+  let closed = false
+  rl.on("line", (line) => {
+    const next = waiting.shift()
+    if (next) next(line)
+    else pending.push(line)
+  })
+  rl.on("close", () => {
+    closed = true
+    while (waiting.length) waiting.shift()!("")
+  })
+  return {
+    question(prompt) {
+      output.write(prompt)
+      const buffered = pending.shift()
+      if (buffered !== undefined) return Promise.resolve(buffered)
+      if (closed) return Promise.resolve("")
+      return new Promise((resolve) => waiting.push(resolve))
+    },
+    close() {
+      rl.close()
+    },
+  }
+}
+
+export async function runWizard(existing?: Config) {
+  const rl = createLineReader()
   try {
     UI.println("--------------------------------")
     UI.println("Welcome to MakCode")
@@ -171,7 +209,7 @@ export async function runWizard(existing?: Config) {
   }
 }
 
-async function single(rl: readline.Interface, existing?: Config) {
+async function single(rl: LineReader, existing?: Config) {
   const projectPath = await validateDirectory(await ask(rl, "Project path [current directory]: ", process.cwd()))
   return create({
     projectType: "single",
@@ -182,7 +220,7 @@ async function single(rl: readline.Interface, existing?: Config) {
   })
 }
 
-async function separate(rl: readline.Interface, existing?: Config) {
+async function separate(rl: LineReader, existing?: Config) {
   UI.println("Which directory are you currently inside?")
   UI.println("1. Frontend")
   UI.println("2. Backend")
@@ -206,12 +244,12 @@ async function separate(rl: readline.Interface, existing?: Config) {
   })
 }
 
-async function ask(rl: readline.Interface, prompt: string, fallback: string) {
+async function ask(rl: LineReader, prompt: string, fallback: string) {
   const answer = (await rl.question(prompt)).trim()
   return answer || fallback
 }
 
-async function askDirectory(rl: readline.Interface, label: string, fallback?: string | null): Promise<string> {
+async function askDirectory(rl: LineReader, label: string, fallback?: string | null): Promise<string> {
   const prompt = fallback ? `${label} [${fallback}]: ` : `${label}: `
   const answer = (await rl.question(prompt)).trim()
   const value = answer || fallback

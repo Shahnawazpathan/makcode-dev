@@ -81,7 +81,7 @@ export interface Interface {
   }) => Effect.Effect<Tool.Def[]>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/ToolRegistry") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/ToolRegistry") {}
 
 const layer = Layer.effect(
   Service,

@@ -58,7 +58,7 @@ function model(input: {
     id: input.id,
     providerID: "opencode",
     api: {
-      id: "makcode",
+      id: "opencode",
       url: "https://opencode.ai",
       npm: "@ai-sdk/openai-compatible",
     },
@@ -106,8 +106,8 @@ function model(input: {
 
 function provider() {
   return {
-    id: "makcode",
-    name: "makcode",
+    id: "opencode",
+    name: "opencode",
     source: "api",
     env: [],
     options: {},
@@ -199,7 +199,7 @@ async function renderFooter(
           theme={input.theme ?? (() => RUN_THEME_FALLBACK)}
           tuiConfig={config}
           backgroundSubagents={input.backgroundSubagents ?? true}
-          agent="makcode"
+          agent="opencode"
           onSubmit={input.onSubmit ?? (() => true)}
           onPermissionReply={() => {}}
           onQuestionReply={() => {}}
@@ -952,7 +952,7 @@ test("direct footer shows editable prompts and additional queued work while runn
           theme={() => RUN_THEME_FALLBACK}
           tuiConfig={tuiConfig}
           backgroundSubagents={true}
-          agent="makcode"
+          agent="opencode"
           onSubmit={() => true}
           onPermissionReply={() => {}}
           onQuestionReply={() => {}}
@@ -1320,7 +1320,7 @@ test("direct model panel renders current model selector", async () => {
 
     expect(frame).toContain("Select model")
     expect(frame).toContain("Search")
-    expect(frame).toContain("makcode")
+    expect(frame).toContain("opencode")
     expect(frame).toContain("GPT-5")
     expect(frame).toContain("current")
     expect(frame).toContain("GPT Free")
