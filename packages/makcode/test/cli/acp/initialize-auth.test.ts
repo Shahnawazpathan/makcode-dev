@@ -4,12 +4,12 @@ import { Effect } from "effect"
 import { cliIt } from "../../lib/cli-process"
 import { createAcpClient, expectErrorCode, initialize } from "./helpers"
 
-describe("makcode acp initialize/auth subprocess", () => {
+describe("opencode acp initialize/auth subprocess", () => {
   cliIt.live(
     "initialize responds with capabilities",
-    ({ makcode }) =>
+    ({ opencode }) =>
       Effect.gen(function* () {
-        const initialized = yield* initialize(yield* createAcpClient({ makcode }))
+        const initialized = yield* initialize(yield* createAcpClient({ opencode }))
 
         expect(initialized.protocolVersion).toBe(1)
         expect(initialized.agentCapabilities?.promptCapabilities?.embeddedContext).toBe(true)
@@ -28,14 +28,14 @@ describe("makcode acp initialize/auth subprocess", () => {
 
   cliIt.live(
     "auth negotiation is explicit and safe",
-    ({ makcode }) =>
+    ({ opencode }) =>
       Effect.gen(function* () {
-        const acp = yield* createAcpClient({ makcode })
+        const acp = yield* createAcpClient({ opencode })
         const initialized = yield* initialize(acp)
 
-        expect(initialized.authMethods?.[0]?.id).toBe("makcode-login")
+        expect(initialized.authMethods?.[0]?.id).toBe("opencode-login")
         expect(initialized.authMethods?.[0]?._meta?.["terminal-auth"]).toBeDefined()
-        expect(yield* acp.request<AuthenticateResponse>("authenticate", { methodId: "makcode-login" })).toMatchObject({
+        expect(yield* acp.request<AuthenticateResponse>("authenticate", { methodId: "opencode-login" })).toMatchObject({
           result: {},
         })
 
@@ -48,12 +48,12 @@ describe("makcode acp initialize/auth subprocess", () => {
 
   cliIt.live(
     "initialize without terminal-auth metadata keeps auth command implicit",
-    ({ makcode }) =>
+    ({ opencode }) =>
       Effect.gen(function* () {
-        const acp = yield* createAcpClient({ makcode })
+        const acp = yield* createAcpClient({ opencode })
         const initialized = yield* acp.request<InitializeResponse>("initialize", { protocolVersion: 1 })
 
-        expect(initialized.result?.authMethods?.[0]?.id).toBe("makcode-login")
+        expect(initialized.result?.authMethods?.[0]?.id).toBe("opencode-login")
         expect(initialized.result?.authMethods?.[0]?._meta?.["terminal-auth"]).toBeUndefined()
       }),
     60_000,

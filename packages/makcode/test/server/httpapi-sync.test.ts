@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, mock } from "bun:test"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Context, Effect, Layer } from "effect"
 import { Flag } from "@makcode-ai/core/flag/flag"
 import { SyncPaths } from "../../src/server/routes/instance/httpapi/groups/sync"
@@ -11,7 +12,7 @@ import { httpApiLayer, requestInDirectory } from "./httpapi-layer"
 
 const originalWorkspaces = Flag.OPENCODE_EXPERIMENTAL_WORKSPACES
 const context = Context.empty() as Context.Context<unknown>
-const it = testEffect(Layer.mergeAll(Session.defaultLayer, httpApiLayer))
+const it = testEffect(Layer.mergeAll(LayerNode.compile(Session.node), httpApiLayer))
 
 afterEach(async () => {
   mock.restore()
@@ -27,7 +28,7 @@ describe("sync HttpApi", () => {
       Effect.gen(function* () {
         Flag.OPENCODE_EXPERIMENTAL_WORKSPACES = true
         const tmp = yield* TestInstance
-        const headers = { "x-makcode-directory": tmp.directory, "content-type": "application/json" }
+        const headers = { "x-opencode-directory": tmp.directory, "content-type": "application/json" }
         const session = yield* Session.use.create({ title: "sync" })
 
         const started = yield* requestInDirectory(SyncPaths.start, tmp.directory, { method: "POST", headers })
@@ -76,7 +77,7 @@ describe("sync HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const tmp = yield* TestInstance
-        const headers = { "x-makcode-directory": tmp.directory, "content-type": "application/json" }
+        const headers = { "x-opencode-directory": tmp.directory, "content-type": "application/json" }
         const cases = [
           {
             path: SyncPaths.history,
@@ -130,7 +131,7 @@ describe("sync HttpApi", () => {
           HttpApiApp.webHandler().handler(
             new Request(`http://localhost${SyncPaths.history}`, {
               method: "POST",
-              headers: { "x-makcode-directory": tmp.directory, "content-type": "application/json" },
+              headers: { "x-opencode-directory": tmp.directory, "content-type": "application/json" },
               body: JSON.stringify({ aggregate: -1 }),
             }),
             context,

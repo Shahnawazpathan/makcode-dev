@@ -1,5 +1,6 @@
 import type { McpServer } from "@agentclientprotocol/sdk"
 import type { Message, Part } from "@makcode-ai/sdk/v2"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { ProviderV2 } from "@makcode-ai/core/provider"
 import { ModelV2 } from "@makcode-ai/core/model"
 import { Context, Effect, Layer, Ref } from "effect"
@@ -89,11 +90,11 @@ export type Interface = {
   readonly tryGetPartMetadata: (input: PartMetadataLookupInput) => Effect.Effect<KnownMessagePartMetadata | undefined>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/ACP/Session") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/ACP/Session") {}
 
 type State = Map<string, Info>
 
-export const layer = Layer.effect(
+const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const sessions = yield* Ref.make<State>(new Map())
@@ -200,7 +201,7 @@ export const layer = Layer.effect(
   }),
 )
 
-export const defaultLayer = layer
+export const node = LayerNode.make({ service: Service, layer, deps: [] })
 
 function makeSession(input: StoreInput): Info {
   return {

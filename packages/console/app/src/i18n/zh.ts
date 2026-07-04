@@ -44,8 +44,8 @@ export const dict = {
   "notFound.docs": "文档",
   "notFound.github": "GitHub",
   "notFound.discord": "Discord",
-  "notFound.logoLightAlt": "makcode logo 亮色",
-  "notFound.logoDarkAlt": "makcode logo 暗色",
+  "notFound.logoLightAlt": "opencode logo 亮色",
+  "notFound.logoDarkAlt": "opencode logo 暗色",
 
   "user.logout": "退出登录",
 
@@ -99,8 +99,8 @@ export const dict = {
   "temp.feature.models.afterLink": "，包括本地模型",
   "temp.screenshot.caption": "使用 Tokyonight 主题的 MakCode TUI",
   "temp.screenshot.alt": "使用 Tokyonight 主题的 MakCode TUI",
-  "temp.logoLightAlt": "makcode logo 亮色",
-  "temp.logoDarkAlt": "makcode logo 暗色",
+  "temp.logoLightAlt": "opencode logo 亮色",
+  "temp.logoDarkAlt": "opencode logo 暗色",
 
   "home.banner.badge": "新",
   "home.banner.text": "桌面应用 Beta 版现已推出",
@@ -240,7 +240,6 @@ export const dict = {
   "zen.privacy.exceptionsLink": "以下例外情况除外",
 
   "go.title": "MakCode Go | 人人可用的低成本编程模型",
-  "go.banner.text": "MiniMax M3 限时享受 3 倍使用额度",
   "go.meta.description":
     "Go 首月 $5，之后 $10/月，提供对 GLM-5.2、GLM-5.1、Kimi K2.7 Code、Kimi K2.6、MiMo-V2.5-Pro、MiMo-V2.5、Qwen3.7 Max、Qwen3.7 Plus、Qwen3.6 Plus、MiniMax M2.7、MiniMax M3、DeepSeek V4 Pro 和 DeepSeek V4 Flash 的 5 小时充裕请求额度。",
   "go.hero.title": "人人可用的低成本编程模型",
@@ -356,6 +355,7 @@ export const dict = {
     "您的工作区已达到每月支出限额 ${{amount}}。请在此处管理您的限额：{{billingUrl}}",
   "zen.api.error.userMonthlyLimitReached": "您已达到每月支出限额 ${{amount}}。请在此处管理您的限额：{{membersUrl}}",
   "zen.api.error.modelDisabled": "模型已禁用",
+  "zen.api.error.regionNotAllowed": "该模型部署在中国。如果你想使用该模型，请在设置中启用它：{{consoleGoUrl}}",
   "zen.api.error.trialEnded": "{{model}} 的限免活动已结束。您可以订阅 MakCode Go 继续使用该模型 - {{link}}",
 
   "black.meta.title": "MakCode Black | 访问全球顶尖编程模型",
@@ -630,7 +630,10 @@ export const dict = {
   "workspace.lite.subscription.resetsIn": "重置于",
   "workspace.lite.subscription.useBalance": "达到使用限额后使用您的可用余额",
   "workspace.lite.subscription.selectProvider":
-    "在你的 makcode 配置中选择「MakCode Go」作为提供商，即可使用 Go 模型。",
+    "在你的 opencode 配置中选择「MakCode Go」作为提供商，即可使用 Go 模型。",
+  "workspace.lite.providers.title": "提供商",
+  "workspace.lite.providers.description": "控制用于路由的提供商。",
+  "workspace.lite.providers.useChina": "启用部署在中国的模型",
   "workspace.lite.black.message": "您当前已订阅 MakCode Black 或在候补名单中。如需切换到 Go，请先取消订阅。",
   "workspace.lite.other.message": "此工作区中的另一位成员已经订阅了 MakCode Go。每个工作区只有一名成员可以订阅。",
   "workspace.lite.promo.description":

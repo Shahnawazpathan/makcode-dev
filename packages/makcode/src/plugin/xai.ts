@@ -2,7 +2,7 @@ import type { Hooks, PluginInput } from "@makcode-ai/plugin"
 import { OAUTH_DUMMY_KEY } from "../auth"
 import { createServer } from "http"
 import { InstallationVersion } from "@makcode-ai/core/installation/version"
-import { escapeHtml } from "@/util/html"
+import { OauthCallbackPage } from "@makcode-ai/core/oauth/page"
 
 // Public Grok-CLI OAuth client. xAI's auth server rejects loopback OAuth from
 // non-allowlisted clients, so we reuse the Grok-CLI client_id that xAI ships
@@ -88,7 +88,7 @@ function authHeaders() {
   return {
     "Content-Type": "application/x-www-form-urlencoded",
     Accept: "application/json",
-    "User-Agent": `makcode/${InstallationVersion}`,
+    "User-Agent": `opencode/${InstallationVersion}`,
   }
 }
 
@@ -123,7 +123,7 @@ export function buildAuthorizeUrl(
 ): string {
   // `plan=generic` opts the consent screen into xAI's generic OAuth plan tier;
   // without it, accounts.x.ai rejects loopback OAuth from non-allowlisted
-  // clients. `referrer=makcode` lets xAI attribute makcode-originated
+  // clients. `referrer=opencode` lets xAI attribute opencode-originated
   // logins in their OAuth server logs (best-effort attribution while we
   // continue to reuse the Grok-CLI client_id).
   const params = new URLSearchParams({
@@ -136,7 +136,7 @@ export function buildAuthorizeUrl(
     state,
     nonce,
     plan: "generic",
-    referrer: "makcode",
+    referrer: "opencode",
   })
   return `${options.authorizeUrl ?? AUTHORIZE_URL}?${params.toString()}`
 }
@@ -285,96 +285,6 @@ export async function pollDeviceCodeToken(
   throw new Error("xAI device authorization timed out")
 }
 
-const HTML_SUCCESS = `<!doctype html>
-<html>
-  <head>
-    <title>MakCode - xAI Authorization Successful</title>
-    <style>
-      body {
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background: #131010;
-        color: #f1ecec;
-      }
-      .container {
-        text-align: center;
-        padding: 2rem;
-      }
-      h1 {
-        color: #f1ecec;
-        margin-bottom: 1rem;
-      }
-      p {
-        color: #b7b1b1;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Authorization Successful</h1>
-      <p>You can close this window and return to MakCode.</p>
-    </div>
-    <script>
-      setTimeout(() => window.close(), 2000)
-    </script>
-  </body>
-</html>`
-
-const HTML_ERROR = (error: string) => `<!doctype html>
-<html>
-  <head>
-    <title>MakCode - xAI Authorization Failed</title>
-    <style>
-      body {
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background: #131010;
-        color: #f1ecec;
-      }
-      .container {
-        text-align: center;
-        padding: 2rem;
-      }
-      h1 {
-        color: #fc533a;
-        margin-bottom: 1rem;
-      }
-      p {
-        color: #b7b1b1;
-      }
-      .error {
-        color: #ff917b;
-        font-family: monospace;
-        margin-top: 1rem;
-        padding: 1rem;
-        background: #3c140d;
-        border-radius: 0.5rem;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Authorization Failed</h1>
-      <p>An error occurred during authorization.</p>
-      <div class="error">${escapeHtml(error)}</div>
-    </div>
-  </body>
-</html>`
-
 // CORS allowlist for the loopback callback. The redirect_uri itself is
 // already bound to 127.0.0.1 and gated by PKCE+state, so we only accept
 // xAI's own auth origins for additional defense-in-depth on the OPTIONS
@@ -425,7 +335,7 @@ async function startOAuthServer(): Promise<{ port: number; redirectUri: string }
         pendingOAuth?.reject(new Error(errorMsg))
         pendingOAuth = undefined
         res.writeHead(200, { "Content-Type": "text/html" })
-        res.end(HTML_ERROR(errorMsg))
+        res.end(OauthCallbackPage.error(errorMsg, { provider: "xAI" }))
         return
       }
 
@@ -434,7 +344,7 @@ async function startOAuthServer(): Promise<{ port: number; redirectUri: string }
         pendingOAuth?.reject(new Error(errorMsg))
         pendingOAuth = undefined
         res.writeHead(400, { "Content-Type": "text/html" })
-        res.end(HTML_ERROR(errorMsg))
+        res.end(OauthCallbackPage.error(errorMsg, { provider: "xAI" }))
         return
       }
 
@@ -443,7 +353,7 @@ async function startOAuthServer(): Promise<{ port: number; redirectUri: string }
         pendingOAuth?.reject(new Error(errorMsg))
         pendingOAuth = undefined
         res.writeHead(400, { "Content-Type": "text/html" })
-        res.end(HTML_ERROR(errorMsg))
+        res.end(OauthCallbackPage.error(errorMsg, { provider: "xAI" }))
         return
       }
 
@@ -455,7 +365,7 @@ async function startOAuthServer(): Promise<{ port: number; redirectUri: string }
         .catch((err) => current.reject(err))
 
       res.writeHead(200, { "Content-Type": "text/html" })
-      res.end(HTML_SUCCESS)
+      res.end(OauthCallbackPage.success({ provider: "xAI" }))
       return
     }
 
@@ -486,7 +396,7 @@ async function startOAuthServer(): Promise<{ port: number; redirectUri: string }
       // After listen() succeeds, install a permanent log-only listener so
       // that subsequent server errors (e.g. accept() failures, socket-level
       // errors) don't trip Node's default "unhandled error event = throw"
-      // behavior and crash the entire makcode process. Matches the silent-
+      // behavior and crash the entire opencode process. Matches the silent-
       // swallow behavior the Codex plugin gets from its permanent
       // `oauthServer!.on("error", reject)`.
       resolve()
@@ -631,7 +541,7 @@ export async function XaiAuthPlugin(input: PluginInput, options: XaiAuthPluginOp
               }
             }
             headers.set("authorization", `Bearer ${currentAuth.access}`)
-            headers.set("User-Agent", `makcode/${InstallationVersion}`)
+            headers.set("User-Agent", `opencode/${InstallationVersion}`)
 
             return fetch(requestInput, { ...init, headers })
           },

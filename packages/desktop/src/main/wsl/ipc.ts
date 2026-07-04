@@ -1,7 +1,7 @@
 import { app, ipcMain } from "electron"
 import type { IpcMainInvokeEvent } from "electron"
 import type { WslServersController } from "./servers"
-import { requireWslIpcString } from "./policy"
+import { requireWslIpcString, requireWslIpcStrings } from "./policy"
 import type { WslServersState } from "../../preload/types"
 
 export function registerWslIpcHandlers(controller: WslServersController) {
@@ -46,13 +46,10 @@ export function registerWslIpcHandlers(controller: WslServersController) {
   ipcMain.handle("wsl-servers-install-distro", (_event: IpcMainInvokeEvent, name: string) =>
     controller.installDistro(requireWslIpcString("distro", name)),
   )
-  ipcMain.handle("wsl-servers-probe-distro", (_event: IpcMainInvokeEvent, name: string) =>
-    controller.probeDistro(requireWslIpcString("distro", name)),
+  ipcMain.handle("wsl-servers-probe-addable", (_event: IpcMainInvokeEvent, distros: string[]) =>
+    controller.probeAddable(requireWslIpcStrings("distro", distros)),
   )
-  ipcMain.handle("wsl-servers-probe-makcode", (_event: IpcMainInvokeEvent, name: string) =>
-    controller.probeOpencode(requireWslIpcString("distro", name)),
-  )
-  ipcMain.handle("wsl-servers-install-makcode", (_event: IpcMainInvokeEvent, name: string) =>
+  ipcMain.handle("wsl-servers-install-opencode", (_event: IpcMainInvokeEvent, name: string) =>
     controller.installOpencode(requireWslIpcString("distro", name)),
   )
   ipcMain.handle("wsl-servers-open-terminal", (_event: IpcMainInvokeEvent, name: string) =>
@@ -82,7 +79,7 @@ function registerUnavailableWslIpcHandlers() {
     installed: [],
     online: [],
     distroProbes: {},
-    makcodeChecks: {},
+    opencodeChecks: {},
     pendingRestart: false,
     servers: [],
     job: null,
@@ -97,9 +94,8 @@ function registerUnavailableWslIpcHandlers() {
   ipcMain.handle("wsl-servers-refresh-distros", unavailable)
   ipcMain.handle("wsl-servers-install-wsl", unavailable)
   ipcMain.handle("wsl-servers-install-distro", unavailable)
-  ipcMain.handle("wsl-servers-probe-distro", unavailable)
-  ipcMain.handle("wsl-servers-probe-makcode", unavailable)
-  ipcMain.handle("wsl-servers-install-makcode", unavailable)
+  ipcMain.handle("wsl-servers-probe-addable", unavailable)
+  ipcMain.handle("wsl-servers-install-opencode", unavailable)
   ipcMain.handle("wsl-servers-open-terminal", unavailable)
   ipcMain.handle("wsl-servers-add", unavailable)
   ipcMain.handle("wsl-servers-remove", unavailable)

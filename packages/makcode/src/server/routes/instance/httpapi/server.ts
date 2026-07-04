@@ -51,16 +51,21 @@ import { Worktree } from "@/worktree"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { MoveSession } from "@makcode-ai/core/control-plane/move-session"
 import { Database } from "@makcode-ai/core/database/database"
+import { AppNodeBuilderV1 } from "@/effect/app-node-builder-v1"
 import { LayerNode } from "@makcode-ai/core/effect/layer-node"
-import { httpClient } from "@makcode-ai/core/effect/layer-node-platform"
+import { httpClient } from "@makcode-ai/core/effect/app-node-platform"
 import { EventV2 } from "@makcode-ai/core/event"
 import { ModelsDev } from "@makcode-ai/core/models-dev"
 import { Npm } from "@makcode-ai/core/npm"
+import { PermissionSaved } from "@makcode-ai/core/permission/saved"
 import { ProjectV2 } from "@makcode-ai/core/project"
 import { ProjectCopy } from "@makcode-ai/core/project/copy"
 import { PtyTicket } from "@makcode-ai/core/pty/ticket"
 import { Ripgrep } from "@makcode-ai/core/ripgrep"
 import { SessionProjector } from "@makcode-ai/core/session/projector"
+import { SessionV2 } from "@makcode-ai/core/session"
+import { SessionExecution } from "@makcode-ai/core/session/execution"
+import * as SessionExecutionLocal from "@makcode-ai/core/session/execution/local"
 import { lazy } from "@/util/lazy"
 import { CorsConfig, isAllowedCorsOrigin, type CorsOptions } from "@makcode-ai/server/cors"
 import { serveUIEffect } from "@/server/shared/ui"
@@ -95,6 +100,10 @@ import { sessionHandlers } from "./handlers/session"
 import { syncHandlers } from "./handlers/sync"
 import { tuiHandlers } from "./handlers/tui"
 import { handlers } from "@makcode-ai/server/handlers"
+import { buildLocationServiceMap, LocationServiceMap } from "@makcode-ai/core/location-services"
+import { layer as locationLayer } from "@makcode-ai/server/location"
+import { sessionLocationLayer } from "@makcode-ai/server/middleware/session-location"
+import { PtyEnvironment } from "@makcode-ai/server/pty-environment"
 import { schemaErrorLayer as v2SchemaErrorLayer } from "@makcode-ai/server/middleware/schema-error"
 import { workspaceHandlers } from "./handlers/workspace"
 import { instanceContextLayer } from "./middleware/instance-context"
@@ -124,10 +133,10 @@ const cors = (corsOptions?: CorsOptions) =>
 // - ptyConnectApiRoutes: typed WebSocket upgrade route with ticket-aware auth.
 // - instanceApiRoutes: remaining typed instance routes.
 // - uiRoute: raw catch-all fallback; auth is router middleware so public static assets can bypass it.
-const authOnlyRouterLayer = authorizationRouterMiddleware.layer.pipe(Layer.provide(ServerAuth.Config.defaultLayer))
-const httpApiAuthLayer = authorizationLayer.pipe(Layer.provide(ServerAuth.Config.defaultLayer))
-const ptyConnectHttpApiAuthLayer = ptyConnectAuthorizationLayer.pipe(Layer.provide(ServerAuth.Config.defaultLayer))
-const serverHttpApiAuthLayer = serverAuthorizationLayer.pipe(Layer.provide(ServerAuth.Config.defaultLayer))
+const authOnlyRouterLayer = authorizationRouterMiddleware.layer.pipe(Layer.provide(ServerAuth.Config.layer))
+const httpApiAuthLayer = authorizationLayer.pipe(Layer.provide(ServerAuth.Config.layer))
+const ptyConnectHttpApiAuthLayer = ptyConnectAuthorizationLayer.pipe(Layer.provide(ServerAuth.Config.layer))
+const serverHttpApiAuthLayer = serverAuthorizationLayer.pipe(Layer.provide(ServerAuth.Config.layer))
 const workspaceRoutingLive = workspaceRoutingLayer.pipe(Layer.provide(Socket.layerWebSocketConstructorGlobal))
 const rootApiRoutes = HttpApiBuilder.layer(RootHttpApi).pipe(
   Layer.provide([controlHandlers, controlPlaneHandlers, globalHandlers]),
@@ -221,6 +230,7 @@ const app = LayerNode.group([
   Discovery.node,
   Question.node,
   Permission.node,
+  PermissionSaved.node,
   Todo.node,
   Session.node,
   SessionProjector.node,
@@ -261,6 +271,8 @@ const app = LayerNode.group([
 export function createRoutes(
   corsOptions?: CorsOptions,
 ): Layer.Layer<never, EffectConfig.ConfigError, RouteRequirements> {
+  const locationServiceMapV2 = buildLocationServiceMap()
+
   return Layer.mergeAll(
     rootApiRoutes,
     eventApiRoutes,
@@ -276,11 +288,26 @@ export function createRoutes(
       corsVaryFix,
       fenceLayer,
       cors(corsOptions),
-      MoveSession.defaultLayer,
+      AppNodeBuilderV1.build(MoveSession.node, [[LocationServiceMap.node, locationServiceMapV2]]),
       HttpServer.layerServices,
     ]),
-    Layer.provide(LayerNode.buildLayer(app)),
     Layer.provide(Layer.succeed(CorsConfig)(corsOptions)),
+    Layer.provide(sessionLocationLayer),
+    Layer.provide(locationLayer),
+    Layer.provide(PtyEnvironment.layer),
+    Layer.provide(
+      AppNodeBuilderV1.build(SessionV2.node, [
+        [LocationServiceMap.node, locationServiceMapV2],
+        [SessionExecution.node, SessionExecutionLocal.node],
+      ]),
+    ),
+    Layer.provide(locationServiceMapV2),
+
+    Layer.provide(AppNodeBuilderV1.build(app)),
+    // Must stay last: layers provided later in this pipe build beneath earlier ones,
+    // so Observability must come after every service graph. Otherwise eagerly forked
+    // fibers (e.g. the ModelsDev background refresh) capture Effect's default stdout
+    // logger and corrupt the TUI (#34730).
     Layer.provideMerge(Observability.layer),
   )
 }

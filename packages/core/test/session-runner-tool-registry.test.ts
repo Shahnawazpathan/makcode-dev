@@ -1,6 +1,8 @@
 import { describe, expect } from "bun:test"
 import { Tool } from "@makcode-ai/core/tool/tool"
 import { AgentV2 } from "@makcode-ai/core/agent"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { ApplicationTools } from "@makcode-ai/core/tool/application-tools"
 import { SessionV2 } from "@makcode-ai/core/session"
 import { SessionMessage } from "@makcode-ai/core/session/message"
@@ -27,9 +29,13 @@ const outputStore = Layer.mock(ToolOutputStore.Service, {
     )
   },
 })
-const registry = ToolRegistry.layer.pipe(Layer.provide(ApplicationTools.layer), Layer.provide(outputStore))
-const it = testEffect(registry)
-const integrated = testEffect(Layer.mergeAll(ApplicationTools.layer, registry))
+const registryLayer = AppNodeBuilder.build(ToolRegistry.node, [[ToolOutputStore.node, outputStore]])
+const it = testEffect(registryLayer)
+const integrated = testEffect(
+  AppNodeBuilder.build(LayerNode.group([ApplicationTools.node, ToolRegistry.node]), [
+    [ToolOutputStore.node, outputStore],
+  ]),
+)
 const identity = {
   agent: AgentV2.ID.make("build"),
   assistantMessageID: SessionMessage.ID.make("msg_registry"),
@@ -206,6 +212,7 @@ describe("ToolRegistry", () => {
 
       expect(Exit.isFailure(exit)).toBe(true)
       if (Exit.isFailure(exit)) expect(Option.getOrUndefined(Cause.findErrorOption(exit.cause))).toBe(retentionFailure)
+      expect(retentionFailure.message).toBe("Failed to write tool output: disk full")
     }),
   )
 

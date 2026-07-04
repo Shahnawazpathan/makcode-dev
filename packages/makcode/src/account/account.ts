@@ -1,5 +1,5 @@
 import { LayerNode } from "@makcode-ai/core/effect/layer-node"
-import { httpClient } from "@makcode-ai/core/effect/layer-node-platform"
+import { httpClient } from "@makcode-ai/core/effect/app-node-platform"
 import { Cache, Clock, Duration, Effect, Layer, Option, Schema, SchemaGetter, Context } from "effect"
 import { serviceUse } from "@makcode-ai/core/effect/service-use"
 import {
@@ -134,7 +134,7 @@ class TokenRefreshRequest extends Schema.Class<TokenRefreshRequest>("TokenRefres
   client_id: Schema.String,
 }) {}
 
-const clientId = "makcode-cli"
+const clientId = "opencode-cli"
 const eagerRefreshThreshold = Duration.minutes(5)
 const eagerRefreshThresholdMs = Duration.toMillis(eagerRefreshThreshold)
 
@@ -182,11 +182,11 @@ export interface Interface {
   readonly poll: (input: Login) => Effect.Effect<PollResult, AccountError>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/Account") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Account") {}
 
 export const use = serviceUse(Service)
 
-export const layer: Layer.Layer<Service, never, AccountRepo.Service | HttpClient.HttpClient> = Layer.effect(
+const layer: Layer.Layer<Service, never, AccountRepo.Service | HttpClient.HttpClient> = Layer.effect(
   Service,
   Effect.gen(function* () {
     const repo = yield* AccountRepo.Service
@@ -456,8 +456,6 @@ export const layer: Layer.Layer<Service, never, AccountRepo.Service | HttpClient
   }),
 )
 
-export const defaultLayer = layer.pipe(Layer.provide(AccountRepo.defaultLayer), Layer.provide(FetchHttpClient.layer))
-
-export const node = LayerNode.make(layer, [AccountRepo.node, httpClient])
+export const node = LayerNode.make({ service: Service, layer: layer, deps: [AccountRepo.node, httpClient] })
 
 export * as Account from "./account"

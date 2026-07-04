@@ -3,6 +3,8 @@ export * as WebSearchTool from "./websearch"
 import { ToolFailure } from "@makcode-ai/llm"
 import { Context, Duration, Effect, Layer, Schema } from "effect"
 import { HttpClient, HttpClientRequest } from "effect/unstable/http"
+import { makeLocationNode } from "../effect/app-node"
+import { LayerNodePlatform } from "../effect/app-node-platform"
 import { truthy } from "../flag/flag"
 import { InstallationVersion } from "../installation/version"
 import { PositiveInt } from "../schema"
@@ -11,6 +13,7 @@ import { Tool } from "./tool"
 import { Tools } from "./tools"
 import { collectBoundedResponseBody } from "./http-body"
 import { checksum } from "../util/encode"
+import { ToolRegistry } from "./registry"
 
 export const name = "websearch"
 export const NO_RESULTS = "No search results found. Please try a different query."
@@ -64,7 +67,7 @@ export interface Config {
   readonly parallelApiKey?: string
 }
 
-export class ConfigService extends Context.Service<ConfigService, Config>()("@makcode/v2/WebSearchConfig") {}
+export class ConfigService extends Context.Service<ConfigService, Config>()("@opencode/v2/WebSearchConfig") {}
 
 /** Isolates the retained product environment contract from the generic tool implementation. */
 export const defaultConfigLayer = Layer.sync(ConfigService, () =>
@@ -79,6 +82,8 @@ export const defaultConfigLayer = Layer.sync(ConfigService, () =>
     parallelApiKey: process.env.PARALLEL_API_KEY,
   }),
 )
+
+export const configNode = makeLocationNode({ service: ConfigService, layer: defaultConfigLayer, deps: [] })
 
 export function selectProvider(
   sessionID: string,
@@ -184,7 +189,7 @@ const Output = Schema.Struct({
   text: Schema.String,
 })
 
-export const layer = Layer.effectDiscard(
+const layer = Layer.effectDiscard(
   Effect.gen(function* () {
     const tools = yield* Tools.Service
     const http = yield* HttpClient.HttpClient
@@ -232,7 +237,7 @@ export const layer = Layer.effectDiscard(
                         // V2 invocation context does not safely expose the model yet.
                       },
                       {
-                        "User-Agent": `makcode/${InstallationVersion}`,
+                        "User-Agent": `opencode/${InstallationVersion}`,
                         ...(config.parallelApiKey ? { Authorization: `Bearer ${config.parallelApiKey}` } : {}),
                       },
                     )
@@ -247,3 +252,9 @@ export const layer = Layer.effectDiscard(
       .pipe(Effect.orDie)
   }),
 )
+
+export const node = makeLocationNode({
+  name: "tool/websearch",
+  layer,
+  deps: [ToolRegistry.node, PermissionV2.node, LayerNodePlatform.httpClient, configNode],
+})

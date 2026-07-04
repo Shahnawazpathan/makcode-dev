@@ -1,10 +1,12 @@
 import { afterEach, describe, expect } from "bun:test"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { FSUtil } from "@makcode-ai/core/fs-util"
 import { Effect, Layer } from "effect"
 import { HttpClientResponse } from "effect/unstable/http"
 import path from "path"
 import { InstanceRef } from "../../src/effect/instance-ref"
-import { InstanceBootstrap } from "../../src/project/bootstrap-service"
+import { InstanceBootstrap } from "../../src/project/bootstrap"
 import { InstanceStore } from "../../src/project/instance-store"
 import { GlobalBus, type GlobalEvent } from "../../src/bus/global"
 import { Snapshot } from "../../src/snapshot"
@@ -19,9 +21,11 @@ afterEach(async () => {
 })
 
 const noopBootstrap = Layer.succeed(InstanceBootstrap.Service, InstanceBootstrap.Service.of({ run: Effect.void }))
-const testInstanceStore = InstanceStore.defaultLayer.pipe(Layer.provide(noopBootstrap))
+const testInstanceStore = AppNodeBuilder.build(InstanceStore.node, [[InstanceStore.bootstrapNode, noopBootstrap]])
 
-const it = testEffect(Layer.mergeAll(FSUtil.defaultLayer, Snapshot.defaultLayer, testInstanceStore, httpApiLayer))
+const it = testEffect(
+  Layer.mergeAll(AppNodeBuilder.build(LayerNode.group([FSUtil.node, Snapshot.node])), testInstanceStore, httpApiLayer),
+)
 
 function request(directory: string, url: string, init: RequestInit = {}) {
   return requestInDirectory(url, directory, init)
@@ -67,7 +71,7 @@ describe("project.initGit endpoint", () => {
       })
       // Reload behavior: bus emits exactly one server.instance.disposed for the directory.
       expect(disposedEvents(events.seen, tmp.directory)).toBe(1)
-      expect(yield* fs.exists(path.join(tmp.directory, ".git", "makcode"))).toBe(false)
+      expect(yield* fs.exists(path.join(tmp.directory, ".git", "opencode"))).toBe(false)
 
       const current = yield* request(tmp.directory, "/project/current")
       expect(current.status).toBe(200)

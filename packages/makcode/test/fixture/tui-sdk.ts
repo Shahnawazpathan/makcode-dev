@@ -1,8 +1,8 @@
 import type { GlobalEvent } from "@makcode-ai/sdk/v2"
 import type { EventSource } from "@makcode-ai/tui/context/sdk"
 
-export const worktree = "/tmp/makcode"
-export const directory = `${worktree}/packages/makcode`
+export const worktree = "/tmp/opencode"
+export const directory = `${worktree}/packages/opencode`
 
 export function json(data: unknown, init?: ResponseInit) {
   return new Response(JSON.stringify(data), {

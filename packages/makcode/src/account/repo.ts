@@ -35,11 +35,11 @@ export interface Interface {
   }) => Effect.Effect<void, AccountRepoError>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/AccountRepo") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/AccountRepo") {}
 
 export const use = serviceUse(Service)
 
-export const layer = Layer.effect(
+const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const { db } = yield* Database.Service
@@ -166,8 +166,6 @@ export const layer = Layer.effect(
   }),
 )
 
-export const defaultLayer = layer.pipe(Layer.provide(Database.defaultLayer))
-
-export const node = LayerNode.make(layer, [Database.node])
+export const node = LayerNode.make({ service: Service, layer: layer, deps: [Database.node] })
 
 export * as AccountRepo from "./repo"

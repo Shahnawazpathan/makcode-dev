@@ -36,14 +36,14 @@ export const dict = {
   "email.subscribe": "Підписатися",
   "email.success": "Майже готово! Перевірте пошту та підтвердьте адресу",
 
-  "notFound.title": "Не знайдено | makcode",
+  "notFound.title": "Не знайдено | opencode",
   "notFound.heading": "404 — Сторінку не знайдено",
   "notFound.home": "Головна",
   "notFound.docs": "Документація",
   "notFound.github": "GitHub",
   "notFound.discord": "Discord",
-  "notFound.logoLightAlt": "світлий логотип makcode",
-  "notFound.logoDarkAlt": "темний логотип makcode",
+  "notFound.logoLightAlt": "світлий логотип opencode",
+  "notFound.logoDarkAlt": "темний логотип opencode",
 
   "user.logout": "Вийти",
 
@@ -85,21 +85,21 @@ export const dict = {
 
   "home.title": "MakCode | Відкритий AI-агент для кодування",
 
-  "temp.title": "makcode | AI-агент для кодування, створений для термінала",
+  "temp.title": "opencode | AI-агент для кодування, створений для термінала",
   "temp.hero.title": "AI-агент для кодування, створений для термінала",
-  "temp.zen": "makcode zen",
+  "temp.zen": "opencode zen",
   "temp.getStarted": "Почати",
   "temp.feature.native.title": "Рідний TUI",
   "temp.feature.native.body": "Чуйний, рідний інтерфейс термінала з темами",
   "temp.feature.zen.beforeLink": "A",
   "temp.feature.zen.link": "добірка моделей",
-  "temp.feature.zen.afterLink": "від makcode",
+  "temp.feature.zen.afterLink": "від opencode",
   "temp.feature.models.beforeLink": "Підтримує 75+ LLM-провайдерів через",
   "temp.feature.models.afterLink": ", включаючи локальні моделі",
   "temp.screenshot.caption": "MakCode TUI з темою tokyonight",
   "temp.screenshot.alt": "MakCode TUI з темою tokyonight",
-  "temp.logoLightAlt": "світлий логотип makcode",
-  "temp.logoDarkAlt": "темний логотип makcode",
+  "temp.logoLightAlt": "світлий логотип opencode",
+  "temp.logoDarkAlt": "темний логотип opencode",
 
   "home.banner.badge": "Нове",
   "home.banner.text": "Десктопний застосунок доступний у бета-версії",
@@ -251,7 +251,6 @@ export const dict = {
   "zen.privacy.exceptionsLink": "такими винятками",
 
   "go.title": "MakCode Go | Недорогі моделі кодування для всіх",
-  "go.banner.text": "MiniMax M3 отримує 3x ліміти використання протягом обмеженого часу",
   "go.meta.description":
     "Go починається від $5 за перший місяць, потім $10/місяць, з generous 5-годинними лімітами запитів для GLM-5.2, GLM-5.1, Kimi K2.7 Code, Kimi K2.6, MiMo-V2.5-Pro, MiMo-V2.5, Qwen3.7 Max, Qwen3.7 Plus, Qwen3.6 Plus, MiniMax M2.7, MiniMax M3, DeepSeek V4 Pro та DeepSeek V4 Flash.",
   "go.hero.title": "Недорогі моделі кодування для всіх",
@@ -374,6 +373,8 @@ export const dict = {
   "zen.api.error.userMonthlyLimitReached":
     "Ви досягли місячного ліміту витрат ${{amount}}. Керуйте лімітами: {{membersUrl}}",
   "zen.api.error.modelDisabled": "Модель вимкнено",
+  "zen.api.error.regionNotAllowed":
+    "Ця модель розміщена в Китаї. Якщо ви хочете використовувати цю модель, увімкніть її в налаштуваннях: {{consoleGoUrl}}",
   "zen.api.error.trialEnded":
     "Безкоштовна акція для {{model}} закінчилася. Ви можете продовжити використання, підписавшись на MakCode Go — {{link}}",
 
@@ -452,9 +453,9 @@ export const dict = {
   "workspace.newUser.copied": "Скопійовано!",
   "workspace.newUser.step.enableBilling": "Увімкнути оплату",
   "workspace.newUser.step.login.before": "Запустіть",
-  "workspace.newUser.step.login.after": "і виберіть makcode",
+  "workspace.newUser.step.login.after": "і виберіть opencode",
   "workspace.newUser.step.pasteKey": "Вставте ключ API",
-  "workspace.newUser.step.models.before": "Запустіть makcode і виконайте",
+  "workspace.newUser.step.models.before": "Запустіть opencode і виконайте",
   "workspace.newUser.step.models.after": "щоб вибрати модель",
 
   "workspace.models.title": "Моделі",
@@ -500,10 +501,10 @@ export const dict = {
   "workspace.cost.subscriptionShort": "підп",
 
   "workspace.keys.title": "Ключі API",
-  "workspace.keys.subtitle": "Керуйте ключами API для доступу до сервісів makcode.",
+  "workspace.keys.subtitle": "Керуйте ключами API для доступу до сервісів opencode.",
   "workspace.keys.create": "Створити ключ API",
   "workspace.keys.placeholder": "Введіть назву ключа",
-  "workspace.keys.empty": "Створіть ключ API шлюзу makcode",
+  "workspace.keys.empty": "Створіть ключ API шлюзу opencode",
   "workspace.keys.table.name": "Назва",
   "workspace.keys.table.key": "Ключ",
   "workspace.keys.table.createdBy": "Створено",
@@ -651,7 +652,10 @@ export const dict = {
   "workspace.lite.subscription.monthlyUsage": "Місячне використання",
   "workspace.lite.subscription.resetsIn": "Скидається через",
   "workspace.lite.subscription.useBalance": "Використовуйте доступний баланс після досягнення лімітів",
-  "workspace.lite.subscription.selectProvider": 'Виберіть "MakCode Go" як провайдера в конфігурації makcode.',
+  "workspace.lite.subscription.selectProvider": 'Виберіть "MakCode Go" як провайдера в конфігурації opencode.',
+  "workspace.lite.providers.title": "Провайдери",
+  "workspace.lite.providers.description": "Керуйте провайдерами, які використовуються для маршрутизації.",
+  "workspace.lite.providers.useChina": "Увімкнути моделі, розміщені в Китаї",
   "workspace.lite.black.message":
     "Ви вже підписані на MakCode Black або в списку очікування. Спочатку скасуйте підписку, якщо хочете перейти на Go.",
   "workspace.lite.other.message": "Інший учасник цього робочого простору вже підписаний на MakCode Go.",

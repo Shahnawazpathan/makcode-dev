@@ -2,6 +2,8 @@ import fs from "fs/promises"
 import path from "path"
 import { describe, expect } from "bun:test"
 import { Deferred, Effect, Fiber, Layer } from "effect"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { FileMutation } from "@makcode-ai/core/file-mutation"
 import { FSUtil } from "@makcode-ai/core/fs-util"
 import { Location } from "@makcode-ai/core/location"
@@ -11,14 +13,17 @@ import { location } from "./fixture/location"
 import { tmpdir } from "./fixture/tmpdir"
 import { it } from "./lib/effect"
 
-function provide(directory: string, filesystem = FSUtil.defaultLayer) {
+function provide(directory: string, filesystemLayer = LayerNode.compile(FSUtil.node)) {
   const activeLocation = Layer.succeed(
     Location.Service,
     Location.Service.of(location({ directory: AbsolutePath.make(directory) })),
   )
-  const resolution = LocationMutation.layer.pipe(Layer.provide(filesystem), Layer.provide(activeLocation))
-  const mutation = FileMutation.layer.pipe(Layer.provide(filesystem))
-  return Effect.provide(Layer.mergeAll(resolution, mutation))
+  return Effect.provide(
+    AppNodeBuilder.build(LayerNode.group([LocationMutation.node, FileMutation.node]), [
+      [Location.node, activeLocation],
+      [FSUtil.node, filesystemLayer],
+    ]),
+  )
 }
 
 function withTmp<A, E, R>(f: (directory: string) => Effect.Effect<A, E, R>) {
@@ -359,5 +364,5 @@ function instrumentWrites(run: <E>(write: Effect.Effect<void, E>, target: string
           run(filesystem.writeFileString(target, content, options), target),
       })
     }),
-  ).pipe(Layer.provide(FSUtil.defaultLayer))
+  ).pipe(Layer.provide(LayerNode.compile(FSUtil.node)))
 }

@@ -3,11 +3,12 @@
 // Variants are provider-specific reasoning effort levels (e.g., "high", "max").
 // Resolution priority: CLI --variant flag > saved preference > session history.
 //
-// The saved variant persists across sessions in ~/.local/state/makcode/model.json
+// The saved variant persists across sessions in ~/.local/state/opencode/model.json
 // so your last-used variant sticks. Cycling (ctrl+t) updates both the active
 // variant and the persisted file.
 import path from "path"
 import { FSUtil } from "@makcode-ai/core/fs-util"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
 import { Context, Effect, Layer } from "effect"
 import { makeRuntime } from "@/effect/run-service"
 import { Global } from "@makcode-ai/core/global"
@@ -29,7 +30,7 @@ type VariantRuntime = {
   saveVariant(model: RunInput["model"], variant: string | undefined): Promise<void>
 }
 
-class Service extends Context.Service<Service, VariantService>()("@makcode/RunVariant") {}
+class Service extends Context.Service<Service, VariantService>()("@opencode/RunVariant") {}
 
 function modelKey(provider: string, model: string): string {
   return `${provider}/${model}`
@@ -135,7 +136,7 @@ function state(value: unknown): ModelState {
   }
 }
 
-function createLayer(fs = FSUtil.defaultLayer) {
+function createLayer(fs = AppNodeBuilder.build(FSUtil.node)) {
   return Layer.fresh(
     Layer.effect(
       Service,
@@ -196,7 +197,7 @@ function createLayer(fs = FSUtil.defaultLayer) {
 }
 
 /** @internal Exported for testing. */
-export function createVariantRuntime(fs = FSUtil.defaultLayer): VariantRuntime {
+export function createVariantRuntime(fs = AppNodeBuilder.build(FSUtil.node)): VariantRuntime {
   const runtime = makeRuntime(Service, createLayer(fs))
   return {
     resolveSavedVariant: (model) => runtime.runPromise((svc) => svc.resolveSavedVariant(model)).catch(() => undefined),

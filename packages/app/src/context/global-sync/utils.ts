@@ -1,5 +1,5 @@
 import type { Agent, Project, ProviderListResponse } from "@makcode-ai/sdk/v2/client"
-import { NormalizedProviderListResponse } from "@makcode-ai/ui/context"
+import { NormalizedProviderListResponse } from "@makcode-ai/session-ui/context"
 export { pathKey as directoryKey, type PathKey as DirectoryKey } from "@/utils/path-key"
 
 export const cmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0)

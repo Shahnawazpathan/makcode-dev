@@ -90,9 +90,9 @@ export const dict = {
   "dialog.provider.group.popular": "人気",
   "dialog.provider.group.other": "その他",
   "dialog.provider.tag.recommended": "推奨",
-  "dialog.provider.makcode.note": "Claude, GPT, Geminiなどを含む厳選されたモデル",
-  "dialog.provider.makcode.tagline": "信頼性の高い最適化モデル",
-  "dialog.provider.makcodeGo.tagline": "すべての人に低価格のサブスクリプション",
+  "dialog.provider.opencode.note": "Claude, GPT, Geminiなどを含む厳選されたモデル",
+  "dialog.provider.opencode.tagline": "信頼性の高い最適化モデル",
+  "dialog.provider.opencodeGo.tagline": "すべての人に低価格のサブスクリプション",
   "dialog.provider.anthropic.note": "Claude Pro/MaxまたはAPIキーで接続",
   "dialog.provider.copilot.note": "CopilotまたはAPIキーで接続",
   "dialog.provider.openai.note": "ChatGPT Pro/PlusまたはAPIキーで接続",
@@ -120,12 +120,12 @@ export const dict = {
   "provider.connect.apiKey.label": "{{provider}} APIキー",
   "provider.connect.apiKey.placeholder": "APIキー",
   "provider.connect.apiKey.required": "APIキーが必要です",
-  "provider.connect.makcodeZen.line1":
+  "provider.connect.opencodeZen.line1":
     "MakCode Zenは、コーディングエージェント向けに最適化された信頼性の高いモデルへのアクセスを提供します。",
-  "provider.connect.makcodeZen.line2": "1つのAPIキーで、Claude、GPT、Gemini、GLMなどのモデルにアクセスできます。",
-  "provider.connect.makcodeZen.visit.prefix": " ",
-  "provider.connect.makcodeZen.visit.link": "makcode.ai/zen",
-  "provider.connect.makcodeZen.visit.suffix": " にアクセスしてAPIキーを取得してください。",
+  "provider.connect.opencodeZen.line2": "1つのAPIキーで、Claude、GPT、Gemini、GLMなどのモデルにアクセスできます。",
+  "provider.connect.opencodeZen.visit.prefix": " ",
+  "provider.connect.opencodeZen.visit.link": "opencode.ai/zen",
+  "provider.connect.opencodeZen.visit.suffix": " にアクセスしてAPIキーを取得してください。",
   "provider.connect.oauth.code.visit.prefix": " ",
   "provider.connect.oauth.code.visit.link": "このリンク",
   "provider.connect.oauth.code.visit.suffix":
@@ -271,7 +271,7 @@ export const dict = {
   "dialog.mcp.description": "{{total}}個中{{enabled}}個が有効",
   "dialog.mcp.empty": "MCPが設定されていません",
   "dialog.lsp.empty": "ファイルタイプから自動検出されたLSP",
-  "dialog.plugins.empty": "makcode.jsonで設定されたプラグイン",
+  "dialog.plugins.empty": "opencode.jsonで設定されたプラグイン",
   "mcp.status.connected": "接続済み",
   "mcp.status.failed": "失敗",
   "mcp.status.needs_auth": "認証が必要",
@@ -428,7 +428,7 @@ export const dict = {
   "error.chain.responseBody": "レスポンス本文:\n{{body}}",
   "error.chain.didYouMean": "もしかして: {{suggestions}}",
   "error.chain.modelNotFound": "モデルが見つかりません: {{provider}}/{{model}}",
-  "error.chain.checkConfig": "config (makcode.json) のプロバイダー/モデル名を確認してください",
+  "error.chain.checkConfig": "config (opencode.json) のプロバイダー/モデル名を確認してください",
   "error.chain.mcpFailed": 'MCPサーバー "{{name}}" が失敗しました。注意: MakCodeはまだMCP認証をサポートしていません。',
   "error.chain.providerAuthFailed": "プロバイダー認証に失敗しました ({{provider}}): {{message}}",
   "error.chain.providerInitFailed":
@@ -595,9 +595,6 @@ export const dict = {
   "settings.general.row.editToolPartsExpanded.title": "edit ツールパーツを展開",
   "settings.general.row.editToolPartsExpanded.description":
     "タイムラインで edit、write、patch ツールパーツをデフォルトで展開して表示します",
-  "settings.general.row.showSessionProgressBar.title": "セッション進行状況バーを表示",
-  "settings.general.row.showSessionProgressBar.description":
-    "エージェントの作業中に、セッション上部にアニメーション付きの進行状況バーを表示します",
   "settings.general.row.wayland.title": "ネイティブWaylandを使用",
   "settings.general.row.wayland.description": "WaylandでのX11フォールバックを無効にします。再起動が必要です。",
   "settings.general.row.wayland.tooltip":

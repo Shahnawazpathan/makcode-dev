@@ -3,7 +3,7 @@ import { z } from "zod"
 import { Resource } from "@makcode-ai/console-resource"
 import { safeEqual } from "@makcode-ai/console-core/util/crypto.js"
 
-const DISCORD_ALERT_ROLE_ID = "1501447160175136838"
+const DISCORD_ALERT_ROLE_ID = "1520924666359713863"
 
 const basePayload = z.object({
   name: z.string().optional(),

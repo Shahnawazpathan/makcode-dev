@@ -1,11 +1,12 @@
 import { PermissionV1 } from "@makcode-ai/core/v1/permission"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { describe, test, expect } from "bun:test"
 import { Effect } from "effect"
 import { Permission } from "../src/permission"
 import { Config } from "@/config/config"
 import { testEffect } from "./lib/effect"
 
-const it = testEffect(Config.defaultLayer)
+const it = testEffect(LayerNode.compile(Config.node))
 
 const load = Config.use.get()
 
@@ -145,7 +146,7 @@ describe("Permission.disabled for task tool", () => {
 // Integration tests that load permissions from real config files
 describe("permission.task with real config files", () => {
   it.instance(
-    "loads task permissions from makcode.json config",
+    "loads task permissions from opencode.json config",
     () =>
       Effect.gen(function* () {
         const config = yield* load

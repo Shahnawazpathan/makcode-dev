@@ -1,9 +1,9 @@
 import { expect, test, type Page } from "@playwright/test"
 import { base64Encode } from "@makcode-ai/core/util/encode"
-import { mockMakCodeServer } from "../utils/mock-server"
+import { mockOpenCodeServer } from "../utils/mock-server"
 import { expectAppVisible, expectSessionTitle } from "../utils/waits"
 
-const directory = "C:/MakCode/ReviewLineCommentRegression"
+const directory = "C:/OpenCode/ReviewLineCommentRegression"
 const sessionID = "ses_review_line_comment_regression"
 const title = "Review line comment regression"
 
@@ -57,8 +57,8 @@ test("shows a comment button when a line number is hovered", async ({ page }) =>
     await page.mouse.move(0, 0)
     await lineNumber.hover()
     await expect(comment).toBeVisible({ timeout: 500 })
+    await comment.click({ timeout: 500 })
   }).toPass()
-  await comment.click()
   await expect(review.getByRole("textbox")).toBeVisible()
 })
 
@@ -74,6 +74,7 @@ test("stages a submitted line comment in the prompt context", async ({ page }) =
   await review.locator('[data-slot="line-comment-action"][data-variant="primary"]').click()
 
   await expect(review.getByText("Use the existing value instead", { exact: true })).toBeVisible()
+  await page.getByRole("tab", { name: "Session" }).click()
   const context = page.getByText("Use the existing value instead", { exact: true }).last()
   await expect(context).toBeVisible()
   await expect(context.locator("..")).toContainText("review.ts:2")
@@ -82,7 +83,7 @@ test("stages a submitted line comment in the prompt context", async ({ page }) =
 
 async function openReview(page: Page) {
   await page.setViewportSize({ width: 700, height: 900 })
-  await mockMakCodeServer(page, {
+  await mockOpenCodeServer(page, {
     directory,
     project: {
       id: "proj_review_line_comment_regression",
@@ -124,7 +125,7 @@ async function openReview(page: Page) {
             time: { created: 1700000000000 },
             summary: { diffs: [] },
             agent: "build",
-            model: { providerID: "makcode", modelID: "test" },
+            model: { providerID: "opencode", modelID: "test" },
           },
           parts: [
             {

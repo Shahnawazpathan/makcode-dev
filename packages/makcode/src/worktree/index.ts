@@ -1,7 +1,6 @@
 import { LayerNode } from "@makcode-ai/core/effect/layer-node"
-import { path } from "@makcode-ai/core/effect/layer-node-platform"
+import { path } from "@makcode-ai/core/effect/app-node-platform"
 import { Global } from "@makcode-ai/core/global"
-import { InstanceLayer } from "@/project/instance-layer"
 import { InstanceStore } from "@/project/instance-store"
 import { Project } from "@/project/project"
 import { Database } from "@makcode-ai/core/database/database"
@@ -10,31 +9,16 @@ import { ProjectTable } from "@makcode-ai/core/project/sql"
 import type { ProjectV2 } from "@makcode-ai/core/project"
 import { Slug } from "@makcode-ai/core/util/slug"
 import { errorMessage } from "../util/error"
-import { EventV2 } from "@makcode-ai/core/event"
 import { GlobalBus } from "@/bus/global"
 import { Git } from "@/git"
 import { Effect, Layer, Path, Schema, Scope, Context } from "effect"
 import { ChildProcess } from "effect/unstable/process"
-import { NodePath } from "@effect/platform-node"
 import { FSUtil } from "@makcode-ai/core/fs-util"
 import { AppProcess } from "@makcode-ai/core/process"
 import { InstanceState } from "@/effect/instance-state"
+import { WorktreeEvent } from "@makcode-ai/schema/worktree-event"
 
-export const Event = {
-  Ready: EventV2.define({
-    type: "worktree.ready",
-    schema: {
-      name: Schema.String,
-      branch: Schema.optional(Schema.String),
-    },
-  }),
-  Failed: EventV2.define({
-    type: "worktree.failed",
-    schema: {
-      message: Schema.String,
-    },
-  }),
-}
+export const Event = WorktreeEvent
 
 export const Info = Schema.Struct({
   name: Schema.String,
@@ -141,11 +125,11 @@ export interface Interface {
   readonly reset: (input: ResetInput) => Effect.Effect<boolean, Error>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/Worktree") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Worktree") {}
 
 type GitResult = { code: number; text: string; stderr: string }
 
-export const layer: Layer.Layer<
+const layer: Layer.Layer<
   Service,
   never,
   | FSUtil.Service
@@ -196,7 +180,7 @@ export const layer: Layer.Layer<
       const ctx = yield* InstanceState.context
       for (const attempt of Array.from({ length: MAX_NAME_ATTEMPTS }, (_, i) => i)) {
         const name = input.name ? (attempt === 0 ? input.name : `${input.name}-${Slug.create()}`) : Slug.create()
-        const branch = input.detached ? undefined : `makcode/${name}`
+        const branch = input.detached ? undefined : `opencode/${name}`
         const directory = pathSvc.join(input.root, name)
 
         if (yield* fs.exists(directory).pipe(Effect.orDie)) continue
@@ -630,25 +614,10 @@ export const layer: Layer.Layer<
   }),
 )
 
-export const appLayer = layer.pipe(
-  Layer.provide(Git.defaultLayer),
-  Layer.provide(AppProcess.defaultLayer),
-  Layer.provide(Project.defaultLayer),
-  Layer.provide(Database.defaultLayer),
-  Layer.provide(FSUtil.defaultLayer),
-  Layer.provide(NodePath.layer),
-)
-
-export const defaultLayer = appLayer.pipe(Layer.provide(InstanceLayer.layer))
-
-export const node = LayerNode.make(layer, [
-  FSUtil.node,
-  path,
-  AppProcess.node,
-  Git.node,
-  Project.node,
-  InstanceStore.node,
-  Database.node,
-])
+export const node = LayerNode.make({
+  service: Service,
+  layer: layer,
+  deps: [FSUtil.node, path, AppProcess.node, Git.node, Project.node, InstanceStore.node, Database.node],
+})
 
 export * as Worktree from "."

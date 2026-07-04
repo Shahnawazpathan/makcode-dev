@@ -40,8 +40,8 @@ export function DialogModel(props: { providerID?: string }) {
             title: model.name ?? item.modelID,
             description: provider.name,
             category,
-            disabled: provider.id === "makcode" && model.id.includes("-nano"),
-            footer: model.cost?.input === 0 && provider.id === "makcode" ? "Free" : undefined,
+            disabled: provider.id === "opencode" && model.id.includes("-nano"),
+            footer: model.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
             onSelect: () => {
               onSelect(provider.id, model.id)
             },
@@ -61,7 +61,7 @@ export function DialogModel(props: { providerID?: string }) {
     const providerOptions = pipe(
       sync.data.provider,
       sortBy(
-        (provider) => provider.id !== "makcode",
+        (provider) => provider.id !== "opencode",
         (provider) => provider.name,
       ),
       flatMap((provider) =>
@@ -78,8 +78,8 @@ export function DialogModel(props: { providerID?: string }) {
               ? "(Favorite)"
               : undefined,
             category: connected() ? provider.name : undefined,
-            disabled: provider.id === "makcode" && model.includes("-nano"),
-            footer: info.cost?.input === 0 && provider.id === "makcode" ? "Free" : undefined,
+            disabled: provider.id === "opencode" && model.includes("-nano"),
+            footer: info.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
             onSelect() {
               onSelect(provider.id, model)
             },
@@ -118,7 +118,10 @@ export function DialogModel(props: { providerID?: string }) {
 
     if (needle) {
       return [
-        ...fuzzysort.go(needle, providerOptions, { keys: ["title", "category"] }).map((x) => x.obj),
+        ...sortModelOptions(
+          fuzzysort.go(needle, providerOptions, { keys: ["title", "category"] }).map((x) => x.obj),
+          false,
+        ),
         ...fuzzysort.go(needle, popularProviders, { keys: ["title"] }).map((x) => x.obj),
       ]
     }
@@ -188,6 +191,7 @@ export function sortModelOptions<T extends { footer?: string; releaseDate: strin
   return sortBy(
     options,
     (option) => option.footer !== "Free",
+    [(option) => option.releaseDate, "desc"],
     (option) => option.title,
   )
 }

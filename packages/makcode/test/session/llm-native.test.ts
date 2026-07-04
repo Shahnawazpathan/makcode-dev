@@ -3,6 +3,7 @@ import { LLMEvent, ToolFailure } from "@makcode-ai/llm"
 import { LLMClient, RequestExecutor, WebSocketExecutor, type LLMClientShape } from "@makcode-ai/llm/route"
 import { jsonSchema, tool, type ModelMessage, type Tool } from "ai"
 import { Effect, Fiber, Layer, Stream } from "effect"
+import { FetchHttpClient } from "effect/unstable/http"
 import { LLMNative } from "@/session/llm/native-request"
 import { LLMNativeRuntime } from "@/session/llm/native-runtime"
 import type { Provider } from "@/provider/provider"
@@ -73,7 +74,11 @@ const providerInfo: Provider.Info = {
 }
 
 const it = testEffect(
-  LLMClient.layer.pipe(Layer.provide(Layer.mergeAll(RequestExecutor.defaultLayer, WebSocketExecutor.layer))),
+  LLMClient.layer.pipe(
+    Layer.provide(
+      Layer.mergeAll(RequestExecutor.layer.pipe(Layer.provide(FetchHttpClient.layer)), WebSocketExecutor.layer),
+    ),
+  ),
 )
 
 function responsesStream(chunks: unknown[]) {
@@ -115,10 +120,9 @@ const storedSession = {
 const openAIResponses = {
   user: (text: string) => ({ role: "user", content: [{ type: "input_text", text }] }),
   assistant: (text: string) => ({ role: "assistant", content: [{ type: "output_text", text }] }),
-  openaiReasoning: (text: string, options: { readonly itemId: string; readonly encryptedContent: string }) => ({
+  openaiReasoning: (text: string, encryptedContent: string) => ({
     type: "reasoning",
-    id: options.itemId,
-    encrypted_content: options.encryptedContent,
+    encrypted_content: encryptedContent,
     summary: [{ type: "summary_text", text }],
   }),
 }
@@ -356,7 +360,7 @@ describe("session.llm-native.request", () => {
     const compatible = LLMNative.model({
       model: {
         ...baseModel,
-        providerID: ProviderV2.ID.make("makcode"),
+        providerID: ProviderV2.ID.make("opencode"),
         api: { ...baseModel.api, url: "https://ai.example.test/v1", npm: "@ai-sdk/openai-compatible" },
       },
       apiKey: "test-key",
@@ -390,8 +394,8 @@ describe("session.llm-native.request", () => {
     })
     expect(
       LLMNativeRuntime.status({
-        model: { ...baseModel, providerID: ProviderV2.ID.make("makcode") },
-        provider: { ...providerInfo, id: ProviderV2.ID.make("makcode") },
+        model: { ...baseModel, providerID: ProviderV2.ID.make("opencode") },
+        provider: { ...providerInfo, id: ProviderV2.ID.make("opencode") },
         auth: undefined,
       }),
     ).toMatchObject({
@@ -402,10 +406,10 @@ describe("session.llm-native.request", () => {
       LLMNativeRuntime.status({
         model: {
           ...baseModel,
-          providerID: ProviderV2.ID.make("makcode"),
+          providerID: ProviderV2.ID.make("opencode"),
           api: { ...baseModel.api, npm: "@ai-sdk/openai-compatible" },
         },
-        provider: { ...providerInfo, id: ProviderV2.ID.make("makcode") },
+        provider: { ...providerInfo, id: ProviderV2.ID.make("opencode") },
         auth: undefined,
       }),
     ).toMatchObject({
@@ -418,7 +422,7 @@ describe("session.llm-native.request", () => {
         provider: { ...providerInfo, id: ProviderV2.ID.make("google") },
         auth: undefined,
       }),
-    ).toEqual({ type: "unsupported", reason: "provider is not openai, makcode, or anthropic" })
+    ).toEqual({ type: "unsupported", reason: "provider is not openai, opencode, or anthropic" })
     expect(
       LLMNativeRuntime.status({
         model: baseModel,
@@ -471,13 +475,13 @@ describe("session.llm-native.request", () => {
     ).toMatchObject({ type: "supported", apiKey: "test-anthropic-key" })
   })
 
-  test("prefers console provider api key over stored makcode auth", () => {
+  test("prefers console provider api key over stored opencode auth", () => {
     expect(
       LLMNativeRuntime.status({
-        model: { ...baseModel, providerID: ProviderV2.ID.make("makcode") },
+        model: { ...baseModel, providerID: ProviderV2.ID.make("opencode") },
         provider: {
           ...providerInfo,
-          id: ProviderV2.ID.make("makcode"),
+          id: ProviderV2.ID.make("opencode"),
           options: { apiKey: "console-token" },
           key: "zen-token",
         },
@@ -657,10 +661,7 @@ describe("session.llm-native.request", () => {
       expectedBody: {
         input: [
           openAIResponses.user("What changed?"),
-          openAIResponses.openaiReasoning("Checked the previous diff.", {
-            itemId: "rs_1",
-            encryptedContent: "encrypted-state",
-          }),
+          openAIResponses.openaiReasoning("Checked the previous diff.", "encrypted-state"),
           openAIResponses.assistant("The parser changed."),
           openAIResponses.user("Summarize it."),
         ],
@@ -683,7 +684,7 @@ describe("session.llm-native.request", () => {
       ],
       providerOptions: { openai: { store: false, include: ["reasoning.encrypted_content"] } },
       expectedBody: {
-        input: [{ type: "reasoning", id: "rs_1", summary: [], encrypted_content: "encrypted-state" }],
+        input: [{ type: "reasoning", summary: [], encrypted_content: "encrypted-state" }],
         include: ["reasoning.encrypted_content"],
         store: false,
       },

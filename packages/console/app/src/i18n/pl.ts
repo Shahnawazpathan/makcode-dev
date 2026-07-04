@@ -36,14 +36,14 @@ export const dict = {
   "email.subscribe": "Subskrybuj",
   "email.success": "Prawie gotowe, sprawdź skrzynkę i potwierdź swój adres e-mail",
 
-  "notFound.title": "Nie znaleziono | makcode",
+  "notFound.title": "Nie znaleziono | opencode",
   "notFound.heading": "404 - Nie znaleziono strony",
   "notFound.home": "Strona główna",
   "notFound.docs": "Dokumentacja",
   "notFound.github": "GitHub",
   "notFound.discord": "Discord",
-  "notFound.logoLightAlt": "jasne logo makcode",
-  "notFound.logoDarkAlt": "ciemne logo makcode",
+  "notFound.logoLightAlt": "jasne logo opencode",
+  "notFound.logoDarkAlt": "ciemne logo opencode",
 
   "user.logout": "Wyloguj się",
 
@@ -84,21 +84,21 @@ export const dict = {
 
   "home.title": "MakCode | Open source'owy agent AI do kodowania",
 
-  "temp.title": "makcode | Agent AI do kodowania zbudowany dla terminala",
+  "temp.title": "opencode | Agent AI do kodowania zbudowany dla terminala",
   "temp.hero.title": "Agent AI do kodowania zbudowany dla terminala",
-  "temp.zen": "makcode zen",
+  "temp.zen": "opencode zen",
   "temp.getStarted": "Rozpocznij",
   "temp.feature.native.title": "Natywny TUI",
   "temp.feature.native.body": "Responsywny, natywny, tematyczny interfejs terminala",
   "temp.feature.zen.beforeLink": "A",
   "temp.feature.zen.link": "wyselekcjonowana lista modeli",
-  "temp.feature.zen.afterLink": "dostarczana przez makcode",
+  "temp.feature.zen.afterLink": "dostarczana przez opencode",
   "temp.feature.models.beforeLink": "Obsługuje 75+ dostawców LLM przez",
   "temp.feature.models.afterLink": ", w tym modele lokalne",
   "temp.screenshot.caption": "MakCode TUI z motywem tokyonight",
   "temp.screenshot.alt": "MakCode TUI z motywem tokyonight",
-  "temp.logoLightAlt": "jasne logo makcode",
-  "temp.logoDarkAlt": "ciemne logo makcode",
+  "temp.logoLightAlt": "jasne logo opencode",
+  "temp.logoDarkAlt": "ciemne logo opencode",
 
   "home.banner.badge": "Nowość",
   "home.banner.text": "Aplikacja desktopowa dostępna w wersji beta",
@@ -251,7 +251,6 @@ export const dict = {
   "zen.privacy.exceptionsLink": "następującymi wyjątkami",
 
   "go.title": "MakCode Go | Niskokosztowe modele do kodowania dla każdego",
-  "go.banner.text": "MiniMax M3 oferuje 3x wyższe limity użycia przez ograniczony czas",
   "go.meta.description":
     "Go zaczyna się od $5 za pierwszy miesiąc, potem $10/miesiąc, z hojnymi 5-godzinnymi limitami zapytań dla GLM-5.2, GLM-5.1, Kimi K2.7 Code, Kimi K2.6, MiMo-V2.5-Pro, MiMo-V2.5, Qwen3.7 Max, Qwen3.7 Plus, Qwen3.6 Plus, MiniMax M2.7, MiniMax M3, DeepSeek V4 Pro i DeepSeek V4 Flash.",
   "go.hero.title": "Niskokosztowe modele do kodowania dla każdego",
@@ -375,6 +374,8 @@ export const dict = {
   "zen.api.error.userMonthlyLimitReached":
     "Osiągnąłeś swój miesięczny limit wydatków w wysokości ${{amount}}. Zarządzaj swoimi limitami tutaj: {{membersUrl}}",
   "zen.api.error.modelDisabled": "Model jest wyłączony",
+  "zen.api.error.regionNotAllowed":
+    "Ten model jest hostowany w Chinach. Jeśli chcesz korzystać z tego modelu, włącz go w swoich ustawieniach: {{consoleGoUrl}}",
   "zen.api.error.trialEnded":
     "Bezpłatna promocja {{model}} dobiegła końca. Możesz dalej korzystać z modelu, subskrybując MakCode Go - {{link}}",
 
@@ -453,9 +454,9 @@ export const dict = {
   "workspace.newUser.copied": "Skopiowano!",
   "workspace.newUser.step.enableBilling": "Włącz rozliczenia",
   "workspace.newUser.step.login.before": "Uruchom",
-  "workspace.newUser.step.login.after": "i wybierz makcode",
+  "workspace.newUser.step.login.after": "i wybierz opencode",
   "workspace.newUser.step.pasteKey": "Wklej swój klucz API",
-  "workspace.newUser.step.models.before": "Uruchom makcode i wpisz",
+  "workspace.newUser.step.models.before": "Uruchom opencode i wpisz",
   "workspace.newUser.step.models.after": "aby wybrać model",
 
   "workspace.models.title": "Modele",
@@ -501,10 +502,10 @@ export const dict = {
   "workspace.cost.subscriptionShort": "sub",
 
   "workspace.keys.title": "Klucze API",
-  "workspace.keys.subtitle": "Zarządzaj kluczami API do usług makcode.",
+  "workspace.keys.subtitle": "Zarządzaj kluczami API do usług opencode.",
   "workspace.keys.create": "Utwórz klucz API",
   "workspace.keys.placeholder": "Wpisz nazwę klucza",
-  "workspace.keys.empty": "Utwórz klucz API bramy makcode",
+  "workspace.keys.empty": "Utwórz klucz API bramy opencode",
   "workspace.keys.table.name": "Nazwa",
   "workspace.keys.table.key": "Klucz",
   "workspace.keys.table.createdBy": "Utworzony przez",
@@ -653,7 +654,10 @@ export const dict = {
   "workspace.lite.subscription.resetsIn": "Resetuje się za",
   "workspace.lite.subscription.useBalance": "Użyj dostępnego salda po osiągnięciu limitów użycia",
   "workspace.lite.subscription.selectProvider":
-    'Wybierz "MakCode Go" jako dostawcę w konfiguracji makcode, aby używać modeli Go.',
+    'Wybierz "MakCode Go" jako dostawcę w konfiguracji opencode, aby używać modeli Go.',
+  "workspace.lite.providers.title": "Dostawcy",
+  "workspace.lite.providers.description": "Kontroluj, którzy dostawcy są używani do routingu.",
+  "workspace.lite.providers.useChina": "Włącz modele hostowane w Chinach",
   "workspace.lite.black.message":
     "Obecnie subskrybujesz MakCode Black lub jesteś na liście oczekujących. Jeśli chcesz przejść na Go, najpierw anuluj subskrypcję.",
   "workspace.lite.other.message":

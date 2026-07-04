@@ -1,6 +1,7 @@
 import { describe, expect } from "bun:test"
 import { Effect, Exit, Scope } from "effect"
 import { AgentV2 } from "@makcode-ai/core/agent"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
 import { Location } from "@makcode-ai/core/location"
 import { AgentPlugin } from "@makcode-ai/core/plugin/agent"
 import { AbsolutePath } from "@makcode-ai/core/schema"
@@ -8,7 +9,7 @@ import { location } from "./fixture/location"
 import { testEffect } from "./lib/effect"
 import { agentHost, host } from "./plugin/host"
 
-const it = testEffect(AgentV2.locationLayer)
+const it = testEffect(AppNodeBuilder.build(AgentV2.node))
 
 describe("AgentV2", () => {
   it.effect("starts without agents", () =>

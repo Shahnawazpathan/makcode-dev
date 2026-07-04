@@ -5,7 +5,7 @@ import { NonNegativeInt } from "@makcode-ai/core/schema"
 import { Global } from "@makcode-ai/core/global"
 import { FSUtil } from "@makcode-ai/core/fs-util"
 
-export const OAUTH_DUMMY_KEY = "makcode-oauth-dummy-key"
+export const OAUTH_DUMMY_KEY = "opencode-oauth-dummy-key"
 
 const file = path.join(Global.Path.data, "auth.json")
 
@@ -47,9 +47,9 @@ export interface Interface {
   readonly remove: (key: string) => Effect.Effect<void, AuthError>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/Auth") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Auth") {}
 
-export const layer = Layer.effect(
+const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const fsys = yield* FSUtil.Service
@@ -92,8 +92,6 @@ export const layer = Layer.effect(
   }),
 )
 
-export const defaultLayer = layer.pipe(Layer.provide(FSUtil.defaultLayer))
-
-export const node = LayerNode.make(layer, [FSUtil.node])
+export const node = LayerNode.make({ service: Service, layer: layer, deps: [FSUtil.node] })
 
 export * as Auth from "."

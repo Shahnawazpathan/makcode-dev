@@ -19,9 +19,11 @@ import { MessageID, SessionID } from "@/session/schema"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { ProviderV2 } from "@makcode-ai/core/provider"
 import { ModelV2 } from "@makcode-ai/core/model"
+import { MCP } from "@/mcp"
+import type { Tool as MCPToolDef } from "@modelcontextprotocol/sdk/types.js"
 
 const configLayer = TestConfig.layer({
-  directories: () => InstanceState.directory.pipe(Effect.map((dir) => [path.join(dir, ".makcode")])),
+  directories: () => InstanceState.directory.pipe(Effect.map((dir) => [path.join(dir, ".opencode")])),
 })
 
 // Fake Plugin.Service that returns a single plugin whose `tool` map contains
@@ -50,16 +52,48 @@ const brokenPluginLayer = Layer.succeed(
 
 const root = LayerNode.group([ToolRegistry.node, Agent.node])
 const replacements = [
-  LayerNode.replace(Config.node, configLayer),
-  LayerNode.replace(RuntimeFlags.node, RuntimeFlags.layer()),
-]
+  [Config.node, configLayer],
+  [RuntimeFlags.node, RuntimeFlags.layer()],
+] as const
 
-const it = testEffect(LayerNode.buildLayer(root, { replacements }))
-const withBrokenPlugin = testEffect(
-  LayerNode.buildLayer(root, {
-    replacements: [...replacements, LayerNode.replace(Plugin.node, brokenPluginLayer)],
-  }),
+const it = testEffect(LayerNode.compile(root, replacements))
+const withCodeMode = testEffect(
+  LayerNode.compile(root, [
+    [Config.node, configLayer],
+    [RuntimeFlags.node, RuntimeFlags.layer({ experimentalCodeMode: true })],
+    [
+      MCP.node,
+      Layer.mock(MCP.Service, {
+        tools: () =>
+          Effect.succeed({
+            weather_current: {
+              def: {
+                name: "current",
+                description: "current weather",
+                inputSchema: { type: "object", properties: { city: { type: "string" } }, required: ["city"] },
+              } as MCPToolDef,
+              client: {} as MCP.McpTool["client"],
+            },
+          }),
+        clients: () => Effect.succeed({ weather: {} as any }),
+      }),
+    ],
+  ]),
 )
+const withEmptyCodeMode = testEffect(
+  LayerNode.compile(root, [
+    [Config.node, configLayer],
+    [RuntimeFlags.node, RuntimeFlags.layer({ experimentalCodeMode: true })],
+    [
+      MCP.node,
+      Layer.mock(MCP.Service, {
+        tools: () => Effect.succeed({}),
+        clients: () => Effect.succeed({}),
+      }),
+    ],
+  ]),
+)
+const withBrokenPlugin = testEffect(LayerNode.compile(root, [...replacements, [Plugin.node, brokenPluginLayer]]))
 
 afterEach(async () => {
   await disposeAllInstances()
@@ -75,6 +109,47 @@ describe("tool.registry", () => {
     }),
   )
 
+  it.instance("does not expose execute unless code mode is enabled", () =>
+    Effect.gen(function* () {
+      const registry = yield* ToolRegistry.Service
+      const ids = yield* registry.ids()
+
+      expect(ids).not.toContain("execute")
+    }),
+  )
+
+  withCodeMode.instance("exposes execute when code mode is enabled", () =>
+    Effect.gen(function* () {
+      const registry = yield* ToolRegistry.Service
+      const agents = yield* Agent.Service
+      const ids = yield* registry.ids()
+      const tools = yield* registry.tools({
+        providerID: ProviderV2.ID.opencode,
+        modelID: ModelV2.ID.make("test"),
+        agent: yield* agents.defaultInfo(),
+      })
+      const execute = tools.find((tool) => tool.id === "execute")
+
+      expect(ids).toContain("execute")
+      expect(tools.map((tool) => tool.id)).toContain("execute")
+      expect(execute?.description).toContain("tools.weather.current(input: { city: string })")
+    }),
+  )
+
+  withEmptyCodeMode.instance("does not expose execute when code mode has no visible tools", () =>
+    Effect.gen(function* () {
+      const registry = yield* ToolRegistry.Service
+      const agents = yield* Agent.Service
+      const tools = yield* registry.tools({
+        providerID: ProviderV2.ID.opencode,
+        modelID: ModelV2.ID.make("test"),
+        agent: yield* agents.defaultInfo(),
+      })
+
+      expect(tools.map((tool) => tool.id)).not.toContain("execute")
+    }),
+  )
+
   it.instance("hides task background parameter unless experimental background subagents are enabled", () =>
     Effect.gen(function* () {
       const registry = yield* ToolRegistry.Service
@@ -82,7 +157,7 @@ describe("tool.registry", () => {
       const build = yield* agent.get("build")
       if (!build) throw new Error("build agent not found")
       const task = (yield* registry.tools({
-        providerID: ProviderV2.ID.makcode,
+        providerID: ProviderV2.ID.opencode,
         modelID: ModelV2.ID.make("test"),
         agent: build,
       })).find((tool) => tool.id === "task")
@@ -92,11 +167,11 @@ describe("tool.registry", () => {
     }),
   )
 
-  it.instance("loads tools from .makcode/tool (singular)", () =>
+  it.instance("loads tools from .opencode/tool (singular)", () =>
     Effect.gen(function* () {
       const test = yield* TestInstance
-      const makcode = path.join(test.directory, ".makcode")
-      const tool = path.join(makcode, "tool")
+      const opencode = path.join(test.directory, ".opencode")
+      const tool = path.join(opencode, "tool")
       yield* Effect.promise(() => fs.mkdir(tool, { recursive: true }))
       yield* Effect.promise(() =>
         Bun.write(
@@ -119,10 +194,10 @@ describe("tool.registry", () => {
     }),
   )
 
-  it.instance("ignores non-tool exports in .makcode/tool files", () =>
+  it.instance("ignores non-tool exports in .opencode/tool files", () =>
     Effect.gen(function* () {
       const test = yield* TestInstance
-      const tool = path.join(test.directory, ".makcode", "tool")
+      const tool = path.join(test.directory, ".opencode", "tool")
       yield* Effect.promise(() => fs.mkdir(tool, { recursive: true }))
       yield* Effect.promise(() =>
         Bun.write(
@@ -155,7 +230,7 @@ describe("tool.registry", () => {
   it.instance("tolerates a custom tool exporting null/undefined args (no-args fallback)", () =>
     Effect.gen(function* () {
       const test = yield* TestInstance
-      const tool = path.join(test.directory, ".makcode", "tool")
+      const tool = path.join(test.directory, ".opencode", "tool")
       yield* Effect.promise(() => fs.mkdir(tool, { recursive: true }))
       yield* Effect.promise(() =>
         Bun.write(
@@ -183,7 +258,7 @@ describe("tool.registry", () => {
   )
 
   // Same regression, plugin entry point. The original reports (#27451, #27630)
-  // came in through `plugin.list()` — `oh-my-makcode` was registering a tool
+  // came in through `plugin.list()` — `oh-my-opencode` was registering a tool
   // with `args: undefined` and crashing every message submit. The file-scan
   // and plugin-list loops both funnel through `fromPlugin`, but covering both
   // entry points means a future refactor that splits them won't silently lose
@@ -197,11 +272,11 @@ describe("tool.registry", () => {
     }),
   )
 
-  it.instance("loads tools from .makcode/tools (plural)", () =>
+  it.instance("loads tools from .opencode/tools (plural)", () =>
     Effect.gen(function* () {
       const test = yield* TestInstance
-      const makcode = path.join(test.directory, ".makcode")
-      const tools = path.join(makcode, "tools")
+      const opencode = path.join(test.directory, ".opencode")
+      const tools = path.join(opencode, "tools")
       yield* Effect.promise(() => fs.mkdir(tools, { recursive: true }))
       yield* Effect.promise(() =>
         Bun.write(
@@ -227,7 +302,7 @@ describe("tool.registry", () => {
   it.instance("loads Zod-schema custom tools with JSON Schema and validation", () =>
     Effect.gen(function* () {
       const test = yield* TestInstance
-      const customTools = path.join(test.directory, ".makcode", "tools")
+      const customTools = path.join(test.directory, ".opencode", "tools")
       const pluginTool = pathToFileURL(path.resolve(import.meta.dir, "../../../plugin/src/tool.ts")).href
       yield* Effect.promise(() => fs.mkdir(customTools, { recursive: true }))
       yield* Effect.promise(() =>
@@ -260,7 +335,7 @@ describe("tool.registry", () => {
 
       const agents = yield* Agent.Service
       const promptTools = yield* registry.tools({
-        providerID: ProviderV2.ID.makcode,
+        providerID: ProviderV2.ID.opencode,
         modelID: ModelV2.ID.make("test"),
         agent: yield* agents.defaultInfo(),
       })
@@ -280,13 +355,13 @@ describe("tool.registry", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const makcode = path.join(test.directory, ".makcode")
-        const customTools = path.join(makcode, "tools")
-        const plugin = path.join(makcode, "node_modules", "@makcode-ai", "plugin")
+        const opencode = path.join(test.directory, ".opencode")
+        const customTools = path.join(opencode, "tools")
+        const plugin = path.join(opencode, "node_modules", "@opencode-ai", "plugin")
         yield* Effect.promise(() => fs.mkdir(path.join(plugin, "dist"), { recursive: true }))
         yield* Effect.promise(() => fs.mkdir(customTools, { recursive: true }))
         yield* Effect.promise(() =>
-          fs.cp(path.dirname(fileURLToPath(import.meta.resolve("zod"))), path.join(makcode, "node_modules", "zod"), {
+          fs.cp(path.dirname(fileURLToPath(import.meta.resolve("zod"))), path.join(opencode, "node_modules", "zod"), {
             dereference: true,
             recursive: true,
           }),
@@ -294,7 +369,7 @@ describe("tool.registry", () => {
         yield* Effect.promise(() =>
           Bun.write(
             path.join(plugin, "package.json"),
-            JSON.stringify({ name: "@makcode-ai/plugin", type: "module", exports: { ".": "./dist/index.js" } }),
+            JSON.stringify({ name: "@opencode-ai/plugin", type: "module", exports: { ".": "./dist/index.js" } }),
           ),
         )
         yield* Effect.promise(() =>
@@ -314,7 +389,7 @@ describe("tool.registry", () => {
           Bun.write(
             path.join(customTools, "addition.ts"),
             [
-              'import { tool } from "@makcode-ai/plugin"',
+              'import { tool } from "@opencode-ai/plugin"',
               "export default tool({",
               "  description: 'Use this tool to add two numbers and return their sum.',",
               "  args: {",
@@ -345,7 +420,7 @@ describe("tool.registry", () => {
   it.instance("preserves attachments from structured custom tool results", () =>
     Effect.gen(function* () {
       const test = yield* TestInstance
-      const customTools = path.join(test.directory, ".makcode", "tools")
+      const customTools = path.join(test.directory, ".opencode", "tools")
       const pluginTool = pathToFileURL(path.resolve(import.meta.dir, "../../../plugin/src/tool.ts")).href
       yield* Effect.promise(() => fs.mkdir(customTools, { recursive: true }))
       yield* Effect.promise(() =>
@@ -390,7 +465,7 @@ describe("tool.registry", () => {
   it.instance("loads legacy JSON-schema-shaped custom tools with wire schema", () =>
     Effect.gen(function* () {
       const test = yield* TestInstance
-      const tools = path.join(test.directory, ".makcode", "tools")
+      const tools = path.join(test.directory, ".opencode", "tools")
       yield* Effect.promise(() => fs.mkdir(tools, { recursive: true }))
       yield* Effect.promise(() =>
         Bun.write(
@@ -422,16 +497,16 @@ describe("tool.registry", () => {
   it.instance("loads tools with external dependencies without crashing", () =>
     Effect.gen(function* () {
       const test = yield* TestInstance
-      const makcode = path.join(test.directory, ".makcode")
-      const tools = path.join(makcode, "tools")
+      const opencode = path.join(test.directory, ".opencode")
+      const tools = path.join(opencode, "tools")
       yield* Effect.promise(() => fs.mkdir(tools, { recursive: true }))
       yield* Effect.promise(() =>
         Bun.write(
-          path.join(makcode, "package.json"),
+          path.join(opencode, "package.json"),
           JSON.stringify({
             name: "custom-tools",
             dependencies: {
-              "@makcode-ai/plugin": "^0.0.0",
+              "@opencode-ai/plugin": "^0.0.0",
               cowsay: "^1.6.0",
             },
           }),
@@ -439,14 +514,14 @@ describe("tool.registry", () => {
       )
       yield* Effect.promise(() =>
         Bun.write(
-          path.join(makcode, "package-lock.json"),
+          path.join(opencode, "package-lock.json"),
           JSON.stringify({
             name: "custom-tools",
             lockfileVersion: 3,
             packages: {
               "": {
                 dependencies: {
-                  "@makcode-ai/plugin": "^0.0.0",
+                  "@opencode-ai/plugin": "^0.0.0",
                   cowsay: "^1.6.0",
                 },
               },
@@ -455,7 +530,7 @@ describe("tool.registry", () => {
         ),
       )
 
-      const cowsay = path.join(makcode, "node_modules", "cowsay")
+      const cowsay = path.join(opencode, "node_modules", "cowsay")
       yield* Effect.promise(() => fs.mkdir(cowsay, { recursive: true }))
       yield* Effect.promise(() =>
         Bun.write(

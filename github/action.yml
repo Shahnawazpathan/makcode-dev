@@ -35,7 +35,7 @@ inputs:
     required: false
 
   oidc_base_url:
-    description: "Base URL for OIDC token exchange API. Only required when running a custom GitHub App install. Defaults to https://api.makcode.ai"
+    description: "Base URL for OIDC token exchange API. Only required when running a custom GitHub App install. Defaults to https://api.opencode.ai"
     required: false
 
 runs:
@@ -58,7 +58,7 @@ runs:
     - name: Install makcode
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
-      run: curl -fsSL https://makcode.ai/install | bash
+      run: curl -fsSL https://opencode.ai/install | bash
 
     - name: Add makcode to PATH
       shell: bash

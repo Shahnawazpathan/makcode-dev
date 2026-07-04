@@ -15,6 +15,8 @@ import eventSourcedSessionInputMigration from "@makcode-ai/core/database/migrati
 import contextEpochAgentMigration from "@makcode-ai/core/database/migration/20260605042240_add_context_epoch_agent"
 import simplifyIntegrationCredentialsMigration from "@makcode-ai/core/database/migration/20260611192811_lush_chimera"
 import simplifySessionInputMigration from "@makcode-ai/core/database/migration/20260622202450_simplify_session_input"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { EventV2 } from "@makcode-ai/core/event"
 import { ProjectV2 } from "@makcode-ai/core/project"
 import { ProjectTable } from "@makcode-ai/core/project/sql"
@@ -268,7 +270,6 @@ describe("DatabaseMigration", () => {
         yield* DatabaseMigration.applyOnly(db, [simplifySessionInputMigration])
 
         const database = Layer.succeed(Database.Service, { db })
-        const events = EventV2.layer.pipe(Layer.provide(database))
         yield* EventV2.Service.use((service) =>
           service.publish(SessionV1.Event.Updated, {
             sessionID: SessionSchema.ID.make("session"),
@@ -284,7 +285,7 @@ describe("DatabaseMigration", () => {
           }),
         ).pipe(
           Effect.provide(
-            Layer.merge(events, SessionProjector.layer.pipe(Layer.provide(events), Layer.provide(database))),
+            AppNodeBuilder.build(LayerNode.group([EventV2.node, SessionProjector.node]), [[Database.node, database]]),
           ),
         )
 

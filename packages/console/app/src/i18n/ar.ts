@@ -37,14 +37,14 @@ export const dict = {
   "email.subscribe": "اشتراك",
   "email.success": "تبقّت خطوة واحدة: تحقق من بريدك وأكّد عنوانك",
 
-  "notFound.title": "غير موجود | makcode",
+  "notFound.title": "غير موجود | opencode",
   "notFound.heading": "404 - الصفحة غير موجودة",
   "notFound.home": "الرئيسية",
   "notFound.docs": "الوثائق",
   "notFound.github": "GitHub",
   "notFound.discord": "Discord",
-  "notFound.logoLightAlt": "شعار makcode الفاتح",
-  "notFound.logoDarkAlt": "شعار makcode الداكن",
+  "notFound.logoLightAlt": "شعار opencode الفاتح",
+  "notFound.logoDarkAlt": "شعار opencode الداكن",
 
   "user.logout": "تسجيل الخروج",
 
@@ -85,21 +85,21 @@ export const dict = {
 
   "home.title": "MakCode | وكيل برمجة بالذكاء الاصطناعي مفتوح المصدر",
 
-  "temp.title": "makcode | وكيل برمجة بالذكاء الاصطناعي مبني للطرفية",
+  "temp.title": "opencode | وكيل برمجة بالذكاء الاصطناعي مبني للطرفية",
   "temp.hero.title": "وكيل البرمجة بالذكاء الاصطناعي المبني للطرفية",
-  "temp.zen": "makcode zen",
+  "temp.zen": "opencode zen",
   "temp.getStarted": "ابدأ",
   "temp.feature.native.title": "واجهة طرفية أصلية",
   "temp.feature.native.body": "واجهة مستخدم طرفية سريعة الاستجابة، أصلية، وقابلة للتخصيص",
   "temp.feature.zen.beforeLink": "قائمة",
   "temp.feature.zen.link": "منسقة من النماذج",
-  "temp.feature.zen.afterLink": "مقدمة من makcode",
+  "temp.feature.zen.afterLink": "مقدمة من opencode",
   "temp.feature.models.beforeLink": "يدعم أكثر من 75 مزود LLM من خلال",
   "temp.feature.models.afterLink": "، بما في ذلك النماذج المحلية",
   "temp.screenshot.caption": "واجهة MakCode الطرفية مع سمة tokyonight",
   "temp.screenshot.alt": "واجهة MakCode الطرفية بسمة tokyonight",
-  "temp.logoLightAlt": "شعار makcode الفاتح",
-  "temp.logoDarkAlt": "شعار makcode الداكن",
+  "temp.logoLightAlt": "شعار opencode الفاتح",
+  "temp.logoDarkAlt": "شعار opencode الداكن",
 
   "home.banner.badge": "جديد",
   "home.banner.text": "تطبيق سطح المكتب متاح بنسخة تجريبية",
@@ -248,7 +248,6 @@ export const dict = {
   "zen.privacy.exceptionsLink": "الاستثناءات التالية",
 
   "go.title": "MakCode Go | نماذج برمجة منخفضة التكلفة للجميع",
-  "go.banner.text": "MiniMax M3: حد استخدام أكبر 3 مرات لفترة محدودة",
   "go.meta.description":
     "يبدأ Go من $5 للشهر الأول، ثم $10/شهر، مع حدود طلب سخية لمدة 5 ساعات لـ GLM-5.2 وGLM-5.1 وKimi K2.7 Code وKimi K2.6 وMiMo-V2.5-Pro وMiMo-V2.5 وQwen3.7 Max وQwen3.7 Plus وQwen3.6 Plus وMiniMax M2.7 وMiniMax M3 وDeepSeek V4 Pro وDeepSeek V4 Flash.",
   "go.hero.title": "نماذج برمجة منخفضة التكلفة للجميع",
@@ -369,6 +368,8 @@ export const dict = {
   "zen.api.error.userMonthlyLimitReached":
     "لقد وصلت إلى حد الإنفاق الشهري البالغ ${{amount}}. إدارة حدودك هنا: {{membersUrl}}",
   "zen.api.error.modelDisabled": "النموذج معطل",
+  "zen.api.error.regionNotAllowed":
+    "هذا النموذج مستضاف في الصين. إذا كنت ترغب في استخدام هذا النموذج، فعّله في إعداداتك: {{consoleGoUrl}}",
   "zen.api.error.trialEnded":
     "انتهى العرض المجاني لـ {{model}}. يمكنك مواصلة استخدام النموذج بالاشتراك في MakCode Go - {{link}}",
 
@@ -440,15 +441,15 @@ export const dict = {
     "الوصول إلى النماذج التي تم تكوينها لتحقيق الأداء الأمثل - لا تقليل للجودة أو توجيه إلى موفري خدمة أرخص.",
   "workspace.newUser.feature.lockin.title": "لا قيود على المزود",
   "workspace.newUser.feature.lockin.body":
-    "استخدم Zen مع أي وكيل برمجة، واستمر في استخدام موفرين آخرين مع makcode وقتما تشاء.",
+    "استخدم Zen مع أي وكيل برمجة، واستمر في استخدام موفرين آخرين مع opencode وقتما تشاء.",
   "workspace.newUser.copyApiKey": "نسخ مفتاح API",
   "workspace.newUser.copyKey": "نسخ المفتاح",
   "workspace.newUser.copied": "تم النسخ!",
   "workspace.newUser.step.enableBilling": "تمكين الفوترة",
   "workspace.newUser.step.login.before": "شغّل",
-  "workspace.newUser.step.login.after": "واختر makcode",
+  "workspace.newUser.step.login.after": "واختر opencode",
   "workspace.newUser.step.pasteKey": "الصق مفتاح API الخاص بك",
-  "workspace.newUser.step.models.before": "ابدأ makcode ثم نفّذ",
+  "workspace.newUser.step.models.before": "ابدأ opencode ثم نفّذ",
   "workspace.newUser.step.models.after": "لاختيار نموذج",
 
   "workspace.models.title": "النماذج",
@@ -494,10 +495,10 @@ export const dict = {
   "workspace.cost.subscriptionShort": "اشتراك",
 
   "workspace.keys.title": "مفاتيح API",
-  "workspace.keys.subtitle": "إدارة مفاتيح API الخاصة بك للوصول إلى خدمات makcode.",
+  "workspace.keys.subtitle": "إدارة مفاتيح API الخاصة بك للوصول إلى خدمات opencode.",
   "workspace.keys.create": "إنشاء مفتاح API",
   "workspace.keys.placeholder": "أدخل اسم المفتاح",
-  "workspace.keys.empty": "أنشئ مفتاح API لبوابة makcode",
+  "workspace.keys.empty": "أنشئ مفتاح API لبوابة opencode",
   "workspace.keys.table.name": "الاسم",
   "workspace.keys.table.key": "المفتاح",
   "workspace.keys.table.createdBy": "تم الإنشاء بواسطة",
@@ -645,7 +646,10 @@ export const dict = {
   "workspace.lite.subscription.resetsIn": "إعادة تعيين في",
   "workspace.lite.subscription.useBalance": "استخدم رصيدك المتوفر بعد الوصول إلى حدود الاستخدام",
   "workspace.lite.subscription.selectProvider":
-    'اختر "MakCode Go" كمزود في إعدادات makcode الخاصة بك لاستخدام نماذج Go.',
+    'اختر "MakCode Go" كمزود في إعدادات opencode الخاصة بك لاستخدام نماذج Go.',
+  "workspace.lite.providers.title": "المزودون",
+  "workspace.lite.providers.description": "تحكم في المزودين المستخدمين للتوجيه.",
+  "workspace.lite.providers.useChina": "تفعيل النماذج المستضافة في الصين",
   "workspace.lite.black.message":
     "أنت مشترك حاليًا في MakCode Black أو في قائمة الانتظار. يرجى إلغاء الاشتراك أولاً إذا كنت ترغب في التبديل إلى Go.",
   "workspace.lite.other.message":

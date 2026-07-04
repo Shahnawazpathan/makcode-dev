@@ -6,7 +6,7 @@ import path from "path"
 import { AbsolutePath } from "./schema"
 import { FSUtil } from "./fs-util"
 import { Git } from "./git"
-import { LayerNode } from "./effect/layer-node"
+import { makeGlobalNode } from "./effect/app-node"
 import { Hash } from "./util/hash"
 import { ProjectDirectories } from "./project/directories"
 import { ProjectSchema } from "./project/schema"
@@ -40,7 +40,7 @@ export interface Interface {
   /**
    * Temporary bridge method for writing the resolved project ID to the repo-local cache.
    *
-   * This exists while the old makcode project service and this core project
+   * This exists while the old opencode project service and this core project
    * service work together: core resolves the ID, while the old service still owns
    * database migration and persistence. The old service should call this after it
    * finishes migrating from `resolve().previous` to `resolve().id`; once project
@@ -49,9 +49,9 @@ export interface Interface {
   readonly commit: (input: { store: AbsolutePath; id: ID }) => Effect.Effect<void>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/ProjectV2") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/ProjectV2") {}
 
-export const layer = Layer.effect(
+const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const fs = yield* FSUtil.Service
@@ -63,15 +63,15 @@ export const layer = Layer.effect(
     })
 
     const cached = Effect.fnUntraced(function* (dir: string) {
-      return yield* fs.readFileString(path.join(dir, "makcode")).pipe(
+      return yield* fs.readFileString(path.join(dir, "opencode")).pipe(
         Effect.map((value) => value.trim()),
         Effect.map((value) => (value ? ID.make(value) : undefined)),
         Effect.catch(() => Effect.succeed(undefined)),
       )
     })
 
-    const remote = Effect.fnUntraced(function* (repo: Git.Repo) {
-      const origin = yield* git.remote(repo)
+    const remote = Effect.fnUntraced(function* (repo: Git.Repository) {
+      const origin = yield* git.remote.get(repo)
       if (!origin) return undefined
       const normalized = url(origin)
       if (!normalized) return undefined
@@ -102,36 +102,35 @@ export const layer = Layer.effect(
       return `${host.toLowerCase()}/${pathname}`
     }
 
-    const root = Effect.fnUntraced(function* (repo: Git.Repo) {
-      const root = (yield* git.roots(repo))[0]
+    const root = Effect.fnUntraced(function* (repo: Git.Repository) {
+      const root = (yield* git.history.rootCommits(repo))[0]
       return root ? ID.make(root) : undefined
     })
 
     const resolve = Effect.fn("Project.resolve")(function* (input: AbsolutePath) {
-      const repo = yield* git.find(input)
+      const repo = yield* git.repo.discover(input)
       if (!repo) return { id: ID.global, directory: AbsolutePath.make(path.parse(input).root), vcs: undefined }
 
-      const previous = yield* cached(repo.store)
+      const previous = yield* cached(repo.commonDirectory)
       const id = (yield* remote(repo)) ?? previous ?? (yield* root(repo))
       return {
         previous,
         id: id ?? ID.global,
-        directory: repo.directory,
-        vcs: { type: "git" as const, store: repo.store },
+        directory: repo.worktree,
+        vcs: { type: "git" as const, store: repo.commonDirectory },
       }
     })
 
     const commit = Effect.fn("Project.commit")(function* (input: { store: AbsolutePath; id: ID }) {
-      yield* fs.writeFileString(path.join(input.store, "makcode"), input.id).pipe(Effect.ignore)
+      yield* fs.writeFileString(path.join(input.store, "opencode"), input.id).pipe(Effect.ignore)
     })
 
     return Service.of({ directories, resolve, commit })
   }),
 )
 
-export const defaultLayer = layer.pipe(
-  Layer.provide(FSUtil.defaultLayer),
-  Layer.provide(Git.defaultLayer),
-  Layer.provideMerge(ProjectDirectories.defaultLayer),
-)
-export const node = LayerNode.make(layer, [FSUtil.node, Git.node, ProjectDirectories.node])
+export const node = makeGlobalNode({
+  service: Service,
+  layer: layer,
+  deps: [FSUtil.node, Git.node, ProjectDirectories.node],
+})

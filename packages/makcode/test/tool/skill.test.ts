@@ -1,10 +1,10 @@
 import { PermissionV1 } from "@makcode-ai/core/v1/permission"
 import { CrossSpawnSpawner } from "@makcode-ai/core/cross-spawn-spawner"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Ripgrep } from "@makcode-ai/core/ripgrep"
 import { Cause, Effect, Exit, Layer } from "effect"
 import { afterEach, describe, expect } from "bun:test"
 import path from "path"
-import { pathToFileURL } from "url"
 import type { Permission } from "../../src/permission"
 import type { Tool } from "@/tool/tool"
 import { SkillTool } from "../../src/tool/skill"
@@ -27,15 +27,13 @@ afterEach(async () => {
   await disposeAllInstances()
 })
 
-const node = CrossSpawnSpawner.defaultLayer
-
-const it = testEffect(Layer.mergeAll(ToolRegistry.defaultLayer, node).pipe(Layer.provide(Ripgrep.defaultLayer)))
+const it = testEffect(LayerNode.compile(LayerNode.group([ToolRegistry.node, CrossSpawnSpawner.node, Ripgrep.node])))
 
 describe("tool.skill", () => {
   it.instance("execute returns skill content block with files", () =>
     Effect.gen(function* () {
       const dir = (yield* TestInstance).directory
-      const skill = path.join(dir, ".makcode", "skill", "tool-skill")
+      const skill = path.join(dir, ".opencode", "skill", "tool-skill")
       yield* Effect.promise(() =>
         Bun.write(
           path.join(skill, "SKILL.md"),
@@ -63,7 +61,7 @@ Use this skill.
       const registry = yield* ToolRegistry.Service
       const agent = { name: "build", mode: "primary" as const, permission: [], options: {} }
       const tool = (yield* registry.tools({
-        providerID: "makcode" as any,
+        providerID: "opencode" as any,
         modelID: "gpt-5" as any,
         agent,
       })).find((tool) => tool.id === SkillTool.id)
@@ -90,7 +88,7 @@ Use this skill.
       expect(requests[0].always).toContain("tool-skill")
       expect(result.metadata.dir).toBe(skill)
       expect(result.output).toContain(`<skill_content name="tool-skill">`)
-      expect(result.output).toContain(`Base directory for this skill: ${pathToFileURL(skill).href}`)
+      expect(result.output).toContain(`Base directory for this skill: ${skill}`)
       expect(result.output).toContain(`<file>${file}</file>`)
     }),
   )
@@ -109,7 +107,7 @@ Use this skill.
       const registry = yield* ToolRegistry.Service
       const agent = { name: "build", mode: "primary" as const, permission: [], options: {} }
       const tool = (yield* registry.tools({
-        providerID: "makcode" as any,
+        providerID: "opencode" as any,
         modelID: "gpt-5" as any,
         agent,
       })).find((tool) => tool.id === SkillTool.id)

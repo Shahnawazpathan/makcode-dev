@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto"
 import { describe, expect } from "bun:test"
 import { Flag } from "@makcode-ai/core/flag/flag"
-import { ConfigProvider, Effect, Layer } from "effect"
+import { ConfigProvider, Effect, Layer, Option } from "effect"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
 import {
   HttpClient,
   HttpClientRequest,
@@ -39,7 +40,15 @@ const testStateLayer = Layer.effectDiscard(
   }),
 )
 
-const it = testEffect(Layer.mergeAll(testStateLayer, FSUtil.defaultLayer, RuntimeFlags.layer()))
+const fsUtilLayer = AppNodeBuilder.build(FSUtil.node)
+const it = testEffect(Layer.mergeAll(testStateLayer, fsUtilLayer, RuntimeFlags.layer()))
+
+function authConfigLayer(input?: { password?: string; username?: string }) {
+  return ServerAuth.Config.configLayer({
+    password: input?.password === undefined ? Option.none() : Option.some(input.password),
+    username: input?.username ?? "opencode",
+  })
+}
 
 function restoreEnv(key: string, value: string | undefined) {
   if (value === undefined) {
@@ -94,18 +103,12 @@ function uiApp(input?: {
         )
       }),
     ).pipe(
-      Layer.provide(authorizationRouterMiddleware.layer.pipe(Layer.provide(ServerAuth.Config.defaultLayer))),
+      Layer.provide(authorizationRouterMiddleware.layer.pipe(Layer.provide(authConfigLayer(input)))),
       Layer.provide([
-        FSUtil.defaultLayer,
+        fsUtilLayer,
         input?.client ?? httpClient(new Response("ui")),
         RuntimeFlags.layer({ disableEmbeddedWebUi: input?.disableEmbeddedWebUi ?? false }),
         HttpServer.layerServices,
-        ConfigProvider.layer(
-          ConfigProvider.fromUnknown({
-            OPENCODE_SERVER_PASSWORD: input?.password,
-            OPENCODE_SERVER_USERNAME: input?.username,
-          }),
-        ),
       ]),
     ),
     { disableLogger: true },
@@ -141,7 +144,7 @@ function routeOrderingApp() {
       }),
     ).pipe(
       Layer.provide([
-        FSUtil.defaultLayer,
+        fsUtilLayer,
         RuntimeFlags.layer({ disableEmbeddedWebUi: true }),
         httpClient(new Response("ui"), (request) => {
           proxiedUrl = request.url
@@ -188,7 +191,7 @@ describe("HttpApi UI fallback", () => {
       const response = yield* uiApp({
         disableEmbeddedWebUi: true,
         client: httpClient(
-          new Response("<html>makcode</html>", { headers: { "content-type": "text/html" } }),
+          new Response("<html>opencode</html>", { headers: { "content-type": "text/html" } }),
           (request) => {
             proxiedUrl = request.url
           },
@@ -197,8 +200,8 @@ describe("HttpApi UI fallback", () => {
 
       expect(response.status).toBe(200)
       expect(response.headers.get("content-type")).toContain("text/html")
-      expect(yield* responseText(response)).toBe("<html>makcode</html>")
-      expect(proxiedUrl).toBe("https://app.makcode.ai/")
+      expect(yield* responseText(response)).toBe("<html>opencode</html>")
+      expect(proxiedUrl).toBe("https://app.opencode.ai/")
     }),
   )
 
@@ -243,7 +246,7 @@ describe("HttpApi UI fallback", () => {
       )
 
       expect(response.status).toBe(200)
-      expect(proxiedUrl).toBe("https://app.makcode.ai/assets/app.js")
+      expect(proxiedUrl).toBe("https://app.opencode.ai/assets/app.js")
       expect(response.headers.get("content-encoding")).toBeNull()
       expect(response.headers.get("content-length")).not.toBe("999")
       expect(response.headers.get("content-type")).toContain("text/javascript")
@@ -275,7 +278,7 @@ describe("HttpApi UI fallback", () => {
                 Effect.succeed(
                   HttpClientResponse.fromWeb(
                     request,
-                    new Response("<html>makcode</html>", {
+                    new Response("<html>opencode</html>", {
                       headers: {
                         "transfer-encoding": "chunked",
                         "content-type": "text/html",
@@ -292,7 +295,7 @@ describe("HttpApi UI fallback", () => {
 
       expect(response.status).toBe(200)
       expect(response.headers.get("transfer-encoding")).toBeNull()
-      expect(yield* responseText(response)).toBe("<html>makcode</html>")
+      expect(yield* responseText(response)).toBe("<html>opencode</html>")
     }),
   )
 
@@ -366,7 +369,7 @@ describe("HttpApi UI fallback", () => {
     Effect.gen(function* () {
       const response = yield* uiApp({
         password: "secret",
-        username: "makcode",
+        username: "opencode",
         disableEmbeddedWebUi: true,
       }).request("/")
 
@@ -379,13 +382,13 @@ describe("HttpApi UI fallback", () => {
     Effect.gen(function* () {
       const response = yield* uiApp({
         password: "secret",
-        username: "makcode",
+        username: "opencode",
         disableEmbeddedWebUi: true,
-        client: httpClient(new Response("<html>makcode</html>", { headers: { "content-type": "text/html" } })),
-      }).request(`/?auth_token=${btoa("makcode:secret")}`)
+        client: httpClient(new Response("<html>opencode</html>", { headers: { "content-type": "text/html" } })),
+      }).request(`/?auth_token=${btoa("opencode:secret")}`)
 
       expect(response.status).toBe(200)
-      expect(yield* responseText(response)).toBe("<html>makcode</html>")
+      expect(yield* responseText(response)).toBe("<html>opencode</html>")
     }),
   )
 
@@ -393,10 +396,10 @@ describe("HttpApi UI fallback", () => {
     Effect.gen(function* () {
       const response = yield* uiApp({
         password: "secret",
-        username: "makcode",
+        username: "opencode",
         disableEmbeddedWebUi: true,
       }).request("/", {
-        headers: { authorization: `Basic ${btoa("makcode:secret")}` },
+        headers: { authorization: `Basic ${btoa("opencode:secret")}` },
       })
 
       expect(response.status).toBe(200)
@@ -407,10 +410,10 @@ describe("HttpApi UI fallback", () => {
     Effect.gen(function* () {
       const response = yield* uiApp({
         password: "sec:ret",
-        username: "makcode",
+        username: "opencode",
         disableEmbeddedWebUi: true,
       }).request("/", {
-        headers: { authorization: `Basic ${btoa("makcode:sec:ret")}` },
+        headers: { authorization: `Basic ${btoa("opencode:sec:ret")}` },
       })
 
       expect(response.status).toBe(200)
@@ -427,7 +430,7 @@ describe("HttpApi UI fallback", () => {
       for (const path of ["/site.webmanifest", "/web-app-manifest-192x192.png", "/web-app-manifest-512x512.png"]) {
         const response = yield* uiApp({
           password: "secret",
-          username: "makcode",
+          username: "opencode",
           disableEmbeddedWebUi: true,
           client: httpClient(new Response("ok")),
         }).request(path)
@@ -438,7 +441,7 @@ describe("HttpApi UI fallback", () => {
 
   it.live("allows web UI preflight without auth", () =>
     Effect.gen(function* () {
-      const response = yield* app({ password: "secret", username: "makcode" }).request("/", {
+      const response = yield* app({ password: "secret", username: "opencode" }).request("/", {
         method: "OPTIONS",
         headers: {
           origin: "http://localhost:3000",

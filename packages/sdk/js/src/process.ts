@@ -1,7 +1,7 @@
 import { type ChildProcess, spawnSync } from "node:child_process"
 
-// Duplicated from `packages/makcode/src/util/process.ts` because the SDK cannot
-// import `makcode` without creating a cycle (`makcode` depends on `@makcode-ai/sdk`).
+// Duplicated from `packages/opencode/src/util/process.ts` because the SDK cannot
+// import `opencode` without creating a cycle (`opencode` depends on `@makcode-ai/sdk`).
 export function stop(proc: ChildProcess) {
   if (proc.exitCode !== null || proc.signalCode !== null) return
   if (process.platform === "win32" && proc.pid) {

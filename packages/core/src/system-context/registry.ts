@@ -2,6 +2,7 @@ export * as SystemContextRegistry from "./registry"
 
 import { Context, Effect, Layer, Ref, Scope } from "effect"
 import { SystemContext } from "./index"
+import { makeLocationNode } from "../effect/app-node"
 
 export interface Entry {
   readonly key: SystemContext.Key
@@ -13,9 +14,9 @@ export interface Interface {
   readonly load: () => Effect.Effect<SystemContext.SystemContext>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/v2/SystemContextRegistry") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/v2/SystemContextRegistry") {}
 
-export const layer = Layer.effect(
+const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const entries = yield* Ref.make<ReadonlyArray<Entry>>([])
@@ -44,3 +45,5 @@ export const layer = Layer.effect(
     })
   }),
 )
+
+export const node = makeLocationNode({ service: Service, layer, deps: [] })

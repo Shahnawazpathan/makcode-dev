@@ -7,6 +7,8 @@ import path from "node:path"
 import { Cause, Config, Effect, Exit, Layer } from "effect"
 import { HttpClient, HttpClientRequest, HttpClientResponse, HttpRouter, HttpServer } from "effect/unstable/http"
 import { layerWebSocketConstructorGlobal } from "effect/unstable/socket/Socket"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { CrossSpawnSpawner } from "@makcode-ai/core/cross-spawn-spawner"
 import { Flag } from "@makcode-ai/core/flag/flag"
 import { Ripgrep } from "@makcode-ai/core/ripgrep"
@@ -14,16 +16,15 @@ import { registerAdapter } from "../../src/control-plane/adapters"
 import type { WorkspaceAdapter } from "../../src/control-plane/types"
 import { Workspace } from "../../src/control-plane/workspace"
 
-import { InstanceBootstrap } from "../../src/project/bootstrap"
 import { InstanceBootstrap as InstanceBootstrapService } from "../../src/project/bootstrap-service"
 import { InstanceStore } from "../../src/project/instance-store"
 import { Project } from "../../src/project/project"
 import { HttpApiApp } from "../../src/server/routes/instance/httpapi/server"
 import * as HttpSessionError from "../../src/server/routes/instance/httpapi/handlers/session-errors"
+import { ExperimentalPaths } from "../../src/server/routes/instance/httpapi/groups/experimental"
 import { SessionPaths } from "../../src/server/routes/instance/httpapi/groups/session"
 import { Session } from "@/session/session"
 import { MessageID, PartID, SessionID, type SessionID as SessionIDType } from "../../src/session/schema"
-import { MessageV2 } from "../../src/session/message-v2"
 import { Database } from "@makcode-ai/core/database/database"
 import { SessionInputTable, SessionMessageTable, SessionTable } from "@makcode-ai/core/session/sql"
 import { SessionMessage } from "@makcode-ai/core/session/message"
@@ -35,17 +36,16 @@ import { resetDatabase } from "../fixture/db"
 import { disposeAllInstances, provideInstanceEffect, TestInstance, tmpdirScoped } from "../fixture/fixture"
 import { TestLLMServer } from "../lib/llm-server"
 import { testProviderConfig } from "../lib/test-provider"
-import { testEffect } from "../lib/effect"
+import { pollWithTimeout, testEffect } from "../lib/effect"
 
 const originalWorkspaces = Flag.OPENCODE_EXPERIMENTAL_WORKSPACES
-const workspaceLayer = Workspace.defaultLayer.pipe(
-  Layer.provide(InstanceStore.defaultLayer),
-  Layer.provide(InstanceBootstrap.defaultLayer),
+const noopBootstrapLayer = Layer.succeed(
+  InstanceBootstrapService.Service,
+  InstanceBootstrapService.Service.of({ run: Effect.void }),
 )
-const instanceStoreLayer = InstanceStore.defaultLayer.pipe(
-  Layer.provide(
-    Layer.succeed(InstanceBootstrapService.Service, InstanceBootstrapService.Service.of({ run: Effect.void })),
-  ),
+const appLayer = AppNodeBuilder.build(
+  LayerNode.group([InstanceStore.node, Project.node, Session.node, Workspace.node, Database.node, Ripgrep.node]),
+  [[InstanceStore.bootstrapNode, noopBootstrapLayer]],
 )
 const servedRoutes: Layer.Layer<never, Config.ConfigError, HttpServer.HttpServer> = HttpRouter.serve(
   HttpApiApp.routes,
@@ -59,16 +59,7 @@ const httpApiLayer = servedRoutes.pipe(
   Layer.provideMerge(NodeHttpServer.layerTest),
   Layer.provideMerge(NodeServices.layer),
 )
-const it = testEffect(
-  Layer.mergeAll(
-    instanceStoreLayer,
-    Project.defaultLayer,
-    Session.defaultLayer,
-    workspaceLayer,
-    Database.defaultLayer,
-    httpApiLayer,
-  ).pipe(Layer.provide(Ripgrep.defaultLayer)),
-)
+const it = testEffect(Layer.mergeAll(appLayer, httpApiLayer))
 
 function pathFor(path: string, params: Record<string, string>) {
   return Object.entries(params).reduce((result, [key, value]) => result.replace(`:${key}`, value), path)
@@ -129,7 +120,7 @@ const createLocalWorkspace = (input: { projectID: Project.Info["id"]; type: stri
 
 const insertLegacyAssistantMessage = (sessionID: SessionIDType, seq = 1, time = seq) =>
   Effect.gen(function* () {
-    const message = new SessionMessage.Assistant({
+    const message = SessionMessage.Assistant.make({
       id: SessionMessage.ID.create(),
       type: "assistant",
       agent: "build",
@@ -265,7 +256,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory }
+        const headers = { "x-opencode-directory": test.directory }
         const missingSession = SessionID.descending()
         const missingSessionBody = {
           name: "NotFoundError",
@@ -330,7 +321,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory }
+        const headers = { "x-opencode-directory": test.directory }
         const parent = yield* createSession({ title: "parent" })
         const child = yield* createSession({ title: "child", parentID: parent.id })
         const message = yield* createTextMessage(parent.id, "hello")
@@ -433,7 +424,7 @@ describe("session HttpApi", () => {
         cwd: sessionDirectory,
         root: sessionDirectory,
       })
-    }).pipe(Effect.provide(TestLLMServer.layer), Effect.provide(CrossSpawnSpawner.defaultLayer)),
+    }).pipe(Effect.provide(TestLLMServer.layer), Effect.provide(AppNodeBuilder.build(CrossSpawnSpawner.node))),
   )
 
   it.instance(
@@ -441,7 +432,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory }
+        const headers = { "x-opencode-directory": test.directory }
         const session = yield* createSession({ title: "v2 cursor" })
         const firstMessage = yield* insertLegacyAssistantMessage(session.id, 1, 2)
         const secondMessage = yield* insertLegacyAssistantMessage(session.id, 2, 1)
@@ -535,7 +526,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory }
+        const headers = { "x-opencode-directory": test.directory }
         const missing = SessionID.descending()
         const expected = {
           _tag: "SessionNotFoundError",
@@ -575,14 +566,14 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory }
+        const headers = { "x-opencode-directory": test.directory }
         const session = yield* createSession({ title: "v2 prompt recording" })
 
         const recordPrompt = () =>
           request(`/api/session/${session.id}/prompt`, {
             method: "POST",
             headers: { ...headers, "content-type": "application/json" },
-            body: JSON.stringify({ id: "msg_http_prompt", prompt: { text: "hello" } }),
+            body: JSON.stringify({ id: "msg_http_prompt", prompt: { text: "hello" }, resume: false }),
           })
         const first = yield* recordPrompt()
         const retried = yield* recordPrompt()
@@ -625,6 +616,22 @@ describe("session HttpApi", () => {
           message: "Prompt message ID conflicts with an existing durable record: msg_http_prompt",
           resource: "msg_http_prompt",
         })
+
+        const wakeID = SessionMessage.ID.make("msg_http_wake")
+        const wake = yield* request(`/api/session/${session.id}/prompt`, {
+          method: "POST",
+          headers: { ...headers, "content-type": "application/json" },
+          body: JSON.stringify({ id: wakeID, prompt: { text: "hello again" } }),
+        })
+        expect(wake.status).toBe(200)
+        const message = yield* pollWithTimeout(
+          requestJson<{ data: SessionMessage.Message[] }>(`/api/session/${session.id}/message`, { headers }).pipe(
+            Effect.map(({ data }) => data.find((message) => message.id === wakeID)),
+          ),
+          "V2 prompt was not promoted after wake",
+          "10 seconds",
+        )
+        expect(message).toMatchObject({ id: wakeID, type: "user" })
       }),
     { git: true, config: { formatter: false, lsp: false } },
   )
@@ -634,7 +641,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory }
+        const headers = { "x-opencode-directory": test.directory }
         const session = yield* createSession({ title: "v2 unavailable" })
 
         const compact = yield* request(`/api/session/${session.id}/compact`, { method: "POST", headers })
@@ -665,7 +672,7 @@ describe("session HttpApi", () => {
         yield* insertCorruptV2Message(session.id)
 
         const messages = yield* request(`/api/session/${session.id}/message`, {
-          headers: { "x-makcode-directory": test.directory },
+          headers: { "x-opencode-directory": test.directory },
         })
         const messagesBody = yield* responseJson(messages)
         expect(messages.status).toBe(500)
@@ -677,7 +684,7 @@ describe("session HttpApi", () => {
         expect(JSON.stringify(messagesBody)).not.toContain("assistant")
 
         const context = yield* request(`/api/session/${session.id}/context`, {
-          headers: { "x-makcode-directory": test.directory },
+          headers: { "x-opencode-directory": test.directory },
         })
         const contextBody = yield* responseJson(context)
         expect(context.status).toBe(500)
@@ -700,7 +707,7 @@ describe("session HttpApi", () => {
         yield* setLegacySummaryDiff(session.id)
 
         const response = yield* request(pathFor(SessionPaths.get, { sessionID: session.id }), {
-          headers: { "x-makcode-directory": test.directory },
+          headers: { "x-opencode-directory": test.directory },
         })
 
         expect(response.status).toBe(200)
@@ -714,7 +721,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory, "content-type": "application/json" }
+        const headers = { "x-opencode-directory": test.directory, "content-type": "application/json" }
 
         const createdEmpty = yield* requestJson<Session.Info>(SessionPaths.create, {
           method: "POST",
@@ -746,7 +753,7 @@ describe("session HttpApi", () => {
           pathFor(SessionPaths.fork, { sessionID: created.id }),
           {
             method: "POST",
-            headers: { "x-makcode-directory": test.directory },
+            headers: { "x-opencode-directory": test.directory },
           },
         )
         expect(forkedWithoutContentType.id).not.toBe(created.id)
@@ -800,13 +807,13 @@ describe("session HttpApi", () => {
 
         const created = yield* requestJson<Session.Info>(`${SessionPaths.create}?workspace=${workspace.id}`, {
           method: "POST",
-          headers: { "x-makcode-directory": test.directory, "content-type": "application/json" },
+          headers: { "x-opencode-directory": test.directory, "content-type": "application/json" },
           body: JSON.stringify({ title: "workspace session" }),
         })
         const messages = yield* request(
           `${pathFor(SessionPaths.messages, { sessionID: created.id })}?workspace=${workspace.id}`,
           {
-            headers: { "x-makcode-directory": test.directory },
+            headers: { "x-opencode-directory": test.directory },
           },
         )
 
@@ -822,7 +829,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory, "content-type": "application/json" }
+        const headers = { "x-opencode-directory": test.directory, "content-type": "application/json" }
         const session = yield* createSession({ title: "archived" })
         const body = JSON.stringify({ time: { archived: -1 } })
 
@@ -842,7 +849,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const currentDir = path.join(test.directory, "packages", "makcode", "src")
+        const currentDir = path.join(test.directory, "packages", "opencode", "src")
         yield* Effect.promise(() => mkdir(currentDir, { recursive: true }))
 
         const store = yield* InstanceStore.Service
@@ -853,16 +860,16 @@ describe("session HttpApi", () => {
               pathSession: yield* createSession(),
               pathlessSession: yield* createSession(),
             }
-          }).pipe(Effect.provideService(TestInstance, { directory: currentDir }), Effect.provide(Session.defaultLayer)),
+          }).pipe(Effect.provideService(TestInstance, { directory: currentDir })),
         )
         yield* clearSessionPath(pathlessSession.id)
 
         const query = new URLSearchParams({
           scope: "project",
-          path: "packages/makcode/src",
+          path: "packages/opencode/src",
           directory: currentDir,
         })
-        const headers = { "x-makcode-directory": test.directory }
+        const headers = { "x-opencode-directory": test.directory }
         const sessions = (yield* json<Session.Info[]>(
           yield* request(`${SessionPaths.list}?${query}`, { headers }),
         )).map((item) => item.id)
@@ -874,11 +881,83 @@ describe("session HttpApi", () => {
   )
 
   it.instance(
+    "lists sessions created through an equivalent directory hint",
+    () =>
+      Effect.gen(function* () {
+        const test = yield* TestInstance
+        const hint = test.directory + path.sep
+        const headers = { "x-opencode-directory": hint, "content-type": "application/json" }
+        const created = yield* requestJson<Session.Info>(SessionPaths.create, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ title: "hinted" }),
+        })
+
+        const query = new URLSearchParams({ directory: hint, roots: "true" })
+        const listed = yield* requestJson<Session.Info[]>(`${SessionPaths.list}?${query}`, { headers })
+        expect(listed.map((item) => item.id)).toContain(created.id)
+
+        const globalQuery = new URLSearchParams({ directory: hint })
+        const global = yield* requestJson<Session.Info[]>(`${ExperimentalPaths.session}?${globalQuery}`, { headers })
+        expect(global.map((item) => item.id)).toContain(created.id)
+      }),
+    { git: true, config: { formatter: false, lsp: false, share: "disabled" } },
+  )
+
+  it.instance(
+    "lists Windows sessions for equivalent directory spellings",
+    () =>
+      Effect.gen(function* () {
+        if (process.platform !== "win32") return
+        const test = yield* TestInstance
+        const headers = { "x-opencode-directory": test.directory, "content-type": "application/json" }
+        const created = yield* requestJson<Session.Info>(SessionPaths.create, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ title: "windows spelling" }),
+        })
+
+        const forwardSlashes = test.directory.replaceAll("\\", "/")
+        const lowercaseDrive = test.directory.replace(/^[A-Z]:/, (drive) => drive.toLowerCase())
+        const trailingSeparator = `${test.directory}\\`
+        for (const spelling of [forwardSlashes, lowercaseDrive, trailingSeparator]) {
+          const query = new URLSearchParams({ directory: spelling, roots: "true" })
+          const listed = yield* requestJson<Session.Info[]>(`${SessionPaths.list}?${query}`, { headers })
+          expect({ spelling, ids: listed.map((item) => item.id) }).toEqual({ spelling, ids: [created.id] })
+        }
+      }),
+    { git: true, config: { formatter: false, lsp: false, share: "disabled" } },
+    { timeout: 15000 },
+  )
+
+  it.instance(
+    "lists Windows sessions created through the global worktree sentinel",
+    () =>
+      Effect.gen(function* () {
+        if (process.platform !== "win32") return
+        const globalWorktreeSentinel = "/"
+        const headers = { "x-opencode-directory": globalWorktreeSentinel, "content-type": "application/json" }
+        const driveRootSession = yield* requestJson<Session.Info>(SessionPaths.create, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ title: "created at drive root" }),
+        })
+        expect(driveRootSession.directory).toMatch(/^[A-Za-z]:\\$/)
+
+        const query = new URLSearchParams({ directory: globalWorktreeSentinel, roots: "true" })
+        const listed = yield* requestJson<Session.Info[]>(`${SessionPaths.list}?${query}`, { headers })
+        expect(listed.map((item) => item.id)).toContain(driveRootSession.id)
+      }),
+    { git: true, config: { formatter: false, lsp: false, share: "disabled" } },
+    { timeout: 15000 },
+  )
+
+  it.instance(
     "serves paginated message link headers",
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory }
+        const headers = { "x-opencode-directory": test.directory }
         const session = yield* createSession({ title: "messages" })
         yield* createTextMessage(session.id, "first")
         yield* createTextMessage(session.id, "second")
@@ -898,7 +977,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory, "content-type": "application/json" }
+        const headers = { "x-opencode-directory": test.directory, "content-type": "application/json" }
         const session = yield* createSession({ title: "messages" })
         const first = yield* createTextMessage(session.id, "first")
         const second = yield* createTextMessage(session.id, "second")
@@ -943,7 +1022,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory, "content-type": "application/json" }
+        const headers = { "x-opencode-directory": test.directory, "content-type": "application/json" }
         const session = yield* createSession({ title: "part mismatch" })
         const message = yield* createTextMessage(session.id, "first")
         const response = yield* request(
@@ -969,7 +1048,7 @@ describe("session HttpApi", () => {
     () =>
       Effect.gen(function* () {
         const test = yield* TestInstance
-        const headers = { "x-makcode-directory": test.directory, "content-type": "application/json" }
+        const headers = { "x-opencode-directory": test.directory, "content-type": "application/json" }
         const session = yield* createSession({ title: "remaining" })
 
         expect(

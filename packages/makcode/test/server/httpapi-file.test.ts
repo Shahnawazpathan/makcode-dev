@@ -17,7 +17,7 @@ function request(route: string, directory: string, query?: Record<string, string
   return HttpApiApp.webHandler().handler(
     new Request(url, {
       headers: {
-        "x-makcode-directory": directory,
+        "x-opencode-directory": directory,
       },
     }),
     context,

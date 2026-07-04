@@ -1,5 +1,5 @@
 import { LayerNode } from "@makcode-ai/core/effect/layer-node"
-import { httpClient } from "@makcode-ai/core/effect/layer-node-platform"
+import { httpClient } from "@makcode-ai/core/effect/app-node-platform"
 import path from "path"
 import { SessionV1 } from "@makcode-ai/core/v1/session"
 import { Effect, Layer, Context } from "effect"
@@ -43,9 +43,9 @@ export interface Interface {
   ) => Effect.Effect<{ filepath: string; content: string }[], FSUtil.Error>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/Instruction") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Instruction") {}
 
-export const layer: Layer.Layer<
+const layer: Layer.Layer<
   Service,
   never,
   FSUtil.Service | Config.Service | Global.Service | HttpClient.HttpClient | RuntimeFlags.Service
@@ -224,18 +224,14 @@ export const layer: Layer.Layer<
   }),
 )
 
-export const defaultLayer = layer.pipe(
-  Layer.provide(Config.defaultLayer),
-  Layer.provide(Global.layer),
-  Layer.provide(FSUtil.defaultLayer),
-  Layer.provide(FetchHttpClient.layer),
-  Layer.provide(RuntimeFlags.defaultLayer),
-)
-
 export function loaded(messages: SessionV1.WithParts[]) {
   return extract(messages)
 }
 
-export const node = LayerNode.make(layer, [Config.node, FSUtil.node, Global.node, RuntimeFlags.node, httpClient])
+export const node = LayerNode.make({
+  service: Service,
+  layer: layer,
+  deps: [Config.node, FSUtil.node, Global.node, RuntimeFlags.node, httpClient],
+})
 
 export * as Instruction from "./instruction"

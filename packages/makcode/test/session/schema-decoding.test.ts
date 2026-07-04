@@ -53,7 +53,7 @@ describe("Session.Info", () => {
       projectID,
       workspaceID,
       directory: "/tmp/proj",
-      path: "packages/makcode",
+      path: "packages/opencode",
       parentID: sessionIDChild,
       summary: {
         additions: 10,
@@ -236,11 +236,11 @@ describe("SessionStatus.Info", () => {
       message: "transient",
       action: {
         reason: "free_tier_limit",
-        provider: "makcode",
+        provider: "opencode",
         title: "Free limit reached",
-        message: "Subscribe to MakCode Go.",
+        message: "Subscribe to OpenCode Go.",
         label: "subscribe",
-        link: "https://makcode.ai/go",
+        link: "https://opencode.ai/go",
       },
       next: 500,
     }
@@ -256,7 +256,7 @@ describe("Todo.Info", () => {
   const decode = decodeUnknown(Todo.Info)
 
   test("three-field round-trip", () => {
-    const input = { content: "do a thing", status: "pending", priority: "high" }
+    const input = Todo.Info.make({ content: "do a thing", status: "pending", priority: "high" })
     expect(decode(input)).toEqual(input)
   })
 })

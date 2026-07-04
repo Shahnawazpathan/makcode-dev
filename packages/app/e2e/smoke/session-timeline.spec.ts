@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test"
 import { base64Encode } from "@makcode-ai/core/util/encode"
 import { fixture, pageMessages } from "./session-timeline.fixture"
 import { trackPageErrors, expectNoSmokeErrors } from "../utils/errors"
-import { mockMakCodeServer } from "../utils/mock-server"
+import { mockOpenCodeServer } from "../utils/mock-server"
 import { APP_READY_TIMEOUT, expectAppVisible, expectSessionTitle } from "../utils/waits"
 
 const forbiddenText = ["Load details", "Show earlier steps"]
@@ -32,7 +32,7 @@ test.describe("smoke: session timeline", () => {
 
   test("keeps the visible message fixed while prepending history", async ({ page }) => {
     const requests: { before?: string; phase: "start" | "end"; at: number }[] = []
-    await mockMakCodeServer(page, {
+    await mockOpenCodeServer(page, {
       sessions: fixture.sessions,
       provider: fixture.provider,
       directory: fixture.directory,
@@ -58,7 +58,18 @@ test.describe("smoke: session timeline", () => {
       await page.mouse.wheel(0, -120)
       await page.waitForTimeout(20)
     }
-    const keys = ["prt_user_text_smoke_0032", "prt_text_2_smoke_0032", "prt_tool_apply_patch_8_smoke_0032"]
+    const keys = await scroller.evaluate((element) => {
+      const view = element.getBoundingClientRect()
+      return [...element.querySelectorAll<HTMLElement>("[data-timeline-part-id]")]
+        .filter((row) => {
+          const rect = row.getBoundingClientRect()
+          return rect.bottom > view.top && rect.top < view.bottom
+        })
+        .map((row) => row.dataset.timelinePartId)
+        .filter((id): id is string => !!id)
+        .slice(0, 3)
+    })
+    expect(keys.length).toBeGreaterThan(0)
     const positions = () =>
       scroller.evaluate((element, keys) => {
         const top = element.getBoundingClientRect().top
@@ -79,7 +90,7 @@ test.describe("smoke: session timeline", () => {
   })
 
   test("preserves the timeline gap above the composer", async ({ page }) => {
-    await mockMakCodeServer(page, {
+    await mockOpenCodeServer(page, {
       sessions: fixture.sessions,
       provider: fixture.provider,
       directory: fixture.directory,
@@ -105,7 +116,7 @@ test.describe("smoke: session timeline", () => {
   })
 
   test("paints cached session tabs at the latest message", async ({ page }) => {
-    await mockMakCodeServer(page, {
+    await mockOpenCodeServer(page, {
       sessions: fixture.sessions,
       provider: fixture.provider,
       directory: fixture.directory,
@@ -116,7 +127,7 @@ test.describe("smoke: session timeline", () => {
     await page.addInitScript(
       ({ dirBase64, sourceID, targetID }) => {
         localStorage.setItem(
-          "makcode.global.dat:tabs",
+          "opencode.window.browser.dat:tabs",
           JSON.stringify(
             [sourceID, targetID].map((sessionId) => ({
               type: "session",
@@ -231,7 +242,7 @@ test.describe("smoke: session timeline", () => {
   })
 
   test("paints a cold session tab at the latest message", async ({ page }) => {
-    await mockMakCodeServer(page, {
+    await mockOpenCodeServer(page, {
       sessions: fixture.sessions,
       provider: fixture.provider,
       directory: fixture.directory,
@@ -242,7 +253,7 @@ test.describe("smoke: session timeline", () => {
     await page.addInitScript(
       ({ dirBase64, sourceID, targetID }) => {
         localStorage.setItem(
-          "makcode.global.dat:tabs",
+          "opencode.window.browser.dat:tabs",
           JSON.stringify(
             [sourceID, targetID].map((sessionId) => ({
               type: "session",
@@ -310,7 +321,7 @@ test.describe("smoke: session timeline", () => {
 
   test("renders seeded timeline in order while paging through history", async ({ page }) => {
     const errors = trackPageErrors(page)
-    await mockMakCodeServer(page, {
+    await mockOpenCodeServer(page, {
       sessions: fixture.sessions,
       provider: fixture.provider,
       directory: fixture.directory,
@@ -351,7 +362,6 @@ async function configureSmokePage(page: Page, directory: string) {
           editToolPartsExpanded: true,
           shellToolPartsExpanded: true,
           showReasoningSummaries: true,
-          showSessionProgressBar: true,
         },
       }),
     )
@@ -359,7 +369,7 @@ async function configureSmokePage(page: Page, directory: string) {
 
   await page.addInitScript((directory) => {
     localStorage.setItem(
-      "makcode.global.dat:server",
+      "opencode.global.dat:server",
       JSON.stringify({
         projects: {
           local: [{ worktree: directory, expanded: true }],
@@ -718,7 +728,6 @@ async function navigateToSession(page: Page, directory: string, sessionId: strin
 }
 
 async function switchTitlebarSession(page: Page, sessionID: string, title: string) {
-  console.log(process.env)
   const href = `/server/${base64Encode(fixture.serverKey)}/session/${sessionID}`
   const tab = page.locator(`[data-slot="titlebar-tabs"] a[href="${href}"]`).first()
   await expect(tab).toBeVisible()

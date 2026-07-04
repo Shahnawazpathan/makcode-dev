@@ -1,10 +1,10 @@
 import { base64Encode } from "@makcode-ai/core/util/encode"
 import type { Page } from "@playwright/test"
-import { mockMakCodeServer } from "../../utils/mock-server"
+import { mockOpenCodeServer } from "../../utils/mock-server"
 import { expectAppVisible, expectSessionTitle } from "../../utils/waits"
 import { expect } from "../benchmark"
 
-const directory = "C:/MakCode/TimelineStateRegression"
+const directory = "C:/OpenCode/TimelineStateRegression"
 const projectID = "proj_timeline_state_regression"
 const sessionID = "ses_timeline_state_regression"
 const userMessageID = "msg_user_regression"
@@ -12,7 +12,7 @@ const assistantMessageID = "msg_assistant_regression"
 const editPartID = "prt_0001_edit"
 export const textPartID = "prt_9999_text"
 const title = "Timeline collapse state regression"
-const model = { providerID: "makcode", modelID: "claude-opus-4-6", variant: "max" }
+const model = { providerID: "opencode", modelID: "claude-opus-4-6", variant: "max" }
 
 type EventPayload = {
   directory: string
@@ -93,37 +93,53 @@ const assistantMessage = {
   parts: [editPart],
 }
 
-export async function setupTimelineBenchmark(page: Page, options: { historyTurns: number; eventBatch: number }) {
+export async function setupTimelineBenchmark(
+  page: Page,
+  options: {
+    historyTurns: number
+    eventBatch: number
+    newLayoutDesigns?: boolean
+    vcsDiff?: unknown[]
+    turnDiffs?: unknown[]
+  },
+) {
   const events: EventPayload[] = []
   let eventBatch = options.eventBatch
-  await mockMakCodeServer(page, {
+  const currentUserMessage = options.turnDiffs
+    ? { ...userMessage, info: { ...userMessage.info, summary: { diffs: options.turnDiffs } } }
+    : userMessage
+  await mockOpenCodeServer(page, {
     directory,
     project: project(),
     provider: provider(),
     sessions: [session()],
+    vcsDiff: options.vcsDiff,
     pageMessages: () => ({
       items: [
         ...Array.from({ length: options.historyTurns }, (_, index) => performanceTurn(index)).flat(),
-        userMessage,
+        currentUserMessage,
         assistantMessage,
       ],
     }),
     events: () => events.splice(0, eventBatch),
     eventRetry: 16,
   })
-  await page.addInitScript(() => {
-    localStorage.setItem(
-      "settings.v3",
-      JSON.stringify({
-        general: {
-          editToolPartsExpanded: true,
-          shellToolPartsExpanded: true,
-          showReasoningSummaries: true,
-          showSessionProgressBar: true,
-        },
-      }),
-    )
-  })
+  await page.addInitScript(
+    (input) => {
+      localStorage.setItem(
+        "settings.v3",
+        JSON.stringify({
+          general: {
+            newLayoutDesigns: input.newLayoutDesigns,
+            editToolPartsExpanded: true,
+            shellToolPartsExpanded: true,
+            showReasoningSummaries: true,
+          },
+        }),
+      )
+    },
+    { newLayoutDesigns: options.newLayoutDesigns ?? false },
+  )
   await page.setViewportSize({ width: 1366, height: 768 })
   const scroller = page.locator(".scroll-view__viewport", { has: page.locator("[data-timeline-row]") })
   const text = page.locator(`[data-timeline-part-id="${textPartID}"]`).first()
@@ -477,12 +493,12 @@ function provider() {
   return {
     all: [
       {
-        id: "makcode",
-        name: "MakCode",
+        id: "opencode",
+        name: "OpenCode",
         models: { "claude-opus-4-6": { id: "claude-opus-4-6", name: "Claude Opus 4.6", limit: { context: 200_000 } } },
       },
     ],
-    connected: ["makcode"],
-    default: { providerID: "makcode", modelID: "claude-opus-4-6" },
+    connected: ["opencode"],
+    default: { providerID: "opencode", modelID: "claude-opus-4-6" },
   }
 }

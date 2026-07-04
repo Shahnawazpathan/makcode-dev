@@ -18,6 +18,8 @@ bun run test:bench
 The suite contains:
 
 - cold and hot session-tab timing
+- home-session click timing split between content and titlebar-tab paint
+- single-session tab close timing through stable home restoration
 - cached session repaint and mutation tracing
 - streaming timeline throughput, RAF-gap, long-task, geometry, and remount diagnostics
 
@@ -59,7 +61,7 @@ Committed smoke and regression tests continue to own correctness coverage for pa
 Set `OPENCODE_PERFORMANCE_TRACE_DIR` to emit a standard Chrome DevTools trace for every benchmark page automatically:
 
 ```sh
-OPENCODE_PERFORMANCE_TRACE_DIR=/tmp/makcode-performance-traces \
+OPENCODE_PERFORMANCE_TRACE_DIR=/tmp/opencode-performance-traces \
 bunx playwright test --config e2e/performance/playwright.config.ts \
   timeline/session-tab-switch-benchmark.spec.ts
 ```

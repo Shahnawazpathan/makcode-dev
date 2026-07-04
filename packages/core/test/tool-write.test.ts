@@ -4,6 +4,8 @@ import { fileURLToPath } from "url"
 import { describe, expect, test } from "bun:test"
 import { Effect, Layer } from "effect"
 import { FileMutation } from "@makcode-ai/core/file-mutation"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { FSUtil } from "@makcode-ai/core/fs-util"
 import { Location } from "@makcode-ai/core/location"
 import { LocationMutation } from "@makcode-ai/core/location-mutation"
@@ -11,6 +13,7 @@ import { PermissionV2 } from "@makcode-ai/core/permission"
 import { AbsolutePath } from "@makcode-ai/core/schema"
 import { SessionV2 } from "@makcode-ai/core/session"
 import { ToolRegistry } from "@makcode-ai/core/tool/registry"
+import { ToolOutputStore } from "@makcode-ai/core/tool-output-store"
 import { WriteTool } from "@makcode-ai/core/tool/write"
 import { location } from "./fixture/location"
 import { tmpdir } from "./fixture/tmpdir"
@@ -55,25 +58,34 @@ const filesystem = Layer.effect(
         Effect.sync(() => writes.push(target)).pipe(Effect.andThen(fs.writeWithDirs(target, content, mode))),
     })
   }),
-).pipe(Layer.provide(FSUtil.defaultLayer))
+).pipe(Layer.provide(LayerNode.compile(FSUtil.node)))
 
 const withTool = <A, E, R>(directory: string, body: (registry: ToolRegistry.Interface) => Effect.Effect<A, E, R>) => {
   const activeLocation = Layer.succeed(
     Location.Service,
     Location.Service.of(location({ directory: AbsolutePath.make(directory) })),
   )
-  const resolution = LocationMutation.layer.pipe(Layer.provide(filesystem), Layer.provide(activeLocation))
-  const mutation = FileMutation.layer.pipe(Layer.provide(filesystem))
-  const registry = ToolRegistry.defaultLayer.pipe(Layer.provide(permission))
-  const write = WriteTool.layer.pipe(
-    Layer.provide(registry),
-    Layer.provide(permission),
-    Layer.provide(resolution),
-    Layer.provide(mutation),
-  )
   return Effect.gen(function* () {
     return yield* body(yield* ToolRegistry.Service)
-  }).pipe(Effect.provide(Layer.mergeAll(registry, resolution, mutation, write)))
+  }).pipe(
+    Effect.provide(
+      AppNodeBuilder.build(
+        LayerNode.group([
+          ToolRegistry.node,
+          ToolRegistry.toolsNode,
+          LocationMutation.node,
+          FileMutation.node,
+          WriteTool.node,
+        ]),
+        [
+          [FSUtil.node, filesystem],
+          [Location.node, activeLocation],
+          [PermissionV2.node, permission],
+          [ToolOutputStore.node, ToolOutputStore.nodeWithoutConfig],
+        ],
+      ),
+    ),
+  )
 }
 
 const call = (input: typeof WriteTool.Input.Type, id = "call-write") => ({

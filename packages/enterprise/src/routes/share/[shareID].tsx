@@ -1,7 +1,7 @@
 import { Message, Model, Part, Session, SessionStatus, SnapshotFileDiff, UserMessage } from "@makcode-ai/sdk/v2"
-import { SessionTurn } from "@makcode-ai/ui/session-turn"
-import { SessionReview } from "@makcode-ai/ui/session-review"
-import { DataProvider } from "@makcode-ai/ui/context"
+import { SessionTurn } from "@makcode-ai/session-ui/session-turn"
+import { SessionReview } from "@makcode-ai/session-ui/session-review"
+import { DataProvider } from "@makcode-ai/session-ui/context"
 import { FileComponentProvider } from "@makcode-ai/ui/context/file"
 import { WorkerPoolProvider } from "@makcode-ai/ui/context/worker-pool"
 import { createAsync, query, useParams } from "@solidjs/router"
@@ -17,15 +17,15 @@ import { DateTime } from "luxon"
 import { createStore } from "solid-js/store"
 import NotFound from "../[...404]"
 import { Tabs } from "@makcode-ai/ui/tabs"
-import { MessageNav } from "@makcode-ai/ui/message-nav"
-import { FileSSR } from "@makcode-ai/ui/file-ssr"
+import { MessageNav } from "@makcode-ai/session-ui/message-nav"
+import { FileSSR } from "@makcode-ai/session-ui/file-ssr"
 import { clientOnly } from "@solidjs/start"
 import { Meta, Title } from "@solidjs/meta"
 import { Base64 } from "js-base64"
 import { getRequestEvent } from "solid-js/web"
 
 const ClientOnlyWorkerPoolProvider = clientOnly(() =>
-  import("@makcode-ai/ui/pierre/worker").then((m) => ({
+  import("@makcode-ai/session-ui/pierre/worker").then((m) => ({
     default: (props: { children: any }) => (
       <WorkerPoolProvider pools={m.getWorkerPools()}>{props.children}</WorkerPoolProvider>
     ),
@@ -179,7 +179,7 @@ export default function () {
               modelParam = "unknown"
             }
             const version = `v${info().version}`
-            return `https://social-cards.sst.dev/makcode-share/${encodedTitle}.png?model=${modelParam}&version=${version}&id=${data().shareID}`
+            return `https://social-cards.sst.dev/opencode-share/${encodedTitle}.png?model=${modelParam}&version=${version}&id=${data().shareID}`
           })
 
           return (
@@ -187,7 +187,7 @@ export default function () {
               <Show when={info().title}>
                 <Title>{info().title} | MakCode</Title>
               </Show>
-              <Meta name="description" content="makcode - The AI coding agent built for the terminal." />
+              <Meta name="description" content="opencode - The AI coding agent built for the terminal." />
               <Meta property="og:image" content={ogImage()} />
               <Meta name="twitter:image" content={ogImage()} />
               <ClientOnlyWorkerPoolProvider>
@@ -274,21 +274,21 @@ export default function () {
                         <div class="relative bg-background-stronger w-screen h-screen overflow-hidden flex flex-col">
                           <header class="h-12 px-6 py-2 flex items-center justify-between self-stretch bg-background-base border-b border-border-weak-base">
                             <div class="">
-                              <a href="https://makcode.ai">
+                              <a href="https://opencode.ai">
                                 <Mark />
                               </a>
                             </div>
                             <div class="flex gap-3 items-center">
                               <IconButton
                                 as={"a"}
-                                href="https://github.com/shahnawaz-pathan/makcode"
+                                href="https://github.com/anomalyco/opencode"
                                 target="_blank"
                                 icon="github"
                                 variant="ghost"
                               />
                               <IconButton
                                 as={"a"}
-                                href="https://makcode.ai/discord"
+                                href="https://opencode.ai/discord"
                                 target="_blank"
                                 icon="discord"
                                 variant="ghost"

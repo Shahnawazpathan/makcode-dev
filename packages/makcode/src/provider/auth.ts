@@ -3,7 +3,7 @@ import type { AuthOAuthResult, Hooks } from "@makcode-ai/plugin"
 import { serviceUse } from "@makcode-ai/core/effect/service-use"
 import { Auth } from "@/auth"
 import { InstanceState } from "@/effect/instance-state"
-import { optionalOmitUndefined } from "@makcode-ai/core/schema"
+import { optional } from "@makcode-ai/core/schema"
 import { Plugin } from "../plugin"
 import { ProviderV2 } from "@makcode-ai/core/provider"
 import { Array as Arr, Effect, Layer, Record, Result, Context, Schema } from "effect"
@@ -18,14 +18,14 @@ const TextPrompt = Schema.Struct({
   type: Schema.Literal("text"),
   key: Schema.String,
   message: Schema.String,
-  placeholder: optionalOmitUndefined(Schema.String),
-  when: optionalOmitUndefined(When),
+  placeholder: optional(Schema.String),
+  when: optional(When),
 })
 
 const SelectOption = Schema.Struct({
   label: Schema.String,
   value: Schema.String,
-  hint: optionalOmitUndefined(Schema.String),
+  hint: optional(Schema.String),
 })
 
 const SelectPrompt = Schema.Struct({
@@ -33,7 +33,7 @@ const SelectPrompt = Schema.Struct({
   key: Schema.String,
   message: Schema.String,
   options: Schema.Array(SelectOption),
-  when: optionalOmitUndefined(When),
+  when: optional(When),
 })
 
 const Prompt = Schema.Union([TextPrompt, SelectPrompt])
@@ -41,7 +41,7 @@ const Prompt = Schema.Union([TextPrompt, SelectPrompt])
 export class Method extends Schema.Class<Method>("ProviderAuthMethod")({
   type: Schema.Literals(["oauth", "api"]),
   label: Schema.String,
-  prompts: optionalOmitUndefined(Schema.Array(Prompt)),
+  prompts: optional(Schema.Array(Prompt)),
 }) {}
 
 export const Methods = Schema.Record(Schema.String, Schema.Array(Method))
@@ -102,11 +102,11 @@ interface State {
   pending: Map<ProviderV2.ID, AuthOAuthResult>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/ProviderAuth") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/ProviderAuth") {}
 
 export const use = serviceUse(Service)
 
-export const layer: Layer.Layer<Service, never, Auth.Service | Plugin.Service> = Layer.effect(
+const layer: Layer.Layer<Service, never, Auth.Service | Plugin.Service> = Layer.effect(
   Service,
   Effect.gen(function* () {
     const auth = yield* Auth.Service
@@ -224,10 +224,6 @@ export const layer: Layer.Layer<Service, never, Auth.Service | Plugin.Service> =
   }),
 )
 
-export const defaultLayer = Layer.suspend(() =>
-  layer.pipe(Layer.provide(Auth.defaultLayer), Layer.provide(Plugin.defaultLayer)),
-)
-
-export const node = LayerNode.make(layer, [Auth.node, Plugin.node])
+export const node = LayerNode.make({ service: Service, layer: layer, deps: [Auth.node, Plugin.node] })
 
 export * as ProviderAuth from "./auth"

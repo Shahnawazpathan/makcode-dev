@@ -56,10 +56,10 @@ function model(input: {
 }) {
   return {
     id: input.id,
-    providerID: "makcode",
+    providerID: "opencode",
     api: {
-      id: "makcode",
-      url: "https://makcode.ai",
+      id: "opencode",
+      url: "https://opencode.ai",
       npm: "@ai-sdk/openai-compatible",
     },
     name: input.name,
@@ -106,8 +106,8 @@ function model(input: {
 
 function provider() {
   return {
-    id: "makcode",
-    name: "makcode",
+    id: "opencode",
+    name: "opencode",
     source: "api",
     env: [],
     options: {},
@@ -199,7 +199,7 @@ async function renderFooter(
           theme={input.theme ?? (() => RUN_THEME_FALLBACK)}
           tuiConfig={config}
           backgroundSubagents={input.backgroundSubagents ?? true}
-          agent="makcode"
+          agent="opencode"
           onSubmit={input.onSubmit ?? (() => true)}
           onPermissionReply={() => {}}
           onQuestionReply={() => {}}
@@ -938,7 +938,7 @@ test("direct footer shows editable prompts and additional queued work while runn
           commands={() => []}
           providers={() => undefined}
           currentModel={() => ({
-            providerID: "makcode",
+            providerID: "opencode",
             modelID: "a-model-name-long-enough-to-force-responsive-truncation",
           })}
           variants={() => []}
@@ -952,7 +952,7 @@ test("direct footer shows editable prompts and additional queued work while runn
           theme={() => RUN_THEME_FALLBACK}
           tuiConfig={tuiConfig}
           backgroundSubagents={true}
-          agent="makcode"
+          agent="opencode"
           onSubmit={() => true}
           onPermissionReply={() => {}}
           onQuestionReply={() => {}}
@@ -1027,7 +1027,7 @@ test("direct footer shows editable prompts and additional queued work while runn
 test("direct footer separates a lone context hint from model and command hint", async () => {
   const app = await renderFooter({
     providers: [provider()],
-    currentModel: { providerID: "makcode", modelID: "gpt-5" },
+    currentModel: { providerID: "opencode", modelID: "gpt-5" },
     currentVariant: "xhigh",
     subagents: {
       tabs: [subagent({ sessionID: "s-1", label: "Explore", description: "Inspect auth flow" })],
@@ -1055,7 +1055,7 @@ test("direct footer separates a lone context hint from model and command hint", 
 test("direct footer hides the subagent hint when only completed subagents remain", async () => {
   const app = await renderFooter({
     providers: [provider()],
-    currentModel: { providerID: "makcode", modelID: "gpt-5" },
+    currentModel: { providerID: "opencode", modelID: "gpt-5" },
     currentVariant: "xhigh",
     subagents: {
       tabs: [subagent({ sessionID: "s-1", label: "Explore", description: "Inspect auth flow", status: "completed" })],
@@ -1293,7 +1293,7 @@ test("direct permission rejection submits through keymap return binding", async 
 
 test("direct model panel renders current model selector", async () => {
   const [providers] = createSignal<RunProvider[] | undefined>([provider()])
-  const [current] = createSignal<RunInput["model"]>({ providerID: "makcode", modelID: "gpt-5" })
+  const [current] = createSignal<RunInput["model"]>({ providerID: "opencode", modelID: "gpt-5" })
 
   const app = await testRender(
     () => (
@@ -1320,7 +1320,7 @@ test("direct model panel renders current model selector", async () => {
 
     expect(frame).toContain("Select model")
     expect(frame).toContain("Search")
-    expect(frame).toContain("makcode")
+    expect(frame).toContain("opencode")
     expect(frame).toContain("GPT-5")
     expect(frame).toContain("current")
     expect(frame).toContain("GPT Free")

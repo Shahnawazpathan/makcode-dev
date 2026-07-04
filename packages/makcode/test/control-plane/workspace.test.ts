@@ -5,9 +5,8 @@ import Http from "node:http"
 import path from "node:path"
 import { NodeHttpServer } from "@effect/platform-node"
 import { Effect, Exit, Fiber, Layer, Schema } from "effect"
-import { FetchHttpClient, HttpServer, HttpServerRequest, HttpServerResponse } from "effect/unstable/http"
+import { HttpServer, HttpServerRequest, HttpServerResponse } from "effect/unstable/http"
 import { eq } from "drizzle-orm"
-import { FSUtil } from "@makcode-ai/core/fs-util"
 import { GlobalBus, type GlobalEvent } from "@/bus/global"
 import { Database } from "@makcode-ai/core/database/database"
 import { ProjectV2 } from "@makcode-ai/core/project"
@@ -16,6 +15,7 @@ import { AbsolutePath } from "@makcode-ai/core/schema"
 import { Session as SessionNs } from "@/session/session"
 import { SessionID } from "@/session/schema"
 import { SessionTable } from "@makcode-ai/core/session/sql"
+import { SessionProjector } from "@makcode-ai/core/session/projector"
 import { EventSequenceTable } from "@makcode-ai/core/event/sql"
 import { resetDatabase } from "../fixture/db"
 import { disposeAllInstances, provideTmpdirInstance, requireInstance, TestInstance } from "../fixture/fixture"
@@ -27,13 +27,10 @@ import type { Target, WorkspaceAdapter, WorkspaceInfo } from "../../src/control-
 import * as Workspace from "../../src/control-plane/workspace"
 import { InstanceStore } from "@/project/instance-store"
 import { InstanceBootstrap } from "@/project/bootstrap"
-import { Auth } from "@/auth"
-import { SessionPrompt } from "@/session/prompt"
-import { Project } from "@/project/project"
-import { Vcs } from "@/project/vcs"
 import { RuntimeFlags } from "@/effect/runtime-flags"
-import { EventV2Bridge } from "@/event-v2-bridge"
 import { Ripgrep } from "@makcode-ai/core/ripgrep"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 
 const originalEnv = {
   OPENCODE_AUTH_CONTENT: process.env.OPENCODE_AUTH_CONTENT,
@@ -44,26 +41,27 @@ const originalEnv = {
 }
 
 const workspaceLayer = (experimentalWorkspaces: boolean) =>
-  Workspace.layer.pipe(
-    Layer.provide(Auth.defaultLayer),
-    Layer.provide(SessionNs.defaultLayer),
-    Layer.provide(SessionPrompt.defaultLayer),
-    Layer.provide(Project.defaultLayer),
-    Layer.provide(Vcs.defaultLayer),
-    Layer.provide(Database.defaultLayer),
-    Layer.provide(EventV2Bridge.defaultLayer),
-    Layer.provide(FetchHttpClient.layer),
-    Layer.provide(FSUtil.defaultLayer),
-    Layer.provide(RuntimeFlags.layer({ experimentalWorkspaces })),
-    Layer.provide(Ripgrep.defaultLayer),
-    Layer.provide(InstanceStore.defaultLayer.pipe(Layer.provide(InstanceBootstrap.defaultLayer))),
+  AppNodeBuilder.build(
+    LayerNode.group([
+      Workspace.node,
+      SessionNs.node,
+      SessionProjector.node,
+      Database.node,
+      InstanceStore.node,
+      Ripgrep.node,
+    ]),
+    [
+      [RuntimeFlags.node, RuntimeFlags.layer({ experimentalWorkspaces })],
+      [
+        InstanceStore.bootstrapNode,
+        Layer.succeed(InstanceBootstrap.Service, InstanceBootstrap.Service.of({ run: Effect.void })),
+      ],
+    ],
   )
 
 const testServerLayer = Layer.mergeAll(
   NodeHttpServer.layer(Http.createServer, { host: "127.0.0.1", port: 0 }),
   workspaceLayer(true),
-  SessionNs.defaultLayer,
-  Database.defaultLayer,
 )
 const it = testEffect(testServerLayer)
 
@@ -123,7 +121,7 @@ async function initGitRepo(dir: string) {
   await $`git init`.cwd(dir).quiet()
   await $`git config core.fsmonitor false`.cwd(dir).quiet()
   await $`git config commit.gpgsign false`.cwd(dir).quiet()
-  await $`git config user.email "test@makcode.test"`.cwd(dir).quiet()
+  await $`git config user.email "test@opencode.test"`.cwd(dir).quiet()
   await $`git config user.name "Test"`.cwd(dir).quiet()
   await fs.writeFile(path.join(dir, "tracked.txt"), "base\n")
   await $`git add tracked.txt`.cwd(dir).quiet()
@@ -428,7 +426,7 @@ describe("workspace CRUD", () => {
         process.env.OPENCODE_AUTH_CONTENT = JSON.stringify({ test: { type: "api", key: "secret" } })
         process.env.OTEL_EXPORTER_OTLP_HEADERS = "authorization=otel"
         process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "https://otel.test"
-        process.env.OTEL_RESOURCE_ATTRIBUTES = "service.name=makcode-test"
+        process.env.OTEL_RESOURCE_ATTRIBUTES = "service.name=opencode-test"
 
         const workspaceID = WorkspaceV2.ID.ascending("wrk_create_local")
         const type = unique("create-local")
@@ -491,7 +489,7 @@ describe("workspace CRUD", () => {
         expect(recorded.calls.create[0].env.OPENCODE_EXPERIMENTAL_WORKSPACES).toBe("true")
         expect(recorded.calls.create[0].env.OTEL_EXPORTER_OTLP_HEADERS).toBe("authorization=otel")
         expect(recorded.calls.create[0].env.OTEL_EXPORTER_OTLP_ENDPOINT).toBe("https://otel.test")
-        expect(recorded.calls.create[0].env.OTEL_RESOURCE_ATTRIBUTES).toBe("service.name=makcode-test")
+        expect(recorded.calls.create[0].env.OTEL_RESOURCE_ATTRIBUTES).toBe("service.name=opencode-test")
         expect((yield* workspace.status()).find((item) => item.workspaceID === workspaceID)?.status).toBe("connected")
 
         yield* workspace.remove(workspaceID)

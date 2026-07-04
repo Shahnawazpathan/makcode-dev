@@ -171,8 +171,8 @@ export default {
       wasm: "https://github.com/anomalyco/tree-sitter-vue/releases/download/v0.1.2/tree-sitter-vue.wasm",
       queries: {
         highlights: [
-          "https://raw.githubusercontent.com/shahnawaz-pathan/tree-sitter-vue/v0.1.2/queries/html_tags/highlights.scm",
-          "https://raw.githubusercontent.com/shahnawaz-pathan/tree-sitter-vue/v0.1.2/queries/vue/highlights.scm",
+          "https://raw.githubusercontent.com/anomalyco/tree-sitter-vue/v0.1.2/queries/html_tags/highlights.scm",
+          "https://raw.githubusercontent.com/anomalyco/tree-sitter-vue/v0.1.2/queries/vue/highlights.scm",
         ],
       },
     },

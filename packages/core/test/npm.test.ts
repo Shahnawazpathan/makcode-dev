@@ -1,12 +1,10 @@
 import fs from "fs/promises"
 import path from "path"
 import { describe, expect, test } from "bun:test"
-import { NodeFileSystem } from "@effect/platform-node"
-import { Effect, Layer, Option } from "effect"
-import { FSUtil } from "@makcode-ai/core/fs-util"
+import { Effect, Option } from "effect"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
 import { Global } from "@makcode-ai/core/global"
 import { Npm } from "@makcode-ai/core/npm"
-import { EffectFlock } from "@makcode-ai/core/util/effect-flock"
 import { tmpdir } from "./fixture/tmpdir"
 
 const win = process.platform === "win32"
@@ -21,23 +19,18 @@ const writePackage = (dir: string, pkg: Record<string, unknown>) =>
   )
 
 const npmLayer = (cache: string) =>
-  Npm.layer.pipe(
-    Layer.provide(EffectFlock.layer),
-    Layer.provide(FSUtil.layer),
-    Layer.provide(Global.layerWith({ cache, state: path.join(cache, "state") })),
-    Layer.provide(NodeFileSystem.layer),
-  )
+  AppNodeBuilder.build(Npm.node, [[Global.node, Global.layerWith({ cache, state: path.join(cache, "state") })]])
 
 describe("Npm.sanitize", () => {
   test("keeps normal scoped package specs unchanged", () => {
-    expect(Npm.sanitize("@makcode/acme")).toBe("@makcode/acme")
-    expect(Npm.sanitize("@makcode/acme@1.0.0")).toBe("@makcode/acme@1.0.0")
+    expect(Npm.sanitize("@opencode/acme")).toBe("@opencode/acme")
+    expect(Npm.sanitize("@opencode/acme@1.0.0")).toBe("@opencode/acme@1.0.0")
     expect(Npm.sanitize("prettier")).toBe("prettier")
   })
 
   test("handles git https specs", () => {
-    const spec = "acme@git+https://github.com/makcode/acme.git"
-    const expected = win ? "acme@git+https_//github.com/makcode/acme.git" : spec
+    const spec = "acme@git+https://github.com/opencode/acme.git"
+    const expected = win ? "acme@git+https_//github.com/opencode/acme.git" : spec
     expect(Npm.sanitize(spec)).toBe(expected)
   })
 })

@@ -1,6 +1,6 @@
 # makcode GitHub Action
 
-A GitHub Action that integrates [makcode](https://makcode.ai) directly into your GitHub workflow.
+A GitHub Action that integrates [makcode](https://opencode.ai) directly into your GitHub workflow.
 
 Mention `/makcode` in your comment, and makcode will execute tasks within your GitHub Actions runner.
 
@@ -101,7 +101,7 @@ This will walk you through installing the GitHub app, creating the workflow, and
 
 ## Support
 
-This is an early release. If you encounter issues or have feedback, please create an issue at https://github.com/shahnawaz-pathan/makcode/issues.
+This is an early release. If you encounter issues or have feedback, please create an issue at https://github.com/Shahnawazpathan/makcode-dev/issues.
 
 ## Development
 

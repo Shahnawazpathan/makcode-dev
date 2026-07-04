@@ -14,6 +14,7 @@ import {
 import path from "path"
 import { fileURLToPath } from "url"
 import { TuiConfig } from "@/config/tui"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
 import { errorData, errorMessage } from "@makcode-ai/tui/util/error"
 import { isRecord } from "@makcode-ai/tui/util/record"
 import { resolveHostAttentionSoundPaths } from "@/config/tui-host-attention"
@@ -252,9 +253,9 @@ function createThemeInstaller(
     const name = path.basename(src, path.extname(src))
     const source_dir = path.dirname(meta.source)
     const local_dir =
-      path.basename(source_dir) === ".makcode"
+      path.basename(source_dir) === ".opencode"
         ? path.join(source_dir, "themes")
-        : path.join(source_dir, ".makcode", "themes")
+        : path.join(source_dir, ".opencode", "themes")
     const dest_dir = meta.scope === "local" ? local_dir : path.join(Global.Path.config, "themes")
     const dest = path.join(dest_dir, `${name}.json`)
     const stat = await Filesystem.statAsync(src)
@@ -813,7 +814,7 @@ function defaultPluginOrigin(state: RuntimeState, spec: string): ConfigPlugin.Or
   return {
     spec,
     scope: "local",
-    source: state.api.state.path.config || path.join(state.directory, ".makcode", "tui.json"),
+    source: state.api.state.path.config || path.join(state.directory, ".opencode", "tui.json"),
   }
 }
 
@@ -1082,7 +1083,7 @@ async function load(input: {
     const flags = await Effect.runPromise(
       Effect.gen(function* () {
         return yield* RuntimeFlags.Service
-      }).pipe(Effect.provide(RuntimeFlags.defaultLayer)),
+      }).pipe(Effect.provide(AppNodeBuilder.build(RuntimeFlags.node))),
     )
     const pluginOrigins = config.plugin_origins ?? (await TuiConfig.pluginOrigins())
     const records = Flag.OPENCODE_PURE ? [] : pluginOrigins

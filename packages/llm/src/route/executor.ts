@@ -30,7 +30,7 @@ export interface Interface {
   ) => Effect.Effect<HttpClientResponse.HttpClientResponse, LLMError>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/LLM/RequestExecutor") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/LLM/RequestExecutor") {}
 
 const BODY_LIMIT = 16_384
 const MAX_RETRIES = 2
@@ -380,6 +380,6 @@ export const layer: Layer.Layer<Service, never, HttpClient.HttpClient> = Layer.e
   }),
 )
 
-export const defaultLayer = layer.pipe(Layer.provide(FetchHttpClient.layer))
+export const fetchLayer = layer.pipe(Layer.provide(FetchHttpClient.layer))
 
 export * as RequestExecutor from "./executor"

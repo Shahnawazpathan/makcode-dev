@@ -1,4 +1,5 @@
 import { describe, expect } from "bun:test"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Effect, Layer } from "effect"
 import { Skill } from "../../src/skill"
 import { Discovery } from "../../src/skill/discovery"
@@ -13,33 +14,19 @@ import { testEffect } from "../lib/effect"
 import path from "path"
 import fs from "fs/promises"
 
-const node = CrossSpawnSpawner.defaultLayer
+const node = LayerNode.compile(CrossSpawnSpawner.node)
 
-const it = testEffect(Layer.mergeAll(Skill.defaultLayer, node, testInstanceStoreLayer))
+const it = testEffect(Layer.mergeAll(LayerNode.compile(Skill.node), node, testInstanceStoreLayer))
 const itWithoutClaudeCodeSkills = testEffect(
   Layer.mergeAll(
-    Skill.layer.pipe(
-      Layer.provide(Discovery.defaultLayer),
-      Layer.provide(Config.defaultLayer),
-      Layer.provide(EventV2Bridge.defaultLayer),
-      Layer.provide(FSUtil.defaultLayer),
-      Layer.provide(Global.layer),
-      Layer.provide(RuntimeFlags.layer({ disableClaudeCodeSkills: true })),
-    ),
+    LayerNode.compile(Skill.node, [[RuntimeFlags.node, RuntimeFlags.layer({ disableClaudeCodeSkills: true })]]),
     node,
     testInstanceStoreLayer,
   ),
 )
 const itWithoutExternalSkills = testEffect(
   Layer.mergeAll(
-    Skill.layer.pipe(
-      Layer.provide(Discovery.defaultLayer),
-      Layer.provide(Config.defaultLayer),
-      Layer.provide(EventV2Bridge.defaultLayer),
-      Layer.provide(FSUtil.defaultLayer),
-      Layer.provide(Global.layer),
-      Layer.provide(RuntimeFlags.layer({ disableExternalSkills: true })),
-    ),
+    LayerNode.compile(Skill.node, [[RuntimeFlags.node, RuntimeFlags.layer({ disableExternalSkills: true })]]),
     node,
     testInstanceStoreLayer,
   ),
@@ -77,13 +64,40 @@ const withHome = <A, E, R>(home: string, self: Effect.Effect<A, E, R>) =>
   )
 
 describe("skill", () => {
-  it.live("discovers skills from .makcode/skill/ directory", () =>
+  it.effect("formats verbose locations as XML-safe filesystem paths", () =>
+    Effect.sync(() => {
+      const output = Skill.fmt(
+        [
+          {
+            name: "tagged-skill",
+            description: "A tagged skill.",
+            location: "/tmp/plugin.git#v1.3.0/SKILL.md",
+            content: "",
+          },
+          {
+            name: "built-in-skill",
+            description: "A built-in skill.",
+            location: "<built-in>",
+            content: "",
+          },
+        ],
+        { verbose: true },
+      )
+
+      expect(output).toContain("<location>/tmp/plugin.git#v1.3.0/SKILL.md</location>")
+      expect(output).toContain("<location>&lt;built-in&gt;</location>")
+      expect(output).not.toContain("file://")
+      expect(output).not.toContain("%23")
+    }),
+  )
+
+  it.live("discovers skills from .opencode/skill/ directory", () =>
     provideTmpdirInstance(
       (dir) =>
         Effect.gen(function* () {
           yield* Effect.promise(() =>
             Bun.write(
-              path.join(dir, ".makcode", "skill", "test-skill", "SKILL.md"),
+              path.join(dir, ".opencode", "skill", "test-skill", "SKILL.md"),
               `---
 name: test-skill
 description: A test skill for verification.
@@ -116,7 +130,7 @@ Instructions here.
           Effect.gen(function* () {
             yield* Effect.promise(() =>
               Bun.write(
-                path.join(dir, ".makcode", "skill", "dir-skill", "SKILL.md"),
+                path.join(dir, ".opencode", "skill", "dir-skill", "SKILL.md"),
                 `---
 name: dir-skill
 description: Skill for dirs test.
@@ -129,7 +143,7 @@ description: Skill for dirs test.
 
             const skill = yield* Skill.Service
             const dirs = yield* skill.dirs()
-            expect(dirs).toContain(path.join(dir, ".makcode", "skill", "dir-skill"))
+            expect(dirs).toContain(path.join(dir, ".opencode", "skill", "dir-skill"))
             expect(dirs.length).toBe(1)
           }),
         ),
@@ -137,14 +151,14 @@ description: Skill for dirs test.
     ),
   )
 
-  it.live("discovers multiple skills from .makcode/skill/ directory", () =>
+  it.live("discovers multiple skills from .opencode/skill/ directory", () =>
     provideTmpdirInstance(
       (dir) =>
         Effect.gen(function* () {
           yield* Effect.promise(() =>
             Promise.all([
               Bun.write(
-                path.join(dir, ".makcode", "skill", "skill-one", "SKILL.md"),
+                path.join(dir, ".opencode", "skill", "skill-one", "SKILL.md"),
                 `---
 name: skill-one
 description: First test skill.
@@ -154,7 +168,7 @@ description: First test skill.
 `,
               ),
               Bun.write(
-                path.join(dir, ".makcode", "skill", "skill-two", "SKILL.md"),
+                path.join(dir, ".opencode", "skill", "skill-two", "SKILL.md"),
                 `---
 name: skill-two
 description: Second test skill.
@@ -182,7 +196,7 @@ description: Second test skill.
         Effect.gen(function* () {
           yield* Effect.promise(() =>
             Bun.write(
-              path.join(dir, ".makcode", "skill", "no-frontmatter", "SKILL.md"),
+              path.join(dir, ".opencode", "skill", "no-frontmatter", "SKILL.md"),
               `# No Frontmatter
 
 Just some content without YAML frontmatter.
@@ -203,7 +217,7 @@ Just some content without YAML frontmatter.
         Effect.gen(function* () {
           yield* Effect.promise(() =>
             Bun.write(
-              path.join(dir, ".makcode", "skill", "manual-skill", "SKILL.md"),
+              path.join(dir, ".opencode", "skill", "manual-skill", "SKILL.md"),
               `---
 name: manual-skill
 ---
@@ -493,13 +507,13 @@ description: A skill in the .agents/skills directory.
 `,
               ),
               Bun.write(
-                path.join(dir, ".makcode", "skill", "makcode-skill", "SKILL.md"),
+                path.join(dir, ".opencode", "skill", "opencode-skill", "SKILL.md"),
                 `---
-name: makcode-skill
-description: A skill in the .makcode/skill directory.
+name: opencode-skill
+description: A skill in the .opencode/skill directory.
 ---
 
-# MakCode Skill
+# OpenCode Skill
 `,
               ),
             ]),
@@ -507,7 +521,7 @@ description: A skill in the .makcode/skill directory.
 
           const skill = yield* Skill.Service
           const list = (yield* skill.all()).filter((s) => s.location !== "<built-in>")
-          expect(list.map((s) => s.name)).toEqual(["makcode-skill"])
+          expect(list.map((s) => s.name)).toEqual(["opencode-skill"])
         }),
       { git: true },
     ),
@@ -540,23 +554,23 @@ description: A skill in the .agents/skills directory.
 `,
               ),
               Bun.write(
-                path.join(dir, ".makcode", "skill", "agent-skill", "SKILL.md"),
+                path.join(dir, ".opencode", "skill", "agent-skill", "SKILL.md"),
                 `---
-name: makcode-skill
-description: A skill in the .makcode/skill directory.
+name: opencode-skill
+description: A skill in the .opencode/skill directory.
 ---
 
-# MakCode Skill
+# OpenCode Skill
 `,
               ),
               Bun.write(
-                path.join(dir, ".makcode", "skills", "agent-skill", "SKILL.md"),
+                path.join(dir, ".opencode", "skills", "agent-skill", "SKILL.md"),
                 `---
-name: makcode-skill
-description: A skill in the .makcode/skills directory.
+name: opencode-skill
+description: A skill in the .opencode/skills directory.
 ---
 
-# MakCode Skill
+# OpenCode Skill
 `,
               ),
             ]),

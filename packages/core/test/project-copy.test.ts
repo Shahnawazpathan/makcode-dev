@@ -3,9 +3,10 @@ import { $ } from "bun"
 import fs from "fs/promises"
 import path from "path"
 import { eq } from "drizzle-orm"
-import { Effect, Fiber, Layer, Stream } from "effect"
+import { Effect, Fiber, Stream } from "effect"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { AbsolutePath } from "@makcode-ai/core/schema"
-import { FSUtil } from "@makcode-ai/core/fs-util"
 import { Git } from "@makcode-ai/core/git"
 import { Database } from "@makcode-ai/core/database/database"
 import { EventV2 } from "@makcode-ai/core/event"
@@ -16,15 +17,8 @@ import { ProjectDirectories } from "@makcode-ai/core/project/directories"
 import { tmpdir } from "./fixture/tmpdir"
 import { testEffect } from "./lib/effect"
 
-const copyLayer = ProjectCopy.layer.pipe(
-  Layer.provide(Database.defaultLayer),
-  Layer.provide(ProjectDirectories.defaultLayer),
-  Layer.provide(EventV2.defaultLayer),
-  Layer.provide(FSUtil.defaultLayer),
-  Layer.provide(Git.defaultLayer),
-)
 const it = testEffect(
-  Layer.mergeAll(copyLayer, Database.defaultLayer, EventV2.defaultLayer, ProjectDirectories.defaultLayer),
+  AppNodeBuilder.build(LayerNode.group([ProjectCopy.node, Database.node, EventV2.node, ProjectDirectories.node])),
 )
 
 function abs(input: string) {
@@ -37,7 +31,7 @@ async function initRepo(directory: string) {
   await $`git init`.cwd(directory).quiet()
   await $`git config core.fsmonitor false`.cwd(directory).quiet()
   await $`git config commit.gpgsign false`.cwd(directory).quiet()
-  await $`git config user.email test@makcode.test`.cwd(directory).quiet()
+  await $`git config user.email test@opencode.test`.cwd(directory).quiet()
   await $`git config user.name Test`.cwd(directory).quiet()
   await $`git commit --allow-empty -m root`.cwd(directory).quiet()
 }

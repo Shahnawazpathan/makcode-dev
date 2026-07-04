@@ -1,5 +1,5 @@
 import { LayerNode } from "@makcode-ai/core/effect/layer-node"
-import { llmClient } from "@makcode-ai/core/effect/layer-node-platform"
+import { llmClient } from "@makcode-ai/core/effect/app-node-platform"
 import { PermissionV1 } from "@makcode-ai/core/v1/permission"
 import { Provider } from "@/provider/provider"
 import { SessionV1 } from "@makcode-ai/core/v1/session"
@@ -8,7 +8,7 @@ import { Context, Effect, Layer } from "effect"
 import * as Stream from "effect/Stream"
 import { streamText, wrapLanguageModel, type ModelMessage, type Tool } from "ai"
 import type { LLMEvent } from "@makcode-ai/llm"
-import { LLMClient, RequestExecutor, WebSocketExecutor } from "@makcode-ai/llm/route"
+import { LLMClient } from "@makcode-ai/llm/route"
 import type { LLMClientService } from "@makcode-ai/llm/route"
 import { GitLabWorkflowLanguageModel } from "gitlab-ai-provider"
 import { ProviderTransform } from "@/provider/transform"
@@ -55,7 +55,7 @@ export interface Interface {
   readonly stream: (input: StreamInput) => Stream.Stream<LLMEvent, unknown>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/LLM") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/LLM") {}
 
 export const use = serviceUse(Service)
 
@@ -113,7 +113,7 @@ const live: Layer.Layer<
       })
 
       // Wire up toolExecutor for DWS workflow models so that tool calls
-      // from the workflow service are executed via makcode's tool system
+      // from the workflow service are executed via opencode's tool system
       // and results sent back over the WebSocket.
       const bridge = yield* EffectBridge.make()
       if (language instanceof GitLabWorkflowLanguageModel) {
@@ -384,32 +384,21 @@ const live: Layer.Layer<
   }),
 )
 
-export const layer = live.pipe(Layer.provide(Permission.defaultLayer), Layer.provide(EventV2Bridge.defaultLayer))
-
-export const defaultLayer = Layer.suspend(() =>
-  layer.pipe(
-    Layer.provide(Auth.defaultLayer),
-    Layer.provide(Config.defaultLayer),
-    Layer.provide(Provider.defaultLayer),
-    Layer.provide(Plugin.defaultLayer),
-    Layer.provide(
-      LLMClient.layer.pipe(Layer.provide(Layer.mergeAll(RequestExecutor.defaultLayer, WebSocketExecutor.layer))),
-    ),
-    Layer.provide(RuntimeFlags.defaultLayer),
-  ),
-)
-
 export const hasToolCalls = LLMRequestPrep.hasToolCalls
 
-export const node = LayerNode.make(layer, [
-  Auth.node,
-  Config.node,
-  Provider.node,
-  Plugin.node,
-  Permission.node,
-  EventV2Bridge.node,
-  llmClient,
-  RuntimeFlags.node,
-])
+export const node = LayerNode.make({
+  service: Service,
+  layer: live,
+  deps: [
+    Auth.node,
+    Config.node,
+    Provider.node,
+    Plugin.node,
+    Permission.node,
+    EventV2Bridge.node,
+    llmClient,
+    RuntimeFlags.node,
+  ],
+})
 
 export * as LLM from "./llm"

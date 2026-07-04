@@ -2,11 +2,11 @@
   "name": "makcode",
   "displayName": "makcode",
   "description": "makcode for VS Code",
-  "version": "1.17.9",
-  "publisher": "shahnawaz-pathan",
+  "version": "1.17.13",
+  "publisher": "sst-dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shahnawaz-pathan/makcode"
+    "url": "https://github.com/anomalyco/makcode"
   },
   "license": "MIT",
   "icon": "images/icon.png",

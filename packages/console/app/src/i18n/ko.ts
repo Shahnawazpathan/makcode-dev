@@ -43,8 +43,8 @@ export const dict = {
   "notFound.docs": "문서",
   "notFound.github": "GitHub",
   "notFound.discord": "Discord",
-  "notFound.logoLightAlt": "makcode 밝은 로고",
-  "notFound.logoDarkAlt": "makcode 어두운 로고",
+  "notFound.logoLightAlt": "opencode 밝은 로고",
+  "notFound.logoDarkAlt": "opencode 어두운 로고",
 
   "user.logout": "로그아웃",
 
@@ -98,8 +98,8 @@ export const dict = {
   "temp.feature.models.afterLink": "를 통해 75개 이상의 LLM 제공자 지원",
   "temp.screenshot.caption": "tokyonight 테마가 적용된 MakCode TUI",
   "temp.screenshot.alt": "tokyonight 테마가 적용된 MakCode TUI",
-  "temp.logoLightAlt": "makcode 밝은 로고",
-  "temp.logoDarkAlt": "makcode 어두운 로고",
+  "temp.logoLightAlt": "opencode 밝은 로고",
+  "temp.logoDarkAlt": "opencode 어두운 로고",
 
   "home.banner.badge": "신규",
   "home.banner.text": "데스크톱 앱 베타 버전 출시",
@@ -246,7 +246,6 @@ export const dict = {
   "zen.privacy.exceptionsLink": "다음 예외",
 
   "go.title": "MakCode Go | 모두를 위한 저비용 코딩 모델",
-  "go.banner.text": "MiniMax M3 사용 한도가 한시적으로 3배 확대됩니다",
   "go.meta.description":
     "Go는 첫 달 $5, 이후 $10/월로 시작하며, GLM-5.2, GLM-5.1, Kimi K2.7 Code, Kimi K2.6, MiMo-V2.5-Pro, MiMo-V2.5, Qwen3.7 Max, Qwen3.7 Plus, Qwen3.6 Plus, MiniMax M2.7, MiniMax M3, DeepSeek V4 Pro, DeepSeek V4 Flash에 대해 넉넉한 5시간 요청 한도를 제공합니다.",
   "go.hero.title": "모두를 위한 저비용 코딩 모델",
@@ -368,6 +367,8 @@ export const dict = {
   "zen.api.error.userMonthlyLimitReached":
     "월간 지출 한도인 ${{amount}}에 도달했습니다. 한도 관리를 여기서 하세요: {{membersUrl}}",
   "zen.api.error.modelDisabled": "모델이 비활성화되었습니다",
+  "zen.api.error.regionNotAllowed":
+    "이 모델은 중국에서 호스팅됩니다. 이 모델을 사용하려면 설정에서 활성화하세요: {{consoleGoUrl}}",
   "zen.api.error.trialEnded":
     "{{model}}의 무료 프로모션이 종료되었습니다. MakCode Go를 구독하면 모델을 계속 사용할 수 있습니다 - {{link}}",
 
@@ -645,7 +646,10 @@ export const dict = {
   "workspace.lite.subscription.resetsIn": "초기화까지 남은 시간:",
   "workspace.lite.subscription.useBalance": "사용 한도 도달 후에는 보유 잔액 사용",
   "workspace.lite.subscription.selectProvider":
-    'Go 모델을 사용하려면 makcode 설정에서 "MakCode Go"를 공급자로 선택하세요.',
+    'Go 모델을 사용하려면 opencode 설정에서 "MakCode Go"를 공급자로 선택하세요.',
+  "workspace.lite.providers.title": "공급자",
+  "workspace.lite.providers.description": "라우팅에 사용할 공급자를 제어합니다.",
+  "workspace.lite.providers.useChina": "중국에서 호스팅되는 모델 활성화",
   "workspace.lite.black.message":
     "현재 MakCode Black을 구독 중이거나 대기 명단에 등록되어 있습니다. Go로 전환하려면 먼저 구독을 취소해 주세요.",
   "workspace.lite.other.message":

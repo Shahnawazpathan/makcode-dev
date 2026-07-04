@@ -55,10 +55,10 @@ function request(headers: Record<string, string>, variant?: string) {
 const decode = Schema.decodeUnknownSync(Config.Info)
 
 describe("ConfigProviderPlugin.Plugin", () => {
-  it.effect("partitions existing model variant bodies without changing config shape", () =>
+  it.effect("keeps configured model variant bodies unchanged", () =>
     Effect.gen(function* () {
       const catalog = yield* Catalog.Service
-      const providerID = ProviderV2.ID.makcode
+      const providerID = ProviderV2.ID.opencode
       const modelID = ModelV2.ID.make("alpha-gpt-next")
       const config = Config.Service.of({
         entries: () =>
@@ -67,8 +67,8 @@ describe("ConfigProviderPlugin.Plugin", () => {
               type: "document",
               info: decode({
                 providers: {
-                  makcode: {
-                    api: { type: "aisdk", package: "@ai-sdk/openai", url: "https://makcode.test/v1" },
+                  opencode: {
+                    api: { type: "aisdk", package: "@ai-sdk/openai", url: "https://opencode.test/v1" },
                     models: {
                       "alpha-gpt-next": {
                         variants: [
@@ -96,8 +96,7 @@ describe("ConfigProviderPlugin.Plugin", () => {
       expect(model.variants).toMatchObject([
         {
           id: "high",
-          body: {},
-          options: {
+          body: {
             reasoningEffort: "high",
             reasoningSummary: "auto",
             include: ["reasoning.encrypted_content"],
@@ -107,10 +106,10 @@ describe("ConfigProviderPlugin.Plugin", () => {
     }),
   )
 
-  it.effect("uses the effective provider package across layered config", () =>
+  it.effect("keeps layered model variant bodies unchanged", () =>
     Effect.gen(function* () {
       const catalog = yield* Catalog.Service
-      const providerID = ProviderV2.ID.makcode
+      const providerID = ProviderV2.ID.opencode
       const modelID = ModelV2.ID.make("alpha-gpt-next")
       const config = Config.Service.of({
         entries: () =>
@@ -119,8 +118,8 @@ describe("ConfigProviderPlugin.Plugin", () => {
               type: "document",
               info: decode({
                 providers: {
-                  makcode: {
-                    api: { type: "aisdk", package: "@ai-sdk/openai", url: "https://makcode.test/v1" },
+                  opencode: {
+                    api: { type: "aisdk", package: "@ai-sdk/openai", url: "https://opencode.test/v1" },
                   },
                 },
               }),
@@ -129,7 +128,7 @@ describe("ConfigProviderPlugin.Plugin", () => {
               type: "document",
               info: decode({
                 providers: {
-                  makcode: {
+                  opencode: {
                     models: {
                       "alpha-gpt-next": {
                         variants: [{ id: "high", body: { reasoningEffort: "high" } }],
@@ -147,8 +146,7 @@ describe("ConfigProviderPlugin.Plugin", () => {
       const model = required(yield* catalog.model.get(providerID, modelID))
       expect(model.variants[0]).toMatchObject({
         id: "high",
-        body: {},
-        options: { reasoningEffort: "high" },
+        body: { reasoningEffort: "high" },
       })
     }),
   )

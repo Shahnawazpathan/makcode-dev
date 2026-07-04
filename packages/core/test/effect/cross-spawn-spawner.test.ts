@@ -6,9 +6,10 @@ import { Effect, Exit, Stream } from "effect"
 import type * as PlatformError from "effect/PlatformError"
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process"
 import { CrossSpawnSpawner } from "@makcode-ai/core/cross-spawn-spawner"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { testEffect } from "../lib/effect"
 
-const live = CrossSpawnSpawner.defaultLayer
+const live = LayerNode.compile(CrossSpawnSpawner.node)
 const fx = testEffect(live)
 
 function js(code: string, opts?: ChildProcess.CommandOptions) {
@@ -40,7 +41,7 @@ function alive(pid: number) {
 }
 
 async function tmpdir() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "makcode-core-test-"))
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "opencode-core-test-"))
   return {
     path: dir,
     async [Symbol.asyncDispose]() {

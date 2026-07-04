@@ -1,5 +1,5 @@
 import { LayerNode } from "@makcode-ai/core/effect/layer-node"
-import { httpClient } from "@makcode-ai/core/effect/layer-node-platform"
+import { httpClient } from "@makcode-ai/core/effect/app-node-platform"
 import type * as SDK from "@makcode-ai/sdk/v2"
 import { serviceUse } from "@makcode-ai/core/effect/service-use"
 import { Effect, Exit, Layer, Option, Schema, Scope, Context, Stream } from "effect"
@@ -78,7 +78,7 @@ export interface Interface {
   readonly remove: (sessionID: SessionID) => Effect.Effect<void, unknown>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/ShareNext") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/ShareNext") {}
 
 export const use = serviceUse(Service)
 
@@ -109,7 +109,7 @@ function key(item: Data) {
   }
 }
 
-export const layer = Layer.effect(
+const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const account = yield* Account.Service
@@ -362,24 +362,10 @@ export const layer = Layer.effect(
   }),
 )
 
-export const defaultLayer = layer.pipe(
-  Layer.provide(EventV2Bridge.defaultLayer),
-  Layer.provide(Account.defaultLayer),
-  Layer.provide(Config.defaultLayer),
-  Layer.provide(Database.defaultLayer),
-  Layer.provide(FetchHttpClient.layer),
-  Layer.provide(Provider.defaultLayer),
-  Layer.provide(Session.defaultLayer),
-)
-
-export const node = LayerNode.make(layer, [
-  Account.node,
-  EventV2Bridge.node,
-  Config.node,
-  Database.node,
-  httpClient,
-  Provider.node,
-  Session.node,
-])
+export const node = LayerNode.make({
+  service: Service,
+  layer: layer,
+  deps: [Account.node, EventV2Bridge.node, Config.node, Database.node, httpClient, Provider.node, Session.node],
+})
 
 export * as ShareNext from "./share-next"

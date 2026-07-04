@@ -2,6 +2,8 @@ import { afterEach, describe, expect, mock } from "bun:test"
 import { mkdir } from "node:fs/promises"
 import path from "node:path"
 import { Effect, Layer, Stream } from "effect"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Flag } from "@makcode-ai/core/flag/flag"
 import { registerAdapter } from "../../src/control-plane/adapters"
 import { WorkspaceV2 } from "@makcode-ai/core/workspace"
@@ -23,20 +25,11 @@ import { testEffect } from "../lib/effect"
 import { httpApiLayer, requestInDirectory } from "./httpapi-layer"
 
 const originalWorkspaces = Flag.OPENCODE_EXPERIMENTAL_WORKSPACES
-const workspaceLayer = Workspace.defaultLayer.pipe(
-  Layer.provide(InstanceStore.defaultLayer),
-  Layer.provide(InstanceBootstrap.defaultLayer),
+const appLayer = AppNodeBuilder.build(
+  LayerNode.group([Project.node, Session.node, Workspace.node, InstanceStore.node, Database.node, Ripgrep.node]),
+  [[InstanceStore.bootstrapNode, InstanceBootstrap.node]],
 )
-const it = testEffect(
-  Layer.mergeAll(
-    Project.defaultLayer,
-    Session.defaultLayer,
-    workspaceLayer,
-    InstanceStore.defaultLayer.pipe(Layer.provide(InstanceBootstrap.defaultLayer)),
-    Database.defaultLayer,
-    httpApiLayer,
-  ).pipe(Layer.provide(Ripgrep.defaultLayer)),
-)
+const it = testEffect(Layer.mergeAll(appLayer, httpApiLayer))
 
 function request(path: string, directory: string, init: RequestInit = {}) {
   return requestInDirectory(path, directory, init)
@@ -48,7 +41,7 @@ function requestDefault(path: string, directory: string, init: RequestInit = {})
 
 function requestServer(path: string, directory: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers)
-  headers.set("x-makcode-directory", directory)
+  headers.set("x-opencode-directory", directory)
   return Effect.promise(() => Promise.resolve(Server.Default().app.request(path, { ...init, headers })))
 }
 
@@ -404,9 +397,9 @@ describe("workspace HttpApi", () => {
           headers: {
             "accept-encoding": "br",
             "content-type": "application/json",
-            "x-makcode-workspace": "internal",
+            "x-opencode-workspace": "internal",
           },
-          body: JSON.stringify({ $schema: "https://makcode.ai/config.json" }),
+          body: JSON.stringify({ $schema: "https://opencode.ai/config.json" }),
         })
 
         const responseBody = yield* response.text
@@ -423,11 +416,11 @@ describe("workspace HttpApi", () => {
               "content-type": "application/json",
               "x-target-auth": "secret",
             }),
-            body: JSON.stringify({ $schema: "https://makcode.ai/config.json" }),
+            body: JSON.stringify({ $schema: "https://opencode.ai/config.json" }),
           },
         ])
-        expect(forwarded[0]?.headers).not.toHaveProperty("x-makcode-directory")
-        expect(forwarded[0]?.headers).not.toHaveProperty("x-makcode-workspace")
+        expect(forwarded[0]?.headers).not.toHaveProperty("x-opencode-directory")
+        expect(forwarded[0]?.headers).not.toHaveProperty("x-opencode-workspace")
 
         const eventURL = new URL(`http://localhost${EventPaths.event}`)
         eventURL.searchParams.set("workspace", workspace.id)

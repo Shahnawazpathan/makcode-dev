@@ -14,9 +14,9 @@ export type Shape<Fields extends ConfigMap> = {
  */
 export type ServiceClass<Self, Id extends string, Service> = Context.ServiceClass<Self, Id, Service> & {
   /** Provide already-parsed config, useful in tests. */
-  readonly layer: (input: Service) => Layer.Layer<Self>
+  readonly configLayer: (input: Service) => Layer.Layer<Self>
   /** Parse config once from the active Effect ConfigProvider and provide the service. */
-  readonly defaultLayer: Layer.Layer<Self, Config.ConfigError>
+  readonly layer: Layer.Layer<Self, Config.ConfigError>
 }
 
 /**
@@ -28,26 +28,26 @@ export type ServiceClass<Self, Id extends string, Service> = Context.ServiceClas
  *
  * ```ts
  * class ServerAuthConfig extends ConfigService.Service<ServerAuthConfig>()(
- *   "@makcode/ServerAuthConfig",
+ *   "@opencode/ServerAuthConfig",
  *   {
  *     password: Config.string("OPENCODE_SERVER_PASSWORD").pipe(Config.option),
- *     username: Config.string("OPENCODE_SERVER_USERNAME").pipe(Config.withDefault("makcode")),
+ *     username: Config.string("OPENCODE_SERVER_USERNAME").pipe(Config.withDefault("opencode")),
  *   },
  * ) {}
  *
- * const live = ServerAuthConfig.defaultLayer
- * const test = ServerAuthConfig.layer({ password: Option.some("secret"), username: "kit" })
+ * const live = ServerAuthConfig.layer
+ * const test = ServerAuthConfig.configLayer({ password: Option.some("secret"), username: "kit" })
  * ```
  */
 export const Service =
   <Self>() =>
   <const Id extends string, const Fields extends ConfigMap>(id: Id, fields: Fields) => {
     class ConfigTag extends Context.Service<Self, Shape<Fields>>()(id) {
-      static layer(input: Shape<Fields>) {
+      static configLayer(input: Shape<Fields>) {
         return Layer.succeed(this, this.of(input))
       }
 
-      static get defaultLayer() {
+      static get layer() {
         const tag = this
         return Layer.effect(
           tag,

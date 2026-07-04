@@ -46,7 +46,7 @@ describe("ConfigSkillPlugin.Plugin", () => {
           Config.Service.of({
             entries: () =>
               Effect.succeed([
-                new Config.Directory({ type: "directory", path: AbsolutePath.make("/repo/.makcode") }),
+                new Config.Directory({ type: "directory", path: AbsolutePath.make("/repo/.opencode") }),
                 new Config.Document({
                   type: "document",
                   info: decode({
@@ -59,21 +59,21 @@ describe("ConfigSkillPlugin.Plugin", () => {
       )
 
       expect(sources).toEqual([
-        new SkillV2.DirectorySource({
+        SkillV2.DirectorySource.make({
           type: "directory",
-          path: AbsolutePath.make(path.join("/repo/.makcode", "skill")),
+          path: AbsolutePath.make(path.join("/repo/.opencode", "skill")),
         }),
-        new SkillV2.DirectorySource({
+        SkillV2.DirectorySource.make({
           type: "directory",
-          path: AbsolutePath.make(path.join("/repo/.makcode", "skills")),
+          path: AbsolutePath.make(path.join("/repo/.opencode", "skills")),
         }),
-        new SkillV2.DirectorySource({ type: "directory", path: AbsolutePath.make(path.join(directory, "skills")) }),
-        new SkillV2.DirectorySource({
+        SkillV2.DirectorySource.make({ type: "directory", path: AbsolutePath.make(path.join(directory, "skills")) }),
+        SkillV2.DirectorySource.make({
           type: "directory",
           path: AbsolutePath.make(path.join("/home/test", "shared-skills")),
         }),
-        new SkillV2.DirectorySource({ type: "directory", path: AbsolutePath.make("/opt/skills") }),
-        new SkillV2.UrlSource({ type: "url", url: "https://example.test/skills/" }),
+        SkillV2.DirectorySource.make({ type: "directory", path: AbsolutePath.make("/opt/skills") }),
+        SkillV2.UrlSource.make({ type: "url", url: "https://example.test/skills/" }),
       ])
     }),
   )

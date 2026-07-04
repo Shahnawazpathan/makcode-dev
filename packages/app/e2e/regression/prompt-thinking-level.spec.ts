@@ -1,14 +1,14 @@
 import { expect, test, type Page } from "@playwright/test"
 import { base64Encode } from "@makcode-ai/core/util/encode"
-import { mockMakCodeServer } from "../utils/mock-server"
+import { mockOpenCodeServer } from "../utils/mock-server"
 import { expectAppVisible } from "../utils/waits"
 
-const directory = "C:/MakCode/PromptThinkingLevelRegression"
+const directory = "C:/OpenCode/PromptThinkingLevelRegression"
 const projectID = "proj_prompt_thinking_level_regression"
 const sessionID = "ses_prompt_thinking_level_regression"
 
 test("shows the V2 thinking level control while relevant", async ({ page }) => {
-  await mockMakCodeServer(page, {
+  await mockOpenCodeServer(page, {
     directory,
     project: {
       id: projectID,
@@ -21,8 +21,8 @@ test("shows the V2 thinking level control while relevant", async ({ page }) => {
     provider: {
       all: [
         {
-          id: "makcode",
-          name: "MakCode",
+          id: "opencode",
+          name: "OpenCode",
           models: {
             "thinking-model": {
               id: "thinking-model",
@@ -33,8 +33,8 @@ test("shows the V2 thinking level control while relevant", async ({ page }) => {
           },
         },
       ],
-      connected: ["makcode"],
-      default: { providerID: "makcode", modelID: "thinking-model" },
+      connected: ["opencode"],
+      default: { providerID: "opencode", modelID: "thinking-model" },
     },
     sessions: [
       {
@@ -66,7 +66,7 @@ test("shows the V2 thinking level control while relevant", async ({ page }) => {
   await expect(control).toBeVisible()
 
   await control.locator('[data-action="prompt-model-variant"]').click()
-  const high = page.getByRole("option", { name: "high" })
+  const high = page.getByRole("menuitemradio", { name: "high" })
   await expect(high).toBeVisible()
   await page.mouse.move(0, 0)
   await expect(control).toBeVisible()

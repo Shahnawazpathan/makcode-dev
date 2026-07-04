@@ -1,7 +1,17 @@
 import { Database } from "@makcode-ai/core/database/database"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
+import { httpClient } from "@makcode-ai/core/effect/app-node-platform"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
 import { EventV2 } from "@makcode-ai/core/event"
-import { LocationServiceMap } from "@makcode-ai/core/location-layer"
-import { FetchHttpClient, HttpRouter, HttpServer } from "effect/unstable/http"
+import { Credential } from "@makcode-ai/core/credential"
+import { PermissionSaved } from "@makcode-ai/core/permission/saved"
+import { PtyTicket } from "@makcode-ai/core/pty/ticket"
+import { SessionV2 } from "@makcode-ai/core/session"
+import { SessionExecution } from "@makcode-ai/core/session/execution"
+import { LocationServiceMap } from "@makcode-ai/core/location-service-map"
+import { SessionExecutionLocal } from "@makcode-ai/core/session/execution/local"
+import { ToolOutputStore } from "@makcode-ai/core/tool-output-store"
+import { HttpRouter, HttpServer } from "effect/unstable/http"
 import { HttpApiBuilder } from "effect/unstable/httpapi"
 import { Layer, Option } from "effect"
 import { Api } from "./api"
@@ -10,22 +20,45 @@ import { handlers } from "./handlers"
 import { authorizationLayer } from "./middleware/authorization"
 import { schemaErrorLayer } from "./middleware/schema-error"
 import { PtyEnvironment } from "./pty-environment"
+import { layer as locationLayer } from "./location"
+import { sessionLocationLayer } from "./middleware/session-location"
+
+const applicationServices = LayerNode.group([
+  Database.node,
+  EventV2.node,
+  httpClient,
+  ToolOutputStore.cleanupNode,
+  SessionV2.node,
+  PermissionSaved.node,
+  PtyTicket.node,
+  Credential.node,
+  PtyEnvironment.node,
+  LocationServiceMap.node,
+])
 
 export function createRoutes(password?: string) {
+  return makeRoutes(
+    password
+      ? ServerAuth.Config.configLayer({ username: "opencode", password: Option.some(password) })
+      : ServerAuth.Config.layer,
+  )
+}
+
+export function createEmbeddedRoutes() {
+  return makeRoutes(ServerAuth.Config.configLayer({ username: "opencode", password: Option.none() }))
+}
+
+function makeRoutes<AuthError, AuthServices>(auth: Layer.Layer<ServerAuth.Config, AuthError, AuthServices>) {
+  const serviceLayer = AppNodeBuilder.build(applicationServices, [[SessionExecution.node, SessionExecutionLocal.node]])
+
   return HttpApiBuilder.layer(Api, { openapiPath: "/openapi.json" }).pipe(
     Layer.provide(handlers),
-    Layer.provide(PtyEnvironment.defaultLayer),
+    Layer.provide(sessionLocationLayer),
+    Layer.provide(locationLayer),
     Layer.provide(authorizationLayer),
     Layer.provide(schemaErrorLayer),
-    Layer.provide(
-      password
-        ? ServerAuth.Config.layer({ username: "makcode", password: Option.some(password) })
-        : ServerAuth.Config.defaultLayer,
-    ),
-    Layer.provide(LocationServiceMap.layer),
-    Layer.provide(Database.defaultLayer),
-    Layer.provide(EventV2.defaultLayer),
-    Layer.provide(FetchHttpClient.layer),
+    Layer.provide(auth),
+    Layer.provide(serviceLayer),
   )
 }
 

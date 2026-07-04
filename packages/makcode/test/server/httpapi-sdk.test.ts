@@ -5,12 +5,14 @@ import { Deferred, Effect, Layer } from "effect"
 import type * as Scope from "effect/Scope"
 import { HttpServer } from "effect/unstable/http"
 import { ChildProcessSpawner } from "effect/unstable/process"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { FSUtil } from "@makcode-ai/core/fs-util"
 import { CrossSpawnSpawner } from "@makcode-ai/core/cross-spawn-spawner"
 import { Flag } from "@makcode-ai/core/flag/flag"
 import { createOpencodeClient } from "@makcode-ai/sdk/v2"
 import { validateSession } from "../../src/cli/tui/validate-session"
-import { InstanceBootstrap } from "../../src/project/bootstrap-service"
+import { InstanceBootstrap } from "../../src/project/bootstrap"
 import { InstanceStore } from "../../src/project/instance-store"
 import { MessageID, PartID, SessionID } from "../../src/session/schema"
 import { MessageV2 } from "../../src/session/message-v2"
@@ -29,16 +31,12 @@ import { ModelV2 } from "@makcode-ai/core/model"
 import { Database } from "@makcode-ai/core/database/database"
 import { httpApiLayer } from "./httpapi-layer"
 
-const noopBootstrap = Layer.succeed(InstanceBootstrap.Service, InstanceBootstrap.Service.of({ run: Effect.void }))
-const it = testEffect(
-  Layer.mergeAll(
-    FSUtil.defaultLayer,
-    CrossSpawnSpawner.defaultLayer,
-    InstanceStore.defaultLayer.pipe(Layer.provide(noopBootstrap)),
-    Database.defaultLayer,
-    httpApiLayer,
-  ),
+const noopBootstrapLayer = Layer.succeed(InstanceBootstrap.Service, InstanceBootstrap.Service.of({ run: Effect.void }))
+const appLayer = AppNodeBuilder.build(
+  LayerNode.group([FSUtil.node, CrossSpawnSpawner.node, InstanceStore.node, Database.node, SessionNs.node]),
+  [[InstanceStore.bootstrapNode, noopBootstrapLayer]],
 )
+const it = testEffect(Layer.mergeAll(appLayer, httpApiLayer))
 
 const original = {
   OPENCODE_SERVER_PASSWORD: Flag.OPENCODE_SERVER_PASSWORD,
@@ -55,6 +53,7 @@ type TestServices =
   | FSUtil.Service
   | ChildProcessSpawner.ChildProcessSpawner
   | InstanceStore.Service
+  | SessionNs.Service
   | HttpServer.HttpServer
 type TestScope = Scope.Scope | TestServices
 
@@ -286,7 +285,7 @@ function writeStandardFiles(dir: string) {
 function writeProjectSkill(dir: string) {
   return FSUtil.Service.use((fs) =>
     fs.writeWithDirs(
-      path.join(dir, ".makcode", "skills", "project-rest-skill", "SKILL.md"),
+      path.join(dir, ".opencode", "skills", "project-rest-skill", "SKILL.md"),
       `---
 name: project-rest-skill
 description: A project skill visible to REST API prompts.
@@ -323,7 +322,7 @@ function seedMessage(directory: string, sessionID: string) {
           })
           return { message, part }
         }),
-      ).pipe(Effect.provide(SessionNs.defaultLayer)),
+      ),
     ),
   )
 }
@@ -403,8 +402,8 @@ describe("HttpApi SDK", () => {
         expect(url.searchParams.get("workspace")).toBe(workspaceID)
         expect(url.searchParams.get("location[directory]")).toBe(directory)
         expect(url.searchParams.get("location[workspace]")).toBe(workspaceID)
-        expect(request!.headers.has("x-makcode-directory")).toBe(false)
-        expect(request!.headers.has("x-makcode-workspace")).toBe(false)
+        expect(request!.headers.has("x-opencode-directory")).toBe(false)
+        expect(request!.headers.has("x-opencode-workspace")).toBe(false)
       }),
     ),
   )
@@ -498,12 +497,12 @@ describe("HttpApi SDK", () => {
         const missing = yield* capture(() => missingSdk.file.read({ path: "hello.txt" }))
         const badSdk = yield* client("raw", directory, {
           password: "secret",
-          headers: { authorization: authorization("makcode", "wrong") },
+          headers: { authorization: authorization("opencode", "wrong") },
         })
         const bad = yield* capture(() => badSdk.file.read({ path: "hello.txt" }))
         const goodSdk = yield* client("raw", directory, {
           password: "secret",
-          headers: { authorization: authorization("makcode", "secret") },
+          headers: { authorization: authorization("opencode", "secret") },
         })
         const good = yield* capture(() => goodSdk.file.read({ path: "hello.txt" }))
 

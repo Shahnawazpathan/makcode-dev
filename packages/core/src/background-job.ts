@@ -2,6 +2,7 @@ export * as BackgroundJob from "./background-job"
 
 import { Cause, Clock, Context, Deferred, Effect, Exit, Layer, Scope, SynchronizedRef } from "effect"
 import { Identifier } from "./id/id"
+import { makeGlobalNode } from "./effect/app-node"
 
 export type Status = "running" | "completed" | "error" | "cancelled"
 
@@ -95,7 +96,7 @@ export interface Interface {
   readonly cancel: (id: string) => Effect.Effect<Info | undefined>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/BackgroundJob") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/BackgroundJob") {}
 
 function snapshot(job: Active): Info {
   return {
@@ -359,6 +360,6 @@ export const make = Effect.gen(function* () {
   return Service.of({ list, get, start, extend, wait, waitForPromotion, promote, cancel })
 })
 
-export const layer = Layer.effect(Service, make)
+const layer = Layer.effect(Service, make)
 
-export const defaultLayer = layer
+export const node = makeGlobalNode({ service: Service, layer, deps: [] })

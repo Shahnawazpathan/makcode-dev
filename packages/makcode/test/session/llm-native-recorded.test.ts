@@ -1,6 +1,5 @@
 import { ConfigV1 } from "@makcode-ai/core/v1/config/config"
 import { SessionV1 } from "@makcode-ai/core/v1/session"
-import { FSUtil } from "@makcode-ai/core/fs-util"
 import { ModelsDev } from "@makcode-ai/core/models-dev"
 import { HttpRecorder } from "@makcode-ai/http-recorder"
 import { HttpRecorderInternal } from "@makcode-ai/http-recorder/internal"
@@ -10,14 +9,11 @@ import { Effect, Layer, Option, Schema, Stream } from "effect"
 import path from "node:path"
 import z from "zod"
 import { Auth } from "@/auth"
-import { Config } from "@/config/config"
-import { Plugin } from "@/plugin"
 import { Provider } from "@/provider/provider"
 
 import { Filesystem } from "@/util/filesystem"
 import { LLMEvent, LLMResponse } from "@makcode-ai/llm"
-import { LLMClient, RequestExecutor, WebSocketExecutor } from "@makcode-ai/llm/route"
-import { Env } from "@/env"
+import { RequestExecutor } from "@makcode-ai/llm/route"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import type { Agent } from "../../src/agent/agent"
 import { LLM } from "../../src/session/llm"
@@ -26,10 +22,13 @@ import { TestInstance } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
 import { ProviderV2 } from "@makcode-ai/core/provider"
 import { ModelV2 } from "@makcode-ai/core/model"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
+import { LayerNodePlatform } from "@makcode-ai/core/effect/app-node-platform"
 
 const FIXTURES_DIR = path.join(import.meta.dir, "../fixtures/recordings")
 
-const zenURL = (connection: string) => `https://console.makcode.ai/proxy/connections/${connection}/v1`
+const zenURL = (connection: string) => `https://console.opencode.ai/proxy/connections/${connection}/v1`
 
 const replayOpenAIOAuth = {
   type: "oauth",
@@ -120,7 +119,7 @@ const RECORDED_SCENARIOS = [
     modelID: "gpt-4.1-mini",
     cassette: "session/native-openai-tool-loop",
     protocol: "openai-responses",
-    tags: ["makcode", "native", "tool-loop"],
+    tags: ["opencode", "native", "tool-loop"],
     canRecord: () => Boolean(envValue("OPENCODE_RECORD_OPENAI_API_KEY", "OPENAI_API_KEY")),
     config: (model) =>
       providerConfig({
@@ -143,7 +142,7 @@ const RECORDED_SCENARIOS = [
     modelID: "gpt-5.5",
     cassette: "session/native-openai-oauth-tool-loop",
     protocol: "openai-responses",
-    tags: ["makcode", "native", "oauth", "tool-loop"],
+    tags: ["opencode", "native", "oauth", "tool-loop"],
     canRecord: () => recordOpenAIOAuth() !== undefined,
     recordAuth: recordOpenAIOAuth,
     replayAuth: replayOpenAIOAuth,
@@ -160,18 +159,18 @@ const RECORDED_SCENARIOS = [
       }),
   },
   {
-    id: "makcode-proxy",
-    name: "MakCode proxy",
-    providerID: ProviderV2.ID.makcode,
+    id: "opencode-proxy",
+    name: "OpenCode proxy",
+    providerID: ProviderV2.ID.opencode,
     modelID: "gpt-5.2-codex",
     cassette: "session/native-zen-tool-loop",
     protocol: "openai-responses",
-    tags: ["makcode", "zen", "native", "tool-loop"],
+    tags: ["opencode", "zen", "native", "tool-loop"],
     canRecord: () => Boolean(process.env.OPENCODE_RECORD_CONSOLE_TOKEN && process.env.OPENCODE_RECORD_ZEN_ORG_ID),
     config: (model) =>
       providerConfig({
-        providerID: ProviderV2.ID.makcode,
-        name: "MakCode Zen",
+        providerID: ProviderV2.ID.opencode,
+        name: "OpenCode Zen",
         env: ["OPENCODE_CONSOLE_TOKEN"],
         npm: "@ai-sdk/openai-compatible",
         api: zenURL(process.env.OPENCODE_RECORD_ZEN_CONNECTION ?? "fixture"),
@@ -189,7 +188,7 @@ const RECORDED_SCENARIOS = [
     modelID: "claude-haiku-4-5-20251001",
     cassette: "session/native-anthropic-tool-loop",
     protocol: "anthropic-messages",
-    tags: ["makcode", "native", "tool-loop"],
+    tags: ["opencode", "native", "tool-loop"],
     canRecord: () => Boolean(envValue("OPENCODE_RECORD_ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY")),
     config: (model) =>
       providerConfig({
@@ -240,7 +239,7 @@ const redactRecordedBody = (body: string) =>
 
 function authLayer(scenario: RecordedScenario) {
   const replayAuth = shouldRecord ? scenario.recordAuth?.() : scenario.replayAuth
-  if (!replayAuth) return Auth.defaultLayer
+  if (!replayAuth) return undefined
   return Layer.mock(Auth.Service)({
     get: (providerID) => Effect.succeed(providerID === scenario.providerID ? replayAuth : undefined),
     all: () => Effect.succeed({ [scenario.providerID]: replayAuth }),
@@ -262,16 +261,7 @@ const modelsFixture = Filesystem.readJson<Record<string, ModelsDev.Provider>>(
 
 function recordedNativeLLMLayer(scenario: RecordedScenario) {
   const auth = authLayer(scenario)
-  const provider = Provider.layer.pipe(
-    Layer.provide(FSUtil.defaultLayer),
-    Layer.provide(Env.defaultLayer),
-    Layer.provide(Config.defaultLayer),
-    Layer.provide(auth),
-    Layer.provide(Plugin.defaultLayer),
-    Layer.provide(ModelsDev.defaultLayer),
-    Layer.provide(RuntimeFlags.defaultLayer),
-  )
-  // Only the HTTP client is recorded; RequestExecutor and the makcode LLM stack remain real.
+  // Only the HTTP client is recorded; RequestExecutor and the opencode LLM stack remain real.
   const metadata = {
     provider: scenario.providerID,
     protocol: scenario.protocol,
@@ -290,28 +280,18 @@ function recordedNativeLLMLayer(scenario: RecordedScenario) {
         redactor: HttpRecorderInternal.Redactor.make(redact),
       })
     : HttpRecorder.http(scenario.cassette, { directory: FIXTURES_DIR, metadata, redact })
-  const recordedClient = LLMClient.layer.pipe(
-    Layer.provide(Layer.mergeAll(RequestExecutor.layer.pipe(Layer.provide(recordedHttp)), WebSocketExecutor.layer)),
-  )
-
-  return Layer.mergeAll(
-    provider,
-    LLM.layer.pipe(
-      Layer.provide(auth),
-      Layer.provide(Config.defaultLayer),
-      Layer.provide(provider),
-      Layer.provide(Plugin.defaultLayer),
-      Layer.provide(recordedClient),
-      Layer.provide(RuntimeFlags.layer({ experimentalNativeLlm: true })),
-    ),
-  )
+  return AppNodeBuilder.build(LayerNode.group([Provider.node, LLM.node]), [
+    [LayerNodePlatform.requestExecutor, RequestExecutor.layer.pipe(Layer.provide(recordedHttp))],
+    [RuntimeFlags.node, RuntimeFlags.layer({ experimentalNativeLlm: true })],
+    ...(auth ? ([[Auth.node, auth]] as const) : []),
+  ])
 }
 
 const writeConfig = (directory: string, scenario: RecordedScenario, model: ModelsDev.Provider["models"][string]) =>
   Effect.promise(() =>
     Bun.write(
-      path.join(directory, "makcode.json"),
-      JSON.stringify({ $schema: "https://makcode.ai/config.json", ...scenario.config(model) }),
+      path.join(directory, "opencode.json"),
+      JSON.stringify({ $schema: "https://opencode.ai/config.json", ...scenario.config(model) }),
     ),
   )
 

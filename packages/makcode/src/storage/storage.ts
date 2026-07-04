@@ -58,7 +58,7 @@ export interface Interface {
   readonly list: (prefix: string[]) => Effect.Effect<string[][], FSUtil.Error>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/Storage") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Storage") {}
 
 function file(dir: string, key: string[]) {
   return path.join(dir, ...key) + ".json"
@@ -210,7 +210,7 @@ const MIGRATIONS: Migration[] = [
   }),
 ]
 
-export const layer = Layer.effect(
+const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const fs = yield* FSUtil.Service
@@ -322,8 +322,6 @@ export const layer = Layer.effect(
   }),
 )
 
-export const defaultLayer = layer.pipe(Layer.provide(FSUtil.defaultLayer), Layer.provide(Git.defaultLayer))
-
-export const node = LayerNode.make(layer, [FSUtil.node, Git.node])
+export const node = LayerNode.make({ service: Service, layer: layer, deps: [FSUtil.node, Git.node] })
 
 export * as Storage from "./storage"

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://makcode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {},
   "permission": {},
   "references": {

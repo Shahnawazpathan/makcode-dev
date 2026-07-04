@@ -275,7 +275,7 @@ describe("tool parameters", () => {
 
   describe("websearch", () => {
     test("accepts query", () => {
-      expect(parse(WebSearch, { query: "makcode" }).query).toBe("makcode")
+      expect(parse(WebSearch, { query: "opencode" }).query).toBe("opencode")
     })
   })
 

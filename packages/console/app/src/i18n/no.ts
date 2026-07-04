@@ -37,14 +37,14 @@ export const dict = {
   "email.subscribe": "Abonner",
   "email.success": "Nesten ferdig - sjekk innboksen din og bekreft e-postadressen",
 
-  "notFound.title": "Ikke funnet | makcode",
+  "notFound.title": "Ikke funnet | opencode",
   "notFound.heading": "404 - Side ikke funnet",
   "notFound.home": "Hjem",
   "notFound.docs": "Dokumentasjon",
   "notFound.github": "GitHub",
   "notFound.discord": "Discord",
-  "notFound.logoLightAlt": "makcode logo lys",
-  "notFound.logoDarkAlt": "makcode logo mørk",
+  "notFound.logoLightAlt": "opencode logo lys",
+  "notFound.logoDarkAlt": "opencode logo mørk",
 
   "user.logout": "Logg ut",
 
@@ -85,21 +85,21 @@ export const dict = {
 
   "home.title": "MakCode | Den åpne kildekode AI-kodingsagenten",
 
-  "temp.title": "makcode | AI-kodingsagent bygget for terminalen",
+  "temp.title": "opencode | AI-kodingsagent bygget for terminalen",
   "temp.hero.title": "AI-kodingsagenten bygget for terminalen",
-  "temp.zen": "makcode zen",
+  "temp.zen": "opencode zen",
   "temp.getStarted": "Kom i gang",
   "temp.feature.native.title": "Native TUI",
   "temp.feature.native.body": "Et responsivt, native terminal-brukergrensesnitt som kan temes",
   "temp.feature.zen.beforeLink": "En",
   "temp.feature.zen.link": "kuratert liste over modeller",
-  "temp.feature.zen.afterLink": "levert av makcode",
+  "temp.feature.zen.afterLink": "levert av opencode",
   "temp.feature.models.beforeLink": "Støtter 75+ LLM-leverandører gjennom",
   "temp.feature.models.afterLink": ", inkludert lokale modeller",
-  "temp.screenshot.caption": "makcode TUI med tokyonight-tema",
-  "temp.screenshot.alt": "makcode TUI med tokyonight-tema",
-  "temp.logoLightAlt": "makcode logo lys",
-  "temp.logoDarkAlt": "makcode logo mørk",
+  "temp.screenshot.caption": "opencode TUI med tokyonight-tema",
+  "temp.screenshot.alt": "opencode TUI med tokyonight-tema",
+  "temp.logoLightAlt": "opencode logo lys",
+  "temp.logoDarkAlt": "opencode logo mørk",
 
   "home.banner.badge": "Ny",
   "home.banner.text": "Desktop-app tilgjengelig i beta",
@@ -250,7 +250,6 @@ export const dict = {
   "zen.privacy.exceptionsLink": "følgende unntak",
 
   "go.title": "MakCode Go | Rimelige kodemodeller for alle",
-  "go.banner.text": "MiniMax M3 får 3x bruksgrense i en begrenset periode",
   "go.meta.description":
     "Go starter på $5 for den første måneden, deretter $10/måned, med sjenerøse 5-timers forespørselsgrenser for GLM-5.2, GLM-5.1, Kimi K2.7 Code, Kimi K2.6, MiMo-V2.5-Pro, MiMo-V2.5, Qwen3.7 Max, Qwen3.7 Plus, Qwen3.6 Plus, MiniMax M2.7, MiniMax M3, DeepSeek V4 Pro og DeepSeek V4 Flash.",
   "go.hero.title": "Rimelige kodemodeller for alle",
@@ -374,6 +373,8 @@ export const dict = {
   "zen.api.error.userMonthlyLimitReached":
     "Du har nådd din månedlige utgiftsgrense på ${{amount}}. Administrer grensene dine her: {{membersUrl}}",
   "zen.api.error.modelDisabled": "Modellen er deaktivert",
+  "zen.api.error.regionNotAllowed":
+    "Denne modellen hostes i Kina. Hvis du vil bruke denne modellen, aktiver den i innstillingene dine: {{consoleGoUrl}}",
   "zen.api.error.trialEnded":
     "Den gratis kampanjen for {{model}} er avsluttet. Du kan fortsette å bruke modellen ved å abonnere på MakCode Go - {{link}}",
 
@@ -446,15 +447,15 @@ export const dict = {
     "Få tilgang til modeller konfigurert for optimal ytelse – ingen nedgraderinger eller ruting til billigere leverandører.",
   "workspace.newUser.feature.lockin.title": "Ingen innlåsing",
   "workspace.newUser.feature.lockin.body":
-    "Bruk Zen med hvilken som helst kodeagent, og fortsett å bruke andre leverandører med makcode når du vil.",
+    "Bruk Zen med hvilken som helst kodeagent, og fortsett å bruke andre leverandører med opencode når du vil.",
   "workspace.newUser.copyApiKey": "Kopier API-nøkkel",
   "workspace.newUser.copyKey": "Kopier nøkkel",
   "workspace.newUser.copied": "Kopiert!",
   "workspace.newUser.step.enableBilling": "Aktiver fakturering",
   "workspace.newUser.step.login.before": "Kjør",
-  "workspace.newUser.step.login.after": "og velg makcode",
+  "workspace.newUser.step.login.after": "og velg opencode",
   "workspace.newUser.step.pasteKey": "Lim inn API-nøkkelen",
-  "workspace.newUser.step.models.before": "Start makcode og kjør",
+  "workspace.newUser.step.models.before": "Start opencode og kjør",
   "workspace.newUser.step.models.after": "for å velge en modell",
 
   "workspace.models.title": "Modeller",
@@ -500,10 +501,10 @@ export const dict = {
   "workspace.cost.subscriptionShort": "sub",
 
   "workspace.keys.title": "API-nøkler",
-  "workspace.keys.subtitle": "Administrer API-nøklene dine for å få tilgang til makcode-tjenester.",
+  "workspace.keys.subtitle": "Administrer API-nøklene dine for å få tilgang til opencode-tjenester.",
   "workspace.keys.create": "Opprett API-nøkkel",
   "workspace.keys.placeholder": "Skriv inn navn på nøkkel",
-  "workspace.keys.empty": "Opprett en makcode Gateway API-nøkkel",
+  "workspace.keys.empty": "Opprett en opencode Gateway API-nøkkel",
   "workspace.keys.table.name": "Navn",
   "workspace.keys.table.key": "Nøkkel",
   "workspace.keys.table.createdBy": "Opprettet av",
@@ -652,7 +653,10 @@ export const dict = {
   "workspace.lite.subscription.resetsIn": "Nullstilles om",
   "workspace.lite.subscription.useBalance": "Bruk din tilgjengelige saldo etter å ha nådd bruksgrensene",
   "workspace.lite.subscription.selectProvider":
-    'Velg "MakCode Go" som leverandør i makcode-konfigurasjonen din for å bruke Go-modeller.',
+    'Velg "MakCode Go" som leverandør i opencode-konfigurasjonen din for å bruke Go-modeller.',
+  "workspace.lite.providers.title": "Leverandører",
+  "workspace.lite.providers.description": "Kontroller hvilke leverandører som brukes til ruting.",
+  "workspace.lite.providers.useChina": "Aktiver modeller hostet i Kina",
   "workspace.lite.black.message":
     "Du abonnerer for øyeblikket på MakCode Black eller står på venteliste. Vennligst avslutt abonnementet først hvis du vil bytte til Go.",
   "workspace.lite.other.message":

@@ -9,14 +9,14 @@ describe("terminalWebSocketURL", () => {
       directory: "/tmp/project",
       cursor: 0,
       sameOrigin: false,
-      username: "makcode",
+      username: "opencode",
       password: "secret",
     })
 
     expect(url.protocol).toBe("ws:")
     expect(url.username).toBe("")
     expect(url.password).toBe("")
-    expect(url.searchParams.get("auth_token")).toBe(btoa("makcode:secret"))
+    expect(url.searchParams.get("auth_token")).toBe(btoa("opencode:secret"))
   })
 
   test("omits query auth for same-origin saved credentials", () => {
@@ -26,7 +26,7 @@ describe("terminalWebSocketURL", () => {
       directory: "/tmp/project",
       cursor: 10,
       sameOrigin: true,
-      username: "makcode",
+      username: "opencode",
       password: "secret",
     })
 
@@ -41,12 +41,12 @@ describe("terminalWebSocketURL", () => {
       directory: "/tmp/project",
       cursor: 10,
       sameOrigin: true,
-      username: "makcode",
+      username: "opencode",
       password: "secret",
       authToken: true,
     })
 
     expect(url.protocol).toBe("wss:")
-    expect(url.searchParams.get("auth_token")).toBe(btoa("makcode:secret"))
+    expect(url.searchParams.get("auth_token")).toBe(btoa("opencode:secret"))
   })
 })

@@ -1,8 +1,14 @@
-import type { IntegrationDraft, IntegrationMethod, IntegrationMethodRegistration } from "../effect/integration.js"
+import type { IntegrationDraft, IntegrationMethodRegistration } from "../effect/integration.js"
+import type { CredentialValue } from "@makcode-ai/sdk/v2/types"
 import type { Hooks } from "./registration.js"
 
-export type { IntegrationDraft, IntegrationMethod, IntegrationMethodRegistration }
+export type { IntegrationDraft, IntegrationMethodRegistration }
 
-export type IntegrationHooks = Hooks<{
-  transform: IntegrationDraft
-}>
+export interface IntegrationHooks extends Hooks<{ transform: IntegrationDraft }> {
+  readonly connection: {
+    readonly active: (integrationID: string) => Promise<import("@makcode-ai/sdk/v2/types").ConnectionInfo | undefined>
+    readonly resolve: (
+      connection: import("@makcode-ai/sdk/v2/types").ConnectionInfo,
+    ) => Promise<CredentialValue | undefined>
+  }
+}

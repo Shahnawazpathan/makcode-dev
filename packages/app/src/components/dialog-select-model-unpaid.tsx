@@ -10,24 +10,27 @@ import { useLocal } from "@/context/local"
 import { popularProviders, useProviders } from "@/hooks/use-providers"
 import { ModelTooltip } from "./model-tooltip"
 import { useLanguage } from "@/context/language"
+import { decode64 } from "@/utils/base64"
 
 type ModelState = ReturnType<typeof useLocal>["model"]
 
 export const DialogSelectModelUnpaid: Component<{ model?: ModelState }> = (props) => {
-  const model = props.model ?? useLocal().model
+  const local = useLocal()
+  const model = props.model ?? local.model
   const dialog = useDialog()
-  const providers = useProviders()
+  const directory = () => decode64(local.slug())
+  const providers = useProviders(directory)
   const language = useLanguage()
 
   const connect = (provider: string) => {
     void import("./dialog-connect-provider").then((x) => {
-      dialog.show(() => <x.DialogConnectProvider provider={provider} />)
+      dialog.show(() => <x.DialogConnectProvider provider={provider} directory={directory} />)
     })
   }
 
   const all = () => {
     void import("./dialog-select-provider").then((x) => {
-      dialog.show(() => <x.DialogSelectProvider />)
+      dialog.show(() => <x.DialogSelectProvider directory={directory} />)
     })
   }
 
@@ -59,7 +62,7 @@ export const DialogSelectModelUnpaid: Component<{ model?: ModelState }> = (props
                 <ModelTooltip
                   model={item}
                   latest={item.latest}
-                  free={item.provider.id === "makcode" && (!item.cost || item.cost.input === 0)}
+                  free={item.provider.id === "opencode" && (!item.cost || item.cost.input === 0)}
                 />
               }
             >
@@ -108,16 +111,16 @@ export const DialogSelectModelUnpaid: Component<{ model?: ModelState }> = (props
                   <div class="w-full flex items-center gap-x-3">
                     <ProviderIcon data-slot="list-item-extra-icon" id={i.id} />
                     <span>{i.name}</span>
-                    <Show when={i.id === "makcode"}>
-                      <div class="text-14-regular text-text-weak">{language.t("dialog.provider.makcode.tagline")}</div>
+                    <Show when={i.id === "opencode"}>
+                      <div class="text-14-regular text-text-weak">{language.t("dialog.provider.opencode.tagline")}</div>
                     </Show>
-                    <Show when={i.id === "makcode"}>
+                    <Show when={i.id === "opencode"}>
                       <Tag>{language.t("dialog.provider.tag.recommended")}</Tag>
                     </Show>
-                    <Show when={i.id === "makcode-go"}>
+                    <Show when={i.id === "opencode-go"}>
                       <>
                         <div class="text-14-regular text-text-weak">
-                          {language.t("dialog.provider.makcodeGo.tagline")}
+                          {language.t("dialog.provider.opencodeGo.tagline")}
                         </div>
                         <Tag>{language.t("dialog.provider.tag.recommended")}</Tag>
                       </>

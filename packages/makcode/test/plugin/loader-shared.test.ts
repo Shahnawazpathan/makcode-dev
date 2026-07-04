@@ -1,17 +1,18 @@
 import { afterEach, describe, expect, spyOn } from "bun:test"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { Effect, Layer } from "effect"
 import fs from "fs/promises"
 import path from "path"
 import { pathToFileURL } from "url"
 import { CrossSpawnSpawner } from "@makcode-ai/core/cross-spawn-spawner"
 import { FSUtil } from "@makcode-ai/core/fs-util"
+import { Config } from "@/config/config"
 import { disposeAllInstances, provideInstance, testInstanceStoreLayer, tmpdirScoped } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
 
 const { Plugin } = await import("../../src/plugin/index")
 const { PluginLoader } = await import("../../src/plugin/loader")
 const { readPackageThemes } = await import("../../src/plugin/shared")
-const { EventV2Bridge } = await import("../../src/event-v2-bridge")
 const { Npm } = await import("@makcode-ai/core/npm")
 const { TestConfig } = await import("../fixture/config")
 const { RuntimeFlags } = await import("../../src/effect/runtime-flags")
@@ -20,7 +21,9 @@ afterEach(async () => {
   await disposeAllInstances()
 })
 
-const it = testEffect(Layer.mergeAll(CrossSpawnSpawner.defaultLayer, FSUtil.defaultLayer, testInstanceStoreLayer))
+const it = testEffect(
+  Layer.mergeAll(LayerNode.compile(LayerNode.group([CrossSpawnSpawner.node, FSUtil.node])), testInstanceStoreLayer),
+)
 
 function withTmp<T, A, E, R>(
   init: (dir: string) => Promise<T>,
@@ -34,7 +37,7 @@ function withTmp<T, A, E, R>(
 }
 
 function load(dir: string, flags?: Parameters<typeof RuntimeFlags.layer>[0]) {
-  const source = path.join(dir, "makcode.json")
+  const source = path.join(dir, "opencode.json")
   return Effect.gen(function* () {
     const config = yield* Effect.promise(
       () => Bun.file(source).json() as Promise<{ plugin?: Array<string | [string, Record<string, unknown>]> }>,
@@ -45,10 +48,9 @@ function load(dir: string, flags?: Parameters<typeof RuntimeFlags.layer>[0]) {
       yield* plugin.list()
     }).pipe(
       Effect.provide(
-        Plugin.layer.pipe(
-          Layer.provide(EventV2Bridge.defaultLayer),
-          Layer.provide(RuntimeFlags.layer({ disableDefaultPlugins: true, ...flags })),
-          Layer.provide(
+        LayerNode.compile(Plugin.node, [
+          [
+            Config.node,
             TestConfig.layer({
               get: () =>
                 Effect.succeed({
@@ -57,8 +59,9 @@ function load(dir: string, flags?: Parameters<typeof RuntimeFlags.layer>[0]) {
                 }),
               directories: () => Effect.succeed([dir]),
             }),
-          ),
-        ),
+          ],
+          [RuntimeFlags.node, RuntimeFlags.layer({ disableDefaultPlugins: true, ...flags })],
+        ]),
       ),
       provideInstance(dir),
     )
@@ -83,7 +86,7 @@ describe("plugin.loader.shared", () => {
         )
 
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({ plugin: [pathToFileURL(file).href] }, null, 2),
         )
 
@@ -118,7 +121,7 @@ describe("plugin.loader.shared", () => {
         )
 
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({ plugin: [pathToFileURL(file).href] }, null, 2),
         )
 
@@ -156,7 +159,7 @@ describe("plugin.loader.shared", () => {
         )
 
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({ plugin: [pathToFileURL(file).href] }, null, 2),
         )
 
@@ -189,7 +192,7 @@ describe("plugin.loader.shared", () => {
         )
 
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({ plugin: [pathToFileURL(file).href] }, null, 2),
         )
 
@@ -231,7 +234,7 @@ describe("plugin.loader.shared", () => {
         )
 
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({ plugin: [pathToFileURL(file).href] }, null, 2),
         )
 
@@ -271,7 +274,7 @@ describe("plugin.loader.shared", () => {
         await Bun.write(path.join(scope, "index.js"), "export default { server: async () => ({}) }\n")
 
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({ plugin: ["acme-plugin", "scope-plugin@2.3.4"] }, null, 2),
         )
 
@@ -335,7 +338,7 @@ describe("plugin.loader.shared", () => {
         )
         await Bun.write(path.join(mod, "tui.js"), "export default {}\n")
 
-        await Bun.write(path.join(dir, "makcode.json"), JSON.stringify({ plugin: ["acme-plugin@1.0.0"] }, null, 2))
+        await Bun.write(path.join(dir, "opencode.json"), JSON.stringify({ plugin: ["acme-plugin@1.0.0"] }, null, 2))
 
         return {
           mod,
@@ -394,7 +397,7 @@ describe("plugin.loader.shared", () => {
           ].join("\n"),
         )
 
-        await Bun.write(path.join(dir, "makcode.json"), JSON.stringify({ plugin: ["acme-plugin@1.0.0"] }, null, 2))
+        await Bun.write(path.join(dir, "opencode.json"), JSON.stringify({ plugin: ["acme-plugin@1.0.0"] }, null, 2))
 
         return {
           mod,
@@ -448,7 +451,7 @@ describe("plugin.loader.shared", () => {
           ].join("\n"),
         )
 
-        await Bun.write(path.join(dir, "makcode.json"), JSON.stringify({ plugin: ["acme-plugin@1.0.0"] }, null, 2))
+        await Bun.write(path.join(dir, "opencode.json"), JSON.stringify({ plugin: ["acme-plugin@1.0.0"] }, null, 2))
 
         return {
           mod,
@@ -498,7 +501,7 @@ describe("plugin.loader.shared", () => {
           ].join("\n"),
         )
 
-        await Bun.write(path.join(dir, "makcode.json"), JSON.stringify({ plugin: ["acme-plugin@1.0.0"] }, null, 2))
+        await Bun.write(path.join(dir, "opencode.json"), JSON.stringify({ plugin: ["acme-plugin@1.0.0"] }, null, 2))
 
         return { mod, mark }
       },
@@ -562,7 +565,7 @@ describe("plugin.loader.shared", () => {
         )
         await fs.symlink(outside, path.join(mod, "escape"), process.platform === "win32" ? "junction" : "dir")
 
-        await Bun.write(path.join(dir, "makcode.json"), JSON.stringify({ plugin: ["acme-plugin"] }, null, 2))
+        await Bun.write(path.join(dir, "opencode.json"), JSON.stringify({ plugin: ["acme-plugin"] }, null, 2))
 
         return {
           mod,
@@ -593,10 +596,10 @@ describe("plugin.loader.shared", () => {
     withTmp(
       async (dir) => {
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify(
             {
-              plugin: ["makcode-openai-codex-auth@1.0.0", "makcode-copilot-auth@1.0.0", "regular-plugin@1.0.0"],
+              plugin: ["opencode-openai-codex-auth@1.0.0", "opencode-copilot-auth@1.0.0", "regular-plugin@1.0.0"],
             },
             null,
             2,
@@ -612,8 +615,8 @@ describe("plugin.loader.shared", () => {
 
             const pkgs = install.mock.calls.map((call) => call[0])
             expect(pkgs).toContain("regular-plugin@1.0.0")
-            expect(pkgs).not.toContain("makcode-openai-codex-auth@1.0.0")
-            expect(pkgs).not.toContain("makcode-copilot-auth@1.0.0")
+            expect(pkgs).not.toContain("opencode-openai-codex-auth@1.0.0")
+            expect(pkgs).not.toContain("opencode-copilot-auth@1.0.0")
           } finally {
             install.mockRestore()
           }
@@ -640,7 +643,7 @@ describe("plugin.loader.shared", () => {
           ].join("\n"),
         )
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({ plugin: ["broken-plugin@9.9.9", pathToFileURL(ok).href] }, null, 2),
         )
         return { mark }
@@ -692,7 +695,7 @@ describe("plugin.loader.shared", () => {
           ].join("\n"),
         )
 
-        await Bun.write(path.join(dir, "makcode.json"), JSON.stringify({ plugin: [file, ok] }, null, 2))
+        await Bun.write(path.join(dir, "opencode.json"), JSON.stringify({ plugin: [file, ok] }, null, 2))
 
         return { mark }
       },
@@ -728,7 +731,7 @@ describe("plugin.loader.shared", () => {
           ].join("\n"),
         )
 
-        await Bun.write(path.join(dir, "makcode.json"), JSON.stringify({ plugin: [file, ok] }, null, 2))
+        await Bun.write(path.join(dir, "opencode.json"), JSON.stringify({ plugin: [file, ok] }, null, 2))
 
         return { mark }
       },
@@ -759,7 +762,7 @@ describe("plugin.loader.shared", () => {
             "",
           ].join("\n"),
         )
-        await Bun.write(path.join(dir, "makcode.json"), JSON.stringify({ plugin: [missing, ok] }, null, 2))
+        await Bun.write(path.join(dir, "opencode.json"), JSON.stringify({ plugin: [missing, ok] }, null, 2))
 
         return { mark }
       },
@@ -792,7 +795,7 @@ describe("plugin.loader.shared", () => {
         )
 
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({ plugin: [pathToFileURL(file).href] }, null, 2),
         )
 
@@ -827,7 +830,7 @@ describe("plugin.loader.shared", () => {
         )
 
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({ plugin: [[pathToFileURL(file).href, { source: "tuple", enabled: true }]] }, null, 2),
         )
 
@@ -884,7 +887,7 @@ export default {
 `,
         )
 
-        await Bun.write(path.join(dir, "makcode.json"), JSON.stringify({ plugin: [aSpec, bSpec] }, null, 2))
+        await Bun.write(path.join(dir, "opencode.json"), JSON.stringify({ plugin: [aSpec, bSpec] }, null, 2))
 
         return { marker }
       },
@@ -917,7 +920,7 @@ export default {
         )
 
         await Bun.write(
-          path.join(dir, "makcode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({ plugin: [pathToFileURL(file).href] }, null, 2),
         )
 

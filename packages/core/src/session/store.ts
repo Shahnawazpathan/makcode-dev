@@ -3,6 +3,7 @@ export * as SessionStore from "./store"
 import { eq } from "drizzle-orm"
 import { Context, Effect, Layer, Schema } from "effect"
 import { Database } from "../database/database"
+import { makeGlobalNode } from "../effect/app-node"
 import { SessionHistory } from "./history"
 import { MessageDecodeError } from "./error"
 import { SessionMessage } from "./message"
@@ -22,9 +23,9 @@ export interface Interface {
   ) => Effect.Effect<{ readonly sessionID: SessionSchema.ID; readonly message: SessionMessage.Message } | undefined>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/v2/SessionStore") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/v2/SessionStore") {}
 
-export const layer = Layer.effect(
+const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const { db } = yield* Database.Service
@@ -59,4 +60,4 @@ export const layer = Layer.effect(
   }),
 )
 
-export const defaultLayer = layer.pipe(Layer.provide(Database.defaultLayer))
+export const node = makeGlobalNode({ service: Service, layer, deps: [Database.node] })

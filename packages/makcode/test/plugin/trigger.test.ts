@@ -1,14 +1,11 @@
 import { describe, expect } from "bun:test"
-import { Effect, Layer } from "effect"
-import { FetchHttpClient } from "effect/unstable/http"
+import { Effect } from "effect"
 import { CrossSpawnSpawner } from "@makcode-ai/core/cross-spawn-spawner"
-import { FSUtil } from "@makcode-ai/core/fs-util"
-import { EffectFlock } from "@makcode-ai/core/util/effect-flock"
+import { Npm } from "@makcode-ai/core/npm"
 import path from "path"
 import { pathToFileURL } from "url"
-import { EventV2Bridge } from "../../src/event-v2-bridge"
-import { Config } from "../../src/config/config"
-import { Env } from "../../src/env"
+import { Account } from "../../src/account/account"
+import { Auth } from "../../src/auth"
 import { RuntimeFlags } from "../../src/effect/runtime-flags"
 import { Plugin } from "../../src/plugin/index"
 
@@ -19,25 +16,16 @@ import { AuthTest } from "../fake/auth"
 import { NpmTest } from "../fake/npm"
 import { ProviderV2 } from "@makcode-ai/core/provider"
 import { ModelV2 } from "@makcode-ai/core/model"
+import { AppNodeBuilder } from "@makcode-ai/core/effect/app-node-builder"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 
-const configLayer = Config.layer.pipe(
-  Layer.provide(EffectFlock.defaultLayer),
-  Layer.provide(FSUtil.defaultLayer),
-  Layer.provide(Env.defaultLayer),
-  Layer.provide(AuthTest.empty),
-  Layer.provide(AccountTest.empty),
-  Layer.provide(NpmTest.noop),
-  Layer.provide(FetchHttpClient.layer),
-)
 const it = testEffect(
-  Layer.mergeAll(
-    Plugin.layer.pipe(
-      Layer.provide(EventV2Bridge.defaultLayer),
-      Layer.provide(configLayer),
-      Layer.provide(RuntimeFlags.layer({ disableDefaultPlugins: true })),
-    ),
-    CrossSpawnSpawner.defaultLayer,
-  ),
+  AppNodeBuilder.build(LayerNode.group([Plugin.node, CrossSpawnSpawner.node]), [
+    [Auth.node, AuthTest.empty],
+    [Account.node, AccountTest.empty],
+    [Npm.node, NpmTest.noop],
+    [RuntimeFlags.node, RuntimeFlags.layer({ disableDefaultPlugins: true })],
+  ]),
 )
 const systemHook = "experimental.chat.system.transform"
 
@@ -50,10 +38,10 @@ function withProject<A, E, R>(source: string, self: Effect.Effect<A, E, R>) {
         Effect.promise(() => Bun.write(file, source)),
         Effect.promise(() =>
           Bun.write(
-            path.join(test.directory, "makcode.json"),
+            path.join(test.directory, "opencode.json"),
             JSON.stringify(
               {
-                $schema: "https://makcode.ai/config.json",
+                $schema: "https://opencode.ai/config.json",
                 plugin: [pathToFileURL(file).href],
               },
               null,

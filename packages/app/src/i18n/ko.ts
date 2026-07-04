@@ -90,9 +90,9 @@ export const dict = {
   "dialog.provider.group.popular": "인기",
   "dialog.provider.group.other": "기타",
   "dialog.provider.tag.recommended": "추천",
-  "dialog.provider.makcode.note": "Claude, GPT, Gemini 등을 포함한 엄선된 모델",
-  "dialog.provider.makcode.tagline": "신뢰할 수 있는 최적화 모델",
-  "dialog.provider.makcodeGo.tagline": "모두를 위한 저렴한 구독",
+  "dialog.provider.opencode.note": "Claude, GPT, Gemini 등을 포함한 엄선된 모델",
+  "dialog.provider.opencode.tagline": "신뢰할 수 있는 최적화 모델",
+  "dialog.provider.opencodeGo.tagline": "모두를 위한 저렴한 구독",
   "dialog.provider.anthropic.note": "Claude Pro/Max 또는 API 키로 연결",
   "dialog.provider.copilot.note": "Copilot 또는 API 키로 연결",
   "dialog.provider.openai.note": "ChatGPT Pro/Plus 또는 API 키로 연결",
@@ -120,12 +120,12 @@ export const dict = {
   "provider.connect.apiKey.label": "{{provider}} API 키",
   "provider.connect.apiKey.placeholder": "API 키",
   "provider.connect.apiKey.required": "API 키가 필요합니다",
-  "provider.connect.makcodeZen.line1":
+  "provider.connect.opencodeZen.line1":
     "MakCode Zen은 코딩 에이전트를 위해 최적화된 신뢰할 수 있는 엄선된 모델에 대한 액세스를 제공합니다.",
-  "provider.connect.makcodeZen.line2": "단일 API 키로 Claude, GPT, Gemini, GLM 등 다양한 모델에 액세스할 수 있습니다.",
-  "provider.connect.makcodeZen.visit.prefix": "다음 ",
-  "provider.connect.makcodeZen.visit.link": "makcode.ai/zen",
-  "provider.connect.makcodeZen.visit.suffix": "을 방문하여 API 키를 받으세요.",
+  "provider.connect.opencodeZen.line2": "단일 API 키로 Claude, GPT, Gemini, GLM 등 다양한 모델에 액세스할 수 있습니다.",
+  "provider.connect.opencodeZen.visit.prefix": "다음 ",
+  "provider.connect.opencodeZen.visit.link": "opencode.ai/zen",
+  "provider.connect.opencodeZen.visit.suffix": "을 방문하여 API 키를 받으세요.",
   "provider.connect.oauth.code.visit.prefix": "다음 ",
   "provider.connect.oauth.code.visit.link": "이 링크",
   "provider.connect.oauth.code.visit.suffix":
@@ -271,7 +271,7 @@ export const dict = {
   "dialog.mcp.description": "{{total}}개 중 {{enabled}}개 활성화됨",
   "dialog.mcp.empty": "구성된 MCP 없음",
   "dialog.lsp.empty": "파일 유형에서 자동 감지된 LSP",
-  "dialog.plugins.empty": "makcode.json에 구성된 플러그인",
+  "dialog.plugins.empty": "opencode.json에 구성된 플러그인",
   "mcp.status.connected": "연결됨",
   "mcp.status.failed": "실패",
   "mcp.status.needs_auth": "인증 필요",
@@ -427,7 +427,7 @@ export const dict = {
   "error.chain.responseBody": "응답 본문:\n{{body}}",
   "error.chain.didYouMean": "혹시 {{suggestions}}을(를) 의미하셨나요?",
   "error.chain.modelNotFound": "모델을 찾을 수 없음: {{provider}}/{{model}}",
-  "error.chain.checkConfig": "구성(makcode.json)의 공급자/모델 이름을 확인하세요",
+  "error.chain.checkConfig": "구성(opencode.json)의 공급자/모델 이름을 확인하세요",
   "error.chain.mcpFailed": 'MCP 서버 "{{name}}" 실패. 참고: MakCode는 아직 MCP 인증을 지원하지 않습니다.',
   "error.chain.providerAuthFailed": "공급자 인증 실패 ({{provider}}): {{message}}",
   "error.chain.providerInitFailed": '공급자 "{{provider}}" 초기화 실패. 자격 증명과 구성을 확인하세요.',
@@ -591,9 +591,6 @@ export const dict = {
   "settings.general.row.editToolPartsExpanded.title": "edit 도구 파트 펼치기",
   "settings.general.row.editToolPartsExpanded.description":
     "타임라인에서 기본적으로 edit, write, patch 도구 파트를 펼친 상태로 표시합니다",
-  "settings.general.row.showSessionProgressBar.title": "세션 진행 표시줄 표시",
-  "settings.general.row.showSessionProgressBar.description":
-    "에이전트가 작업 중일 때 세션 상단에 애니메이션 진행 표시줄을 표시합니다",
   "settings.general.row.wayland.title": "네이티브 Wayland 사용",
   "settings.general.row.wayland.description": "Wayland에서 X11 폴백을 비활성화합니다. 다시 시작해야 합니다.",
   "settings.general.row.wayland.tooltip":

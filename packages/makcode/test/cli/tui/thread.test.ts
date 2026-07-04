@@ -66,29 +66,29 @@ describe("tui thread", () => {
     expect(args.mdns).toBe(false)
   })
 
-  cliIt.live("rejects mini-only options without --mini", ({ makcode }) =>
+  cliIt.live("rejects mini-only options without --mini", ({ opencode }) =>
     Effect.gen(function* () {
-      const result = yield* makcode.spawn(["--replay-limit", "10"])
+      const result = yield* opencode.spawn(["--replay-limit", "10"])
 
-      makcode.expectExit(result, 1)
+      opencode.expectExit(result, 1)
       expect(result.stderr).toContain("--replay-limit requires --mini")
     }),
   )
 
-  cliIt.live("routes attached sessions to mini mode", ({ makcode }) =>
+  cliIt.live("routes attached sessions to mini mode", ({ opencode }) =>
     Effect.gen(function* () {
-      const result = yield* makcode.spawn(["attach", "http://127.0.0.1:1", "--mini"])
+      const result = yield* opencode.spawn(["attach", "http://127.0.0.1:1", "--mini"])
 
-      makcode.expectExit(result, 1)
+      opencode.expectExit(result, 1)
       expect(result.stderr).toContain("--mini requires a TTY stdout")
     }),
   )
 
-  cliIt.live("rejects network options in mini mode", ({ makcode }) =>
+  cliIt.live("rejects network options in mini mode", ({ opencode }) =>
     Effect.gen(function* () {
-      const result = yield* makcode.spawn(["--mini", "--port", "4096"])
+      const result = yield* opencode.spawn(["--mini", "--port", "4096"])
 
-      makcode.expectExit(result, 1)
+      opencode.expectExit(result, 1)
       expect(result.stderr).toContain("--port cannot be used with --mini")
     }),
   )

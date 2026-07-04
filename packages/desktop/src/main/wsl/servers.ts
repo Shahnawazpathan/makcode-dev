@@ -47,6 +47,7 @@ type WslServersControllerOptions = {
   logger?: ControllerLogger
   readServers?: () => WslServerConfig[]
   writeServers?: (servers: WslServerConfig[]) => void
+  probeDistro?: typeof probeWslDistro
   resolveOpencode?: typeof resolveWslOpencode
   readCommandVersion?: typeof readWslCommandVersion
 }
@@ -70,6 +71,7 @@ export function createWslServersController(
   const logger = options?.logger
   const readServers = options?.readServers ?? readPersistedServers
   const writeServers = options?.writeServers ?? writePersistedServers
+  const probeDistro = options?.probeDistro ?? probeWslDistro
 
   const emit = () => {
     for (const listener of listeners) listener({ type: "state", state })
@@ -121,8 +123,8 @@ export function createWslServersController(
 
   const setOpencodeCheck = (distro: string, check: WslOpencodeCheck) => {
     setState({
-      makcodeChecks: {
-        ...state.makcodeChecks,
+      opencodeChecks: {
+        ...state.opencodeChecks,
         [distro]: check,
       },
     })
@@ -133,11 +135,33 @@ export function createWslServersController(
     const version = resolved
       ? await (options?.readCommandVersion ?? readWslCommandVersion)(resolved, distro, opts)
       : null
-    return makcodeCheck(distro, resolved, version, appVersion)
+    return opencodeCheck(distro, resolved, version, appVersion)
   }
 
   const refreshOpencodeCheck = async (distro: string, opts?: { signal?: AbortSignal }) => {
     setOpencodeCheck(distro, await checkOpencode(distro, opts))
+  }
+
+  const probeAddableDistros = async (distros: string[], opts?: { signal?: AbortSignal }) => {
+    const unique = [...new Set(distros)]
+    const distroProbes = await Promise.all(
+      unique
+        .filter((distro) => !state.distroProbes[distro])
+        .map(async (distro) => [distro, await probeDistro(distro, opts)] as const),
+    )
+    if (distroProbes.length) {
+      setState({ distroProbes: { ...state.distroProbes, ...Object.fromEntries(distroProbes) } })
+    }
+
+    const opencodeChecks = await Promise.all(
+      unique
+        .filter((distro) => distroProbeReady(state.distroProbes[distro]))
+        .filter((distro) => !state.opencodeChecks[distro])
+        .map(async (distro) => [distro, await checkOpencode(distro, opts)] as const),
+    )
+    if (opencodeChecks.length) {
+      setState({ opencodeChecks: { ...state.opencodeChecks, ...Object.fromEntries(opencodeChecks) } })
+    }
   }
 
   const hasServer = (id: string, distro: string) => {
@@ -152,7 +176,7 @@ export function createWslServersController(
       })
       .catch((error) => {
         const message = error instanceof Error ? error.message : String(error)
-        logger?.error("wsl makcode check failed", { id, distro, message })
+        logger?.error("wsl opencode check failed", { id, distro, message })
       })
   }
 
@@ -166,7 +190,7 @@ export function createWslServersController(
           })
           .catch((error) => {
             const message = error instanceof Error ? error.message : String(error)
-            logger?.error("wsl makcode check failed", {
+            logger?.error("wsl opencode check failed", {
               id: item.config.id,
               distro: item.config.distro,
               message,
@@ -319,7 +343,7 @@ export function createWslServersController(
           throw new Error(message)
         }
         const distros = await refreshDistroLists({ signal: abort.signal })
-        const probe = await probeWslDistro(name, { signal: abort.signal })
+        const probe = await probeDistro(name, { signal: abort.signal })
         setState({
           ...distros,
           distroProbes: { ...state.distroProbes, [name]: probe },
@@ -327,27 +351,21 @@ export function createWslServersController(
       })
     },
 
-    async probeDistro(name: string) {
-      await runJob({ kind: "probe-distro", distro: name, startedAt: Date.now() }, async (abort) => {
-        const probe = await probeWslDistro(name, { signal: abort.signal })
-        setState({ distroProbes: { ...state.distroProbes, [name]: probe } })
-      })
-    },
-
-    async probeOpencode(name: string) {
-      await runJob({ kind: "probe-makcode", distro: name, startedAt: Date.now() }, async (abort) => {
-        await refreshOpencodeCheck(name, { signal: abort.signal })
+    async probeAddable(distros: string[]) {
+      if (!distros.length) return
+      await runJob({ kind: "probe-addable", distros, startedAt: Date.now() }, async (abort) => {
+        await probeAddableDistros(distros, { signal: abort.signal })
       })
     },
 
     async installOpencode(name: string) {
-      await runJob({ kind: "install-makcode", distro: name, startedAt: Date.now() }, async (abort) => {
+      await runJob({ kind: "install-opencode", distro: name, startedAt: Date.now() }, async (abort) => {
         const result = await installWslOpencode(appVersion, name, { signal: abort.signal })
         if (result.code !== 0) {
           throw new Error(summarize(result.stderr || result.stdout) || "MakCode installation failed")
         }
         await refreshOpencodeCheck(name, { signal: abort.signal })
-        expectOpencodeVersion(state.makcodeChecks[name]?.version ?? null, appVersion, name)
+        expectOpencodeVersion(state.opencodeChecks[name]?.version ?? null, appVersion, name)
         const id = wslServerIdToRestart(state.servers, name)
         if (id) await startServer(id)
       })
@@ -382,7 +400,7 @@ export function createWslServersController(
       persistServers(remaining)
       setState({
         servers: state.servers.filter((item) => item.config.id !== id),
-        ...(distro ? clearWslDistroState(state.distroProbes, state.makcodeChecks, distro) : {}),
+        ...(distro ? clearWslDistroState(state.distroProbes, state.opencodeChecks, distro) : {}),
       })
     },
 
@@ -408,7 +426,7 @@ function initialState(): WslServersState {
     installed: [],
     online: [],
     distroProbes: {},
-    makcodeChecks: {},
+    opencodeChecks: {},
     pendingRestart: false,
     servers: [],
     job: null,
@@ -444,7 +462,7 @@ function normalizePersistedServer(value: unknown): WslServerConfig[] {
   ]
 }
 
-function makcodeCheck(
+function opencodeCheck(
   distro: string,
   resolvedPath: string | null,
   version: string | null,
@@ -457,7 +475,7 @@ function makcodeCheck(
       version: null,
       expectedVersion,
       matchesDesktop: null,
-      error: "makcode is not installed in this distro",
+      error: "opencode is not installed in this distro",
     }
   }
   if (!version) {
@@ -467,7 +485,7 @@ function makcodeCheck(
       version: null,
       expectedVersion,
       matchesDesktop: null,
-      error: "makcode is installed but could not run",
+      error: "opencode is installed but could not run",
     }
   }
   return {
@@ -478,6 +496,10 @@ function makcodeCheck(
     matchesDesktop: version === expectedVersion,
     error: null,
   }
+}
+
+function distroProbeReady(probe: WslDistroProbe | undefined) {
+  return !!probe?.canExecute && probe.hasBash && probe.hasCurl
 }
 
 function startupFailure(code: number | null, signal: NodeJS.Signals | null) {

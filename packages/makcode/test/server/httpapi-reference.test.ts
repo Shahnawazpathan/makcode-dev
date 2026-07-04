@@ -30,7 +30,7 @@ describe("reference HttpApi", () => {
       pollWithTimeout(
         Effect.promise(async () => {
           const response = await Server.Default().app.request("/api/reference", {
-            headers: { "x-makcode-directory": tmp.path },
+            headers: { "x-opencode-directory": tmp.path },
           })
           expect(response.status).toBe(200)
           const body = await response.json()
@@ -44,26 +44,18 @@ describe("reference HttpApi", () => {
       {
         name: "docs",
         path: path.join(tmp.path, "docs"),
-        description: null,
-        hidden: null,
         source: {
           type: "local",
           path: path.join(tmp.path, "docs"),
-          description: null,
-          hidden: null,
         },
       },
       {
         name: "effect",
         path: path.join(Global.Path.repos, "github.com", "Effect-TS", "effect"),
-        description: null,
-        hidden: null,
         source: {
           type: "git",
           repository: "Effect-TS/effect",
           branch: "main",
-          description: null,
-          hidden: null,
         },
       },
     ])

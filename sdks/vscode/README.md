@@ -1,10 +1,10 @@
 # makcode VS Code Extension
 
-A Visual Studio Code extension that integrates [makcode](https://makcode.ai) directly into your development workflow.
+A Visual Studio Code extension that integrates [makcode](https://opencode.ai) directly into your development workflow.
 
 ## Prerequisites
 
-This extension requires the [makcode CLI](https://makcode.ai) to be installed on your system. Visit [makcode.ai](https://makcode.ai) for installation instructions.
+This extension requires the [makcode CLI](https://opencode.ai) to be installed on your system. Visit [opencode.ai](https://opencode.ai) for installation instructions.
 
 ## Features
 
@@ -15,7 +15,7 @@ This extension requires the [makcode CLI](https://makcode.ai) to be installed on
 
 ## Support
 
-This is an early release. If you encounter issues or have feedback, please create an issue at https://github.com/shahnawaz-pathan/makcode/issues.
+This is an early release. If you encounter issues or have feedback, please create an issue at https://github.com/Shahnawazpathan/makcode-dev/issues.
 
 ## Development
 

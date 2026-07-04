@@ -1,14 +1,14 @@
 import type { PermissionV1 } from "@makcode-ai/core/v1/permission"
 import { FSUtil } from "@makcode-ai/core/fs-util"
-// CLI entry point for `makcode run` and `makcode --mini`.
+// CLI entry point for `opencode run` and `opencode --mini`.
 //
 // Handles three modes:
 //   1. Non-interactive (default): sends a single prompt, streams events to
 //      stdout, and exits when the session goes idle.
-//   2. Interactive local (`makcode --mini`): boots the split-footer direct mode
+//   2. Interactive local (`opencode --mini`): boots the split-footer direct mode
 //      with an in-process server (no external HTTP).
-//   3. Interactive attach (`makcode --mini --attach`): connects to a running
-//      makcode server and runs interactive mode against it.
+//   3. Interactive attach (`opencode --mini --attach`): connects to a running
+//      opencode server and runs interactive mode against it.
 //
 // Also supports `--command` for slash-command execution, `--format json` for
 // raw event streaming, `--continue` / `--session` for session resumption,
@@ -125,7 +125,7 @@ async function toolError(part: ToolPart) {
 
 export const RunCommand = effectCmd({
   command: "run [message..]",
-  describe: "run makcode with a message",
+  describe: "run opencode with a message",
   // --attach connects to a remote server (no local instance needed); the
   // default path runs an in-process server and needs the project instance.
   instance: (args) => !args.attach,
@@ -189,7 +189,7 @@ export const RunCommand = effectCmd({
       })
       .option("attach", {
         type: "string",
-        describe: "attach to a running makcode server (e.g., http://localhost:4096)",
+        describe: "attach to a running opencode server (e.g., http://localhost:4096)",
       })
       .option("password", {
         alias: ["p"],
@@ -199,7 +199,7 @@ export const RunCommand = effectCmd({
       .option("username", {
         alias: ["u"],
         type: "string",
-        describe: "basic auth username (defaults to OPENCODE_SERVER_USERNAME or 'makcode')",
+        describe: "basic auth username (defaults to OPENCODE_SERVER_USERNAME or 'opencode')",
       })
       .option("dir", {
         type: "string",
@@ -233,9 +233,25 @@ export const RunCommand = effectCmd({
         hidden: true,
         describe: "cap visible interactive replay to the newest N messages",
       })
-      .option("dangerously-skip-permissions", {
+      .option("interactive", {
+        alias: ["i"],
+        type: "boolean",
+        describe: "run in direct interactive split-footer mode",
+        default: false,
+      })
+      .option("auto", {
         type: "boolean",
         describe: "auto-approve permissions that are not explicitly denied (dangerous!)",
+        default: false,
+      })
+      .option("yolo", {
+        type: "boolean",
+        hidden: true,
+        default: false,
+      })
+      .option("dangerously-skip-permissions", {
+        type: "boolean",
+        hidden: true,
         default: false,
       })
       .option("demo", {
@@ -255,6 +271,7 @@ export const RunCommand = effectCmd({
     yield* Effect.promise(async () => {
       const rawMessage = [...args.message, ...(args["--"] || [])].join(" ")
       const interactive = args.mini
+      const auto = args.auto || args.yolo || args["dangerously-skip-permissions"]
       const thinking = interactive ? (args.thinking ?? true) : (args.thinking ?? false)
       const die = (message: string): never => {
         UI.error(message)
@@ -780,7 +797,7 @@ export const RunCommand = effectCmd({
               const permission = event.properties
               if (permission.sessionID !== sessionID) continue
 
-              if (args["dangerously-skip-permissions"]) {
+              if (auto) {
                 await client.permission.reply({
                   requestID: permission.id,
                   reply: "once",
@@ -932,7 +949,7 @@ export const RunCommand = effectCmd({
         return Server.Default().app.fetch(new Request(request, { headers }))
       }) as typeof globalThis.fetch
       const sdk = createOpencodeClient({
-        baseUrl: "http://makcode.internal",
+        baseUrl: "http://opencode.internal",
         fetch: fetchFn,
         directory,
       })
@@ -960,7 +977,7 @@ type MiniCommandInput = {
 export async function runMini(input: MiniCommandInput) {
   if (!RunCommand.handler) throw new Error("Mini command handler is unavailable")
   await RunCommand.handler({
-    $0: "makcode",
+    $0: "opencode",
     _: ["mini"],
     message: input.prompt ? [input.prompt] : [],
     command: undefined,
@@ -981,9 +998,12 @@ export async function runMini(input: MiniCommandInput) {
     variant: undefined,
     thinking: undefined,
     mini: true,
+    interactive: false,
     replay: input.replay ?? true,
     "replay-limit": input.replayLimit,
     replayLimit: input.replayLimit,
+    auto: false,
+    yolo: false,
     "dangerously-skip-permissions": false,
     dangerouslySkipPermissions: false,
     demo: input.demo ?? false,

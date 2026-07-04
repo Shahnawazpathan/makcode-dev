@@ -2,10 +2,10 @@
   "name": "@makcode-ai/web",
   "type": "module",
   "license": "MIT",
-  "version": "1.17.9",
+  "version": "1.17.13",
   "scripts": {
     "dev": "astro dev",
-    "dev:remote": "VITE_API_URL=https://api.makcode.ai astro dev",
+    "dev:remote": "VITE_API_URL=https://api.opencode.ai astro dev",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",

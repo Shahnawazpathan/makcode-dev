@@ -1,5 +1,6 @@
 export * as AISDK from "./aisdk"
 
+import { makeLocationNode } from "./effect/app-node"
 import type { LanguageModelV3 } from "@ai-sdk/provider"
 import { Cause, Context, Effect, Layer, Schema, Scope } from "effect"
 import { ModelV2 } from "./model"
@@ -143,7 +144,7 @@ export interface Interface {
   readonly language: (model: ModelV2.Info) => Effect.Effect<LanguageModelV3, InitError>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/v2/AISDK") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/v2/AISDK") {}
 
 export const locationLayer = Layer.effect(
   Service,
@@ -231,4 +232,4 @@ export const locationLayer = Layer.effect(
   }),
 )
 
-export const defaultLayer = locationLayer
+export const node = makeLocationNode({ service: Service, layer: locationLayer, deps: [] })

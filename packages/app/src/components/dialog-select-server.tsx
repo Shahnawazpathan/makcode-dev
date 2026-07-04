@@ -20,7 +20,7 @@ import { type ServerHealth, useCheckServerHealth } from "@/utils/server-health"
 import { useSettings } from "@/context/settings"
 import { useTabs } from "@/context/tabs"
 
-const DEFAULT_USERNAME = "makcode"
+const DEFAULT_USERNAME = "opencode"
 
 interface ServerFormProps {
   value: string

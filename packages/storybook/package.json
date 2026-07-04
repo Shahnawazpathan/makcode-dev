@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",
+    "@makcode-ai/session-ui": "workspace:*",
     "@makcode-ai/ui": "workspace:*",
     "@solidjs/meta": "catalog:",
     "@storybook/addon-a11y": "^10.2.13",

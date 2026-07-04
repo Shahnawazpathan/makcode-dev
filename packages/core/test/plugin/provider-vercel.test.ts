@@ -32,8 +32,8 @@ describe("VercelPlugin", () => {
       yield* addPlugin()
       expect((yield* catalog.provider.get(ProviderV2.ID.make("vercel")))?.request.headers).toEqual({
         Existing: "1",
-        "http-referer": "https://makcode.ai/",
-        "x-title": "makcode",
+        "http-referer": "https://opencode.ai/",
+        "x-title": "opencode",
       })
     }),
   )
@@ -60,7 +60,7 @@ describe("VercelPlugin", () => {
       const aisdk = yield* AISDK.Service
       yield* addPlugin()
       const event = yield* aisdk.runSDK({
-        model: new ModelV2.Info({
+        model: ModelV2.Info.make({
           ...ModelV2.Info.empty(ProviderV2.ID.make("custom-vercel"), ModelV2.ID.make("v0-1.0-md")),
           api: { id: ModelV2.ID.make("v0-1.0-md"), type: "aisdk", package: "@ai-sdk/vercel" },
         }),

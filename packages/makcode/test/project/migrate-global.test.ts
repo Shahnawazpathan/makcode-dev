@@ -9,11 +9,12 @@ import { ProjectV2 } from "@makcode-ai/core/project"
 import { SessionID } from "../../src/session/schema"
 import { $ } from "bun"
 import { tmpdirScoped } from "../fixture/fixture"
-import { Effect, Layer } from "effect"
+import { LayerNode } from "@makcode-ai/core/effect/layer-node"
 import { CrossSpawnSpawner } from "@makcode-ai/core/cross-spawn-spawner"
+import { Effect } from "effect"
 import { testEffect } from "../lib/effect"
 
-const it = testEffect(Layer.mergeAll(Project.defaultLayer, CrossSpawnSpawner.defaultLayer, Database.defaultLayer))
+const it = testEffect(LayerNode.compile(LayerNode.group([Project.node, Database.node, CrossSpawnSpawner.node])))
 
 function legacySessionID() {
   // Global-session migration covers persisted IDs from before prefixed session IDs.
@@ -64,7 +65,7 @@ describe("migrateFromGlobal", () => {
       const tmp = yield* tmpdirScoped()
       yield* Effect.promise(() => $`git init`.cwd(tmp).quiet())
       yield* Effect.promise(() => $`git config user.name "Test"`.cwd(tmp).quiet())
-      yield* Effect.promise(() => $`git config user.email "test@makcode.test"`.cwd(tmp).quiet())
+      yield* Effect.promise(() => $`git config user.email "test@opencode.test"`.cwd(tmp).quiet())
       yield* Effect.promise(() => $`git config commit.gpgsign false`.cwd(tmp).quiet())
       const projects = yield* Project.Service
       const { project: pre } = yield* projects.fromDirectory(tmp)

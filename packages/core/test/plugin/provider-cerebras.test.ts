@@ -43,7 +43,7 @@ describe("CerebrasPlugin", () => {
       yield* addPlugin()
       expect((yield* catalog.provider.get(ProviderV2.ID.make("cerebras")))?.request.headers).toEqual({
         Existing: "1",
-        "X-Cerebras-3rd-Party-Integration": "makcode",
+        "X-Cerebras-3rd-Party-Integration": "opencode",
       })
     }),
   )
@@ -64,7 +64,7 @@ describe("CerebrasPlugin", () => {
       const aisdk = yield* AISDK.Service
       yield* addPlugin()
       const result = yield* aisdk.runSDK({
-        model: new ModelV2.Info({
+        model: ModelV2.Info.make({
           ...ModelV2.Info.empty(
             ProviderV2.ID.make("custom-cerebras"),
             ModelV2.ID.make("llama-4-scout-17b-16e-instruct"),
@@ -90,7 +90,7 @@ describe("CerebrasPlugin", () => {
       const aisdk = yield* AISDK.Service
       yield* addPlugin()
       yield* aisdk.runSDK({
-        model: new ModelV2.Info({
+        model: ModelV2.Info.make({
           ...ModelV2.Info.empty(
             ProviderV2.ID.make("custom-cerebras"),
             ModelV2.ID.make("llama-4-scout-17b-16e-instruct"),
@@ -115,7 +115,7 @@ describe("CerebrasPlugin", () => {
       const aisdk = yield* AISDK.Service
       yield* addPlugin()
       const result = yield* aisdk.runSDK({
-        model: new ModelV2.Info({
+        model: ModelV2.Info.make({
           ...ModelV2.Info.empty(
             ProviderV2.ID.make("custom-cerebras"),
             ModelV2.ID.make("llama-4-scout-17b-16e-instruct"),

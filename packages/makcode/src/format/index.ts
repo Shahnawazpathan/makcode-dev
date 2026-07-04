@@ -24,11 +24,11 @@ export interface Interface {
   readonly file: (filepath: string) => Effect.Effect<boolean>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@makcode/Format") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Format") {}
 
 export const use = serviceUse(Service)
 
-export const layer = Layer.effect(
+const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const config = yield* Config.Service
@@ -194,12 +194,10 @@ export const layer = Layer.effect(
   }),
 )
 
-export const defaultLayer = layer.pipe(
-  Layer.provide(Config.defaultLayer),
-  Layer.provide(AppProcess.defaultLayer),
-  Layer.provide(RuntimeFlags.defaultLayer),
-)
-
-export const node = LayerNode.make(layer, [Config.node, AppProcess.node, RuntimeFlags.node])
+export const node = LayerNode.make({
+  service: Service,
+  layer: layer,
+  deps: [Config.node, AppProcess.node, RuntimeFlags.node],
+})
 
 export * as Format from "."

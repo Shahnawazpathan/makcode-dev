@@ -1,4 +1,4 @@
-import { Component, Show } from "solid-js"
+import { type Accessor, Component, Show } from "solid-js"
 import { useDialog } from "@makcode-ai/ui/context/dialog"
 import { popularProviders, useProviders } from "@/hooks/use-providers"
 import { Dialog } from "@makcode-ai/ui/dialog"
@@ -11,9 +11,9 @@ import { DialogCustomProvider } from "./dialog-custom-provider"
 
 const CUSTOM_ID = "_custom"
 
-export const DialogSelectProvider: Component = () => {
+export const DialogSelectProvider: Component<{ directory?: Accessor<string | undefined> }> = (props) => {
   const dialog = useDialog()
-  const providers = useProviders()
+  const providers = useProviders(props.directory)
   const language = useLanguage()
 
   const popularGroup = () => language.t("dialog.provider.group.popular")
@@ -23,7 +23,7 @@ export const DialogSelectProvider: Component = () => {
     if (id === "anthropic") return language.t("dialog.provider.anthropic.note")
     if (id === "openai") return language.t("dialog.provider.openai.note")
     if (id.startsWith("github-copilot")) return language.t("dialog.provider.copilot.note")
-    if (id === "makcode-go") return language.t("dialog.provider.makcodeGo.tagline")
+    if (id === "opencode-go") return language.t("dialog.provider.opencodeGo.tagline")
   }
 
   return (
@@ -56,27 +56,27 @@ export const DialogSelectProvider: Component = () => {
         onSelect={(x) => {
           if (!x) return
           if (x.id === CUSTOM_ID) {
-            dialog.show(() => <DialogCustomProvider back="providers" />)
+            dialog.show(() => <DialogCustomProvider back="providers" directory={props.directory} />)
             return
           }
-          dialog.show(() => <DialogConnectProvider provider={x.id} />)
+          dialog.show(() => <DialogConnectProvider provider={x.id} directory={props.directory} />)
         }}
       >
         {(i) => (
           <div class="px-1.25 w-full flex items-center gap-x-3">
             <ProviderIcon data-slot="list-item-extra-icon" id={i.id} />
             <span>{i.name}</span>
-            <Show when={i.id === "makcode"}>
-              <div class="text-14-regular text-text-weak">{language.t("dialog.provider.makcode.tagline")}</div>
+            <Show when={i.id === "opencode"}>
+              <div class="text-14-regular text-text-weak">{language.t("dialog.provider.opencode.tagline")}</div>
             </Show>
             <Show when={i.id === CUSTOM_ID}>
               <Tag>{language.t("settings.providers.tag.custom")}</Tag>
             </Show>
-            <Show when={i.id === "makcode"}>
+            <Show when={i.id === "opencode"}>
               <Tag>{language.t("dialog.provider.tag.recommended")}</Tag>
             </Show>
             <Show when={note(i.id)}>{(value) => <div class="text-14-regular text-text-weak">{value()}</div>}</Show>
-            <Show when={i.id === "makcode-go"}>
+            <Show when={i.id === "opencode-go"}>
               <Tag>{language.t("dialog.provider.tag.recommended")}</Tag>
             </Show>
           </div>
