@@ -12,13 +12,20 @@
 curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install | bash
 ```
 
-The installer downloads the correct MakCode release binary for your platform
-and places it in `~/.local/bin/makcode` by default.
+> **Note:** the one-line installer requires this repository to be **public** and at
+> least one published release. The installer downloads the correct MakCode release
+> binary for your platform and places it in `~/.local/bin/makcode` by default.
 
 After installing, run:
 
 ```sh
 makcode
+```
+
+If `makcode` is not found, make sure `~/.local/bin` is in your `PATH`:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
 #### Installation Directory
@@ -29,40 +36,38 @@ Set `MAKCODE_INSTALL_DIR` to choose a different install location:
 MAKCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install | bash
 ```
 
-Make sure the install directory is in your `PATH`.
-
-### Publishing a Release
-
-Build the current machine's binary:
+#### Install from source
 
 ```bash
+git clone https://github.com/Shahnawazpathan/makcode-dev.git
+cd makcode-dev
+bun install
 cd packages/makcode
-bun run script/build.ts --single --skip-embed-web-ui
+bun run build --single
+install -m 755 dist/makcode-*/bin/makcode ~/.local/bin/makcode
 ```
 
-Package the macOS Apple Silicon binary:
+### Workspace Setup
 
-```bash
-cd packages/makcode
-rm -f dist/makcode-darwin-arm64.zip
-(cd dist/makcode-darwin-arm64/bin && zip -q ../../makcode-darwin-arm64.zip makcode)
+MakCode understands your project structure before every AI task. Running `makcode`
+in a new directory on an interactive terminal launches the setup wizard, or run it
+directly:
+
+```sh
+makcode init      # run the setup wizard (single project, or separate frontend + backend)
+makcode status    # show the current workspace configuration
+makcode scan      # re-scan configured projects into .makcode/project-map.json
+makcode relink    # run the setup wizard again
+makcode task "create staff evaluation module"   # run an AI task with workspace context
 ```
 
-Create a GitHub release:
+The wizard writes `.makcode/config.json` and `.makcode/project-map.json`. The
+project map records the package manager, framework, database/ORM, API style,
+important folders, and env file variable names (never values) for each project.
 
-```bash
-gh release create v1.0.0 \
-  packages/makcode/dist/makcode-darwin-arm64.zip \
-  --repo Shahnawazpathan/makcode-dev \
-  --title "MakCode v1.0.0"
-```
-
-The installer expects release assets named like:
-
-- `makcode-darwin-arm64.zip`
-- `makcode-darwin-x64.zip`
-- `makcode-linux-arm64.tar.gz`
-- `makcode-linux-x64.tar.gz`
+In **separate frontend + backend** mode, MakCode injects both project paths into
+the AI context and plans work across both repositories, while blocking edits
+outside the configured paths.
 
 ### Agents
 
@@ -79,9 +84,29 @@ This is used internally and can be invoked using `@general` in messages.
 
 Learn more about [agents](https://opencode.ai/docs/agents).
 
+### Publishing a Release
+
+Releases are built automatically by [GitHub Actions](.github/workflows/release.yml).
+Push a version tag and the workflow builds macOS (arm64/x64) and Linux (arm64/x64)
+binaries and attaches them to a GitHub release:
+
+```bash
+git tag v2.0.1
+git push origin v2.0.1
+```
+
+The installer expects release assets named:
+
+- `makcode-darwin-arm64.zip`
+- `makcode-darwin-x64.zip`
+- `makcode-linux-arm64.tar.gz`
+- `makcode-linux-x64.tar.gz`
+
 ### Documentation
 
-For more info on how to configure MakCode, [**head over to our docs**](https://opencode.ai/docs).
+MakCode is a rebranded fork of [OpenCode](https://github.com/sst/opencode) and stays
+in sync with upstream. For configuration options,
+[**head over to the docs**](https://opencode.ai/docs).
 
 ---
 
