@@ -13,6 +13,7 @@ import type { EventSource } from "@makcode-ai/tui/context/sdk"
 import { writeHeapSnapshot } from "v8"
 import { validateSession } from "../tui/validate-session"
 import { win32InstallCtrlCGuard } from "@makcode-ai/tui/terminal-win32"
+import { ensureWorkspaceOrWizard } from "./workspace"
 
 declare global {
   const OPENCODE_WORKER_PATH: string
@@ -126,6 +127,8 @@ export const TuiThreadCommand = cmd({
         hidden: true,
       }),
   handler: async (args) => {
+    if (await ensureWorkspaceOrWizard(args.project)) return
+
     if (args.replay === true) {
       UI.error("--replay is not supported; replay is enabled by default")
       process.exitCode = 1

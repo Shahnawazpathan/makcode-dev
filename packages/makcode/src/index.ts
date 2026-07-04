@@ -29,6 +29,7 @@ import { DbCommand } from "./cli/cmd/db"
 import { errorMessage } from "./util/error"
 import { PluginCommand } from "./cli/cmd/plug"
 import { Heap } from "./cli/heap"
+import { InitCommand, RelinkCommand, ScanCommand, StatusCommand, TaskCommand } from "./cli/cmd/workspace"
 
 const args = hideBin(process.argv)
 
@@ -101,6 +102,11 @@ const cli = yargs(args)
   .command(SessionCommand)
   .command(PluginCommand)
   .command(DbCommand)
+  .command(InitCommand)
+  .command(StatusCommand)
+  .command(ScanCommand)
+  .command(RelinkCommand)
+  .command(TaskCommand)
   .fail((msg, err) => {
     if (
       msg?.startsWith("Unknown argument") ||

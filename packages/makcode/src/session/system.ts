@@ -20,6 +20,7 @@ import { AbsolutePath } from "@makcode-ai/core/schema"
 import { Location } from "@makcode-ai/core/location"
 import { LocationServiceMap } from "@makcode-ai/core/location-layer"
 import { Reference } from "@makcode-ai/core/reference"
+import { discover, context as workspaceContext } from "@/workspace/config"
 
 export function provider(model: Provider.Model) {
   if (model.api.id.includes("gpt-4") || model.api.id.includes("o1") || model.api.id.includes("o3"))
@@ -68,6 +69,16 @@ export const layer = Layer.effect(
             `  Today's date: ${new Date().toDateString()}`,
             `</env>`,
           ].join("\n"),
+          yield* Effect.promise(async () => {
+            const workspace = await discover(ctx.directory)
+            if (!workspace) return undefined
+            return [
+              "MakCode workspace context:",
+              "<makcode_workspace>",
+              workspaceContext(workspace.config),
+              "</makcode_workspace>",
+            ].join("\n")
+          }),
           references.length === 0
             ? undefined
             : [
