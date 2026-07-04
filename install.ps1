@@ -18,10 +18,30 @@ $BaseUrl = if ($Version -eq "latest") {
   "https://github.com/$Repo/releases/download/$Version"
 }
 
-$Asset = "makcode-windows-$Arch.zip"
-$Zip = Join-Path $env:TEMP $Asset
+$Assets = if ($Arch -eq "x64") {
+  @("makcode-windows-x64.zip", "makcode-windows-x64-baseline.zip")
+} else {
+  @("makcode-windows-$Arch.zip")
+}
+$Zip = Join-Path $env:TEMP $Assets[0]
+$Downloaded = $false
 
-Invoke-WebRequest "$BaseUrl/$Asset" -OutFile $Zip
+foreach ($Asset in $Assets) {
+  try {
+    Invoke-WebRequest "$BaseUrl/$Asset" -OutFile $Zip
+    $Downloaded = $true
+    break
+  } catch {
+    if ($Asset -eq $Assets[-1]) {
+      throw "Could not download $Asset from $BaseUrl. Make sure the latest release includes Windows assets."
+    }
+  }
+}
+
+if (-not $Downloaded) {
+  throw "Could not download a MakCode Windows release asset."
+}
+
 Expand-Archive $Zip -DestinationPath $InstallDir -Force
 
 $UserPath = [Environment]::GetEnvironmentVariable("Path", "User")

@@ -31,11 +31,12 @@ jobs:
           set -euo pipefail
           mkdir -p release-assets
           cd packages/makcode/dist
-          for target in makcode-darwin-arm64 makcode-darwin-x64 makcode-linux-arm64 makcode-linux-x64; do
+          for target in makcode-darwin-arm64 makcode-darwin-x64 makcode-linux-arm64 makcode-linux-x64 makcode-windows-arm64 makcode-windows-x64 makcode-windows-x64-baseline; do
             [ -d "$target/bin" ] || { echo "missing $target"; continue; }
             case "$target" in
               *darwin*) (cd "$target/bin" && zip -q "$GITHUB_WORKSPACE/release-assets/$target.zip" makcode) ;;
               *linux*)  tar -czf "$GITHUB_WORKSPACE/release-assets/$target.tar.gz" -C "$target/bin" makcode ;;
+              *windows*) (cd "$target/bin" && zip -q "$GITHUB_WORKSPACE/release-assets/$target.zip" makcode.exe) ;;
             esac
           done
           ls -la "$GITHUB_WORKSPACE/release-assets"
