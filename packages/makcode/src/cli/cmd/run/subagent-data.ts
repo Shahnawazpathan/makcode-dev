@@ -17,6 +17,7 @@ const SUBAGENT_CALL_LIMIT = 32
 const SUBAGENT_ROLE_LIMIT = 32
 const SUBAGENT_ERROR_LIMIT = 16
 const SUBAGENT_ECHO_LIMIT = 8
+const SUBAGENT_TAB_LIMIT = 5
 
 type SessionMessage = {
   parts: Part[]
@@ -672,7 +673,7 @@ export function listSubagentTabs(data: SubagentData) {
     }
 
     return b.lastUpdatedAt - a.lastUpdatedAt
-  })
+  }).slice(0, SUBAGENT_TAB_LIMIT)
 }
 
 function snapshotQueues(data: SubagentData) {

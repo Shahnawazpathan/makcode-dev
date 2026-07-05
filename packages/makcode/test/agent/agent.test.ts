@@ -50,6 +50,10 @@ it.instance("returns default native agents when no config", () =>
     const names = agents.map((a) => a.name)
     expect(names).toContain("build")
     expect(names).toContain("plan")
+    expect(names).toContain("frontend")
+    expect(names).toContain("backend")
+    expect(names).toContain("reviewer")
+    expect(names).toContain("tester")
     expect(names).toContain("general")
     expect(names).toContain("explore")
     expect(names).toContain("compaction")
@@ -167,6 +171,26 @@ it.instance("general agent denies todo tools", () =>
     expect(general?.mode).toBe("subagent")
     expect(general?.hidden).toBeUndefined()
     expect(evalPerm(general, "todowrite")).toBe("deny")
+  }),
+)
+
+it.instance("native role subagents are available for coordinated coding work", () =>
+  Effect.gen(function* () {
+    const frontend = yield* load((svc) => svc.get("frontend"))
+    const backend = yield* load((svc) => svc.get("backend"))
+    const reviewer = yield* load((svc) => svc.get("reviewer"))
+    const tester = yield* load((svc) => svc.get("tester"))
+
+    expect(frontend?.mode).toBe("subagent")
+    expect(backend?.mode).toBe("subagent")
+    expect(reviewer?.mode).toBe("subagent")
+    expect(tester?.mode).toBe("subagent")
+    expect(frontend?.prompt).toContain("frontend implementation subagent")
+    expect(backend?.prompt).toContain("backend implementation subagent")
+    expect(reviewer?.prompt).toContain("code review subagent")
+    expect(tester?.prompt).toContain("testing subagent")
+    expect(evalPerm(reviewer, "edit")).toBe("deny")
+    expect(evalPerm(tester, "edit")).toBe("allow")
   }),
 )
 
