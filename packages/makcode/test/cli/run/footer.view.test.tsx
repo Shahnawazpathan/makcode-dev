@@ -1079,6 +1079,40 @@ test("direct footer hides the subagent hint when only completed subagents remain
   }
 })
 
+test("direct footer renders coordinator board for frontend and backend subagents", async () => {
+  const app = await renderFooter({
+    subagents: {
+      tabs: [
+        subagent({ sessionID: "frontend-1", label: "Frontend", description: "Build book pages and components" }),
+        subagent({ sessionID: "backend-1", label: "Backend", description: "Build book models and routes" }),
+      ],
+      details: {},
+      permissions: [],
+      questions: [],
+    },
+    state: {
+      phase: "running",
+    },
+    width: 160,
+    height: 26,
+  })
+
+  try {
+    await app.renderOnce()
+    const frame = app.captureCharFrame()
+
+    expect(frame).toContain("FRONTEND-AGENT")
+    expect(frame).toContain("MAIN AGENT")
+    expect(frame).toContain("BACKEND-AGENT")
+    expect(frame).toContain("Build book pages and components")
+    expect(frame).toContain("Build book models and routes")
+    expect(frame).toContain("PLAN & COORDINATION")
+    expect(frame).toContain("Assign frontend/backend")
+  } finally {
+    app.cleanup()
+  }
+})
+
 test("direct footer omits interrupt key hint when interrupt is unbound", async () => {
   const app = await renderFooter({
     tuiConfig: createTuiResolvedConfig({ keybinds: { session_interrupt: "none", input_clear: "ctrl+l" } }),

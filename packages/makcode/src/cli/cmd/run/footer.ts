@@ -31,6 +31,7 @@ import { createComponent, createSignal, type Accessor, type Setter } from "solid
 import { createStore, reconcile } from "solid-js/store"
 import { OpencodeKeymapProvider } from "@makcode-ai/tui/keymap"
 import { RUN_COMMAND_PANEL_ROWS, RUN_SUBAGENT_PANEL_ROWS } from "./footer.command"
+import { COORDINATOR_BOARD_ROWS } from "./footer.coordinator"
 import { SUBAGENT_INSPECTOR_ROWS } from "./footer.subagent"
 import { PROMPT_MAX_ROWS, TEXTAREA_MIN_ROWS } from "./footer.prompt"
 import { RunFooterView } from "./footer.view"
@@ -714,6 +715,8 @@ export class RunFooter implements FooterApi {
                       ? 1 + this.subagentMenuRows
                       : this.promptRoute.type === "subagent"
                         ? this.base + SUBAGENT_INSPECTOR_ROWS
+                        : this.promptRoute.type === "coordinator"
+                          ? this.base + COORDINATOR_BOARD_ROWS + Math.max(TEXTAREA_MIN_ROWS, Math.min(PROMPT_MAX_ROWS, this.rows))
                         : this.base + Math.max(TEXTAREA_MIN_ROWS, Math.min(PROMPT_MAX_ROWS, this.rows))
 
     if (height !== this.renderer.footerHeight) {
