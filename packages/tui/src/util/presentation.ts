@@ -5,6 +5,9 @@ const logo = {
 
 const reset = "\x1b[0m"
 const bold = "\x1b[1m"
+const makRed = "\x1b[38;5;196m"
+const makShadow = "\x1b[38;5;88m"
+const makBg = "\x1b[48;5;88m"
 const dim = "\x1b[90m"
 
 function wordmark(pad = "") {
@@ -20,7 +23,7 @@ function wordmark(pad = "") {
       .join("")
 
   return logo.left.map((line, index) => {
-    const left = draw(line, dim, "\x1b[38;5;235m", "\x1b[48;5;235m")
+    const left = draw(line, makRed, makShadow, makBg)
     const right = draw(logo.right[index] ?? "", reset, "\x1b[38;5;238m", "\x1b[48;5;238m")
     return `${pad}${left} ${right}`
   })
