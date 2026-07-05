@@ -276,7 +276,7 @@ const TIPS: Tip[] = [
       ? `Toggle username display in chat via the command palette (${shortcutText(shortcuts.commandList())})`
       : "Toggle username display in chat via the command palette",
   "Run the MakCode container image for containerized use",
-  "Run {highlight}makcode relink{/highlight} to set up or change linked frontend and backend projects",
+  "Use {highlight}/connectpath{/highlight} to link separate frontend and backend projects from the TUI",
   "Use {highlight}/connect{/highlight} with MakCode Zen for curated, tested models",
   "Commit your project's {highlight}AGENTS.md{/highlight} file to Git for team sharing",
   "Use {highlight}/review{/highlight} to review uncommitted changes, branches, or PRs",

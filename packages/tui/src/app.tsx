@@ -24,7 +24,13 @@ import {
   Show,
   on,
 } from "solid-js"
-import { TuiPathsProvider, TuiStartupProvider, TuiTerminalEnvironmentProvider, useTuiStartup } from "./context/runtime"
+import {
+  TuiPathsProvider,
+  TuiStartupProvider,
+  TuiTerminalEnvironmentProvider,
+  useTuiPaths,
+  useTuiStartup,
+} from "./context/runtime"
 import { DialogProvider, useDialog } from "./ui/dialog"
 import { DialogProvider as DialogProviderList } from "./component/dialog-provider"
 import { ErrorComponent } from "./component/error-component"
@@ -58,12 +64,16 @@ import { FrecencyProvider } from "./component/prompt/frecency"
 import { PromptStashProvider } from "./component/prompt/stash"
 import { DialogAlert } from "./ui/dialog-alert"
 import { DialogConfirm } from "./ui/dialog-confirm"
+import { DialogPrompt } from "./ui/dialog-prompt"
+import { DialogSelect, type DialogSelectOption } from "./ui/dialog-select"
 import { ToastProvider, useToast } from "./ui/toast"
 import { isDefaultTitle } from "./util/session"
 import { KVProvider, useKV } from "./context/kv"
 import * as Model from "./util/model"
 import { ArgsProvider, useArgs, type Args } from "./context/args"
 import open from "open"
+import path from "node:path"
+import { access, mkdir, stat, writeFile } from "node:fs/promises"
 import { PromptRefProvider, usePromptRef } from "./context/prompt"
 import { TuiConfigProvider, useTuiConfig, type TuiConfig } from "./config"
 import { createTuiApiAdapters } from "./plugin/adapters"
@@ -127,6 +137,7 @@ const appBindingCommands = [
   "docs.open",
   "diff.open",
   "workspace.list",
+  "workspace.connect_path",
   "app.debug",
   "app.console",
   "app.heap_snapshot",
@@ -181,6 +192,65 @@ function isVersionGreater(left: string, right: string) {
   if (!a.prerelease) return true
   if (!b.prerelease) return false
   return a.prerelease.localeCompare(b.prerelease, undefined, { numeric: true }) > 0
+}
+
+type ConnectPathRole = "frontend" | "backend"
+
+type MakCodeWorkspaceConfig = {
+  version: 1
+  projectType: "separate"
+  rootPath: string
+  frontendPath: string
+  backendPath: string
+  createdAt: string
+  updatedAt: string
+}
+
+async function validateConnectPath(input: string) {
+  const value = input.trim().replace(/^["']|["']$/g, "")
+  const resolved = path.resolve(value)
+  const info = await stat(resolved)
+  if (!info.isDirectory()) throw new Error(`${resolved} is not a directory`)
+  await access(resolved)
+  return resolved
+}
+
+function commonRoot(paths: string[]) {
+  const resolved = paths.map((item) => path.resolve(item))
+  const root = path.parse(resolved[0] ?? process.cwd()).root
+  if (resolved.some((item) => path.parse(item).root.toLowerCase() !== root.toLowerCase())) return root
+  const parts = resolved.map((item) => item.slice(path.parse(item).root.length).split(path.sep).filter(Boolean))
+  const prefix: string[] = []
+  for (const segment of parts[0] ?? []) {
+    if (parts.every((item) => item[prefix.length] === segment)) {
+      prefix.push(segment)
+      continue
+    }
+    break
+  }
+  return path.join(root, ...prefix)
+}
+
+async function saveConnectPathWorkspace(input: { currentPath: string; otherPath: string; otherRole: ConnectPathRole }) {
+  const currentPath = await validateConnectPath(input.currentPath)
+  const otherPath = await validateConnectPath(input.otherPath)
+  const frontendPath = input.otherRole === "frontend" ? otherPath : currentPath
+  const backendPath = input.otherRole === "backend" ? otherPath : currentPath
+  const now = new Date().toISOString()
+  const rootPath = commonRoot([frontendPath, backendPath])
+  const config: MakCodeWorkspaceConfig = {
+    version: 1,
+    projectType: "separate",
+    rootPath,
+    frontendPath,
+    backendPath,
+    createdAt: now,
+    updatedAt: now,
+  }
+  const dir = path.join(rootPath, ".makcode")
+  await mkdir(dir, { recursive: true })
+  await writeFile(path.join(dir, "config.json"), JSON.stringify(config, null, 2) + "\n")
+  return config
 }
 
 export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
@@ -380,6 +450,7 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
   const sync = useSync()
   const project = useProject()
   const exit = useExit()
+  const paths = useTuiPaths()
   const promptRef = usePromptRef()
   const pluginRuntime = usePluginRuntime()
   const attention = createTuiAttention({ renderer, config: tuiConfig, kv })
@@ -556,6 +627,61 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
     if (workspace?.type !== "worktree" || !workspace.directory) return
     return workspace
   })
+  const connectPathOptions: DialogSelectOption<ConnectPathRole>[] = [
+    {
+      title: "Frontend",
+      value: "frontend",
+      description: "The pasted path is frontend. Current path will be backend.",
+    },
+    {
+      title: "Backend",
+      value: "backend",
+      description: "The pasted path is backend. Current path will be frontend.",
+    },
+  ]
+  async function connectPath() {
+    const otherPath = await DialogPrompt.show(dialog, "Connect project path", {
+      placeholder: "Paste frontend or backend path",
+      description: () => (
+        <text fg={theme.textMuted}>
+          Current path: {paths.cwd}
+        </text>
+      ),
+    })
+    if (otherPath === null) return
+    if (!otherPath.trim()) {
+      toast.show({ message: "Paste a project path first.", variant: "warning" })
+      return connectPath()
+    }
+
+    const otherRole = await new Promise<ConnectPathRole | null>((resolve) => {
+      dialog.replace(
+        () => (
+          <DialogSelect
+            title="What is the pasted path?"
+            options={connectPathOptions}
+            onSelect={(option) => resolve(option.value)}
+            skipFilter
+          />
+        ),
+        () => resolve(null),
+      )
+    })
+    if (!otherRole) return
+
+    try {
+      const config = await saveConnectPathWorkspace({ currentPath: paths.cwd, otherPath, otherRole })
+      dialog.clear()
+      toast.show({
+        title: "Full-stack workspace connected",
+        message: `Frontend: ${config.frontendPath}\nBackend: ${config.backendPath}`,
+        variant: "success",
+      })
+    } catch (error) {
+      toast.error(error)
+      void connectPath()
+    }
+  }
   const appCommands = createMemo(() =>
     [
       {
@@ -615,6 +741,15 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
         slashName: "workspaces",
         run: () => {
           dialog.replace(() => <DialogWorkspaceList />)
+        },
+      },
+      {
+        name: "workspace.connect_path",
+        title: "Connect frontend/backend path",
+        category: "Workspace",
+        slashName: "connectpath",
+        run: () => {
+          void connectPath()
         },
       },
       ...Array.from({ length: 9 }, (_, i) => ({
