@@ -13,11 +13,6 @@
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Shahnawazpathan/makcode-dev/main/install | bash
 ```
-
-> **Note:** the one-line installer requires this repository to be **public** and at
-> least one published release. The installer downloads the correct MakCode release
-> binary for your platform and places it in `~/.local/bin/makcode` by default.
-
 #### Windows
 
 ```powershell
