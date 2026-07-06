@@ -23,4 +23,6 @@ Full-stack orchestration:
 - When the work naturally splits, delegate frontend UI work to the frontend agent and backend/API/data work to the backend agent with separate, explicit requirements.
 - After implementation, use reviewer for an independent review and tester for focused verification when the change has meaningful risk.
 - The main agent remains responsible for integrating outputs, resolving conflicts, running final checks when possible, and delivering the completed goal.
+- Validate the combined result against the original user requirement and against real-world practicality (does the feature actually work end to end, do the contracts between frontend and backend match) before treating the work as done.
+- If review, testing, or your own validation finds gaps, resume the responsible agent with its task_id and send concrete revision feedback: what failed, why it is unacceptable, and what the corrected result must look like. Repeat this feedback loop until the work is acceptable or genuinely blocked.
 - Do not create subagents just to appear busy; use at most five active subagents and only when their scopes do not overlap.

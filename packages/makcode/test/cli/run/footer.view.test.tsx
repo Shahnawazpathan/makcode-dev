@@ -1094,7 +1094,7 @@ test("direct footer renders coordinator board for frontend and backend subagents
       phase: "running",
     },
     width: 160,
-    height: 26,
+    height: 30,
   })
 
   try {
@@ -1107,7 +1107,53 @@ test("direct footer renders coordinator board for frontend and backend subagents
     expect(frame).toContain("Build book pages and components")
     expect(frame).toContain("Build book models and routes")
     expect(frame).toContain("PLAN & COORDINATION")
-    expect(frame).toContain("Assign frontend/backend")
+    expect(frame).toContain("Assign to side agents")
+    expect(frame).toContain("Status: In Progress")
+    expect(frame).toContain("FILES")
+    expect(frame).toContain("Review: Pending")
+    expect(frame).toContain("Test: Pending")
+    expect(frame).toContain("COMMUNICATION LOG")
+    expect(frame).toContain("Frontend progress 10%")
+  } finally {
+    app.cleanup()
+  }
+})
+
+test("direct footer keeps coordinator board with final status after both lanes complete", async () => {
+  const app = await renderFooter({
+    subagents: {
+      tabs: [
+        subagent({
+          sessionID: "frontend-1",
+          label: "Frontend",
+          description: "Build book pages and components",
+          status: "completed",
+        }),
+        subagent({
+          sessionID: "backend-1",
+          label: "Backend",
+          description: "Build book models and routes",
+          status: "completed",
+        }),
+      ],
+      details: {},
+      permissions: [],
+      questions: [],
+    },
+    width: 160,
+    height: 30,
+  })
+
+  try {
+    await app.renderOnce()
+    const frame = app.captureCharFrame()
+
+    expect(frame).toContain("FRONTEND-AGENT")
+    expect(frame).toContain("BACKEND-AGENT")
+    expect(frame).toContain("Status: Done")
+    expect(frame).toContain("100%")
+    expect(frame).toContain("4. Integrate & finalize done")
+    expect(frame).toContain("completed assigned work")
   } finally {
     app.cleanup()
   }
@@ -1354,7 +1400,8 @@ test("direct model panel renders current model selector", async () => {
 
     expect(frame).toContain("Select model")
     expect(frame).toContain("Search")
-    expect(frame).toContain("opencode")
+    expect(frame).toContain("makcode")
+    expect(frame).not.toContain("opencode")
     expect(frame).toContain("GPT-5")
     expect(frame).toContain("current")
     expect(frame).toContain("GPT Free")

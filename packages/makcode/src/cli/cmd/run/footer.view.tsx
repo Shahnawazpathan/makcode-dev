@@ -161,8 +161,11 @@ export function RunFooterView(props: RunFooterViewProps) {
   const tabs = createMemo(() => subagent().tabs)
   const activeTabs = createMemo(() => tabs().filter((item) => item.status === "running"))
   const coordinatorTabs = createMemo(() => {
-    const labels = new Set(activeTabs().map((item) => item.label.toLowerCase()))
-    return labels.has("frontend") || labels.has("backend")
+    const all = new Set(tabs().map((item) => item.label.toLowerCase()))
+    const running = new Set(activeTabs().map((item) => item.label.toLowerCase()))
+    // Keep the board visible through review and finalize once both lanes exist,
+    // so the final status stays on screen after the agents complete.
+    return (all.has("frontend") && all.has("backend")) || running.has("frontend") || running.has("backend")
   })
   const selectedTab = createMemo(() => tabs().find((item) => item.sessionID === selected()))
   const selectedIndex = createMemo(() => {
