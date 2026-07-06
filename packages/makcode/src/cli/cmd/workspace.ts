@@ -286,9 +286,10 @@ function projectChecks(project: ProjectScan) {
 
 async function verificationScripts(projectPath: string, includeBuild: boolean) {
   const packageJson = await readPackageJson(projectPath)
-  if (!packageJson?.scripts) return []
+  const scripts = packageJson?.scripts
+  if (!scripts) return []
   return ["typecheck", "lint", "test", includeBuild ? "build" : undefined].filter(
-    (script): script is string => script !== undefined && packageJson.scripts[script] !== undefined,
+    (script): script is string => script !== undefined && scripts[script] !== undefined,
   )
 }
 

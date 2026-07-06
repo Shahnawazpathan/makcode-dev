@@ -13,6 +13,7 @@ import { DialogModel } from "./dialog-model"
 import { useToast } from "../ui/toast"
 import { isConsoleManagedProvider } from "../util/provider-origin"
 import { useConnected } from "./use-connected"
+import { brandName } from "../util/brand"
 import { useBindings } from "../keymap"
 import { useClipboard } from "../context/clipboard"
 
@@ -55,7 +56,7 @@ export function providerOptions(list: { id: string; name: string }[]): ProviderO
       ),
       map((provider) => ({
         type: "provider" as const,
-        title: provider.name,
+        title: brandName(provider.name),
         value: provider.id,
         providerID: provider.id,
         description: {

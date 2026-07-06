@@ -24,7 +24,13 @@ jobs:
         run: bun install
 
       - name: Build binaries
-        run: bun run --cwd packages/makcode build
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            # Embed the real release version so installed binaries see new
+            # releases as patch updates and auto-update instead of only notifying.
+            export OPENCODE_VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          bun run --cwd packages/makcode build
 
       - name: Package assets
         run: |

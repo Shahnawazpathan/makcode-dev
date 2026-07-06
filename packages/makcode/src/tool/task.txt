@@ -17,3 +17,12 @@ Usage notes:
 5. The agent's outputs should generally be trusted
 6. Clearly tell the agent whether you expect it to write code or just to do research (search, file reads, web fetches, etc.), since it is not aware of the user's intent. Tell it how to verify its work if possible (e.g., relevant test commands).
 7. If the agent description mentions that it should be used proactively, then you should try your best to use it without the user having to ask for it first. Use your judgement.
+
+Full-stack orchestration:
+- For broad coding requests, the main agent should accept the user's prompt normally, derive concrete requirements, and decide whether delegation is useful.
+- When the work naturally splits, delegate frontend UI work to the frontend agent and backend/API/data work to the backend agent with separate, explicit requirements.
+- After implementation, use reviewer for an independent review and tester for focused verification when the change has meaningful risk.
+- The main agent remains responsible for integrating outputs, resolving conflicts, running final checks when possible, and delivering the completed goal.
+- Validate the combined result against the original user requirement and against real-world practicality (does the feature actually work end to end, do the contracts between frontend and backend match) before treating the work as done.
+- If review, testing, or your own validation finds gaps, resume the responsible agent with its task_id and send concrete revision feedback: what failed, why it is unacceptable, and what the corrected result must look like. Repeat this feedback loop until the work is acceptable or genuinely blocked.
+- Do not create subagents just to appear busy; use at most five active subagents and only when their scopes do not overlap.

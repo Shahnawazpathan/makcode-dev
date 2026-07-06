@@ -281,6 +281,31 @@ describe("run subagent data", () => {
     ])
   })
 
+  test("keeps the footer subagent lane capped to five tabs", () => {
+    const data = createSubagentData()
+    const indexes = [1, 2, 3, 4, 5, 6]
+
+    indexes.forEach((index) => {
+      data.tabs.set(`child-${index}`, {
+        sessionID: `child-${index}`,
+        partID: `part-${index}`,
+        callID: `call-${index}`,
+        label: "Explore",
+        description: `Task ${index}`,
+        status: index === 1 ? "running" : "completed",
+        lastUpdatedAt: index,
+      })
+    })
+
+    expect(snapshotSubagentData(data).tabs.map((item) => item.sessionID)).toEqual([
+      "child-1",
+      "child-6",
+      "child-5",
+      "child-4",
+      "child-3",
+    ])
+  })
+
   test("captures child activity and blocker metadata in the footer detail state", () => {
     const data = createSubagentData()
 

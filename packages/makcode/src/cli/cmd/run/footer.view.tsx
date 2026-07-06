@@ -21,6 +21,7 @@ import {
   RunSubagentSelectBody,
   RunVariantSelectBody,
 } from "./footer.command"
+import { RunFooterCoordinatorBoard } from "./footer.coordinator"
 import { FOOTER_MENU_ROWS, RunFooterMenu } from "./footer.menu"
 import { RunFooterSubagentBody } from "./footer.subagent"
 import { RunPromptBody, createPromptState } from "./footer.prompt"
@@ -159,6 +160,13 @@ export function RunFooterView(props: RunFooterViewProps) {
   })
   const tabs = createMemo(() => subagent().tabs)
   const activeTabs = createMemo(() => tabs().filter((item) => item.status === "running"))
+  const coordinatorTabs = createMemo(() => {
+    const all = new Set(tabs().map((item) => item.label.toLowerCase()))
+    const running = new Set(activeTabs().map((item) => item.label.toLowerCase()))
+    // Keep the board visible through review and finalize once both lanes exist,
+    // so the final status stays on screen after the agents complete.
+    return (all.has("frontend") && all.has("backend")) || running.has("frontend") || running.has("backend")
+  })
   const selectedTab = createMemo(() => tabs().find((item) => item.sessionID === selected()))
   const selectedIndex = createMemo(() => {
     const sessionID = selected()
@@ -614,8 +622,9 @@ export function RunFooterView(props: RunFooterViewProps) {
   })
 
   createEffect(() => {
+    const routeState = route()
     props.onLayout({
-      route: route(),
+      route: routeState.type === "composer" && !menu() && coordinatorTabs() ? { type: "coordinator" } : routeState,
       autocomplete: menu(),
       subagentRows: subagentMenuRows(),
     })
@@ -668,15 +677,25 @@ export function RunFooterView(props: RunFooterViewProps) {
                     <box width="100%" flexGrow={1} flexShrink={1} flexDirection="column">
                       <Switch>
                         <Match when={active().type === "prompt" && route().type === "composer"}>
-                          <RunPromptBody
-                            theme={theme}
-                            background={() => runTheme().background}
-                            placeholder={composer.placeholder}
-                            onSubmit={composer.onSubmit}
-                            onKeyDown={composer.onKeyDown}
-                            onContentChange={composer.onContentChange}
-                            bind={composer.bind}
-                          />
+                          <box width="100%" flexDirection="column" gap={0}>
+                            <Show when={!menu() && coordinatorTabs()}>
+                              <RunFooterCoordinatorBoard
+                                subagent={subagent}
+                                history={props.history}
+                                theme={runTheme}
+                                width={width}
+                              />
+                            </Show>
+                            <RunPromptBody
+                              theme={theme}
+                              background={() => runTheme().background}
+                              placeholder={composer.placeholder}
+                              onSubmit={composer.onSubmit}
+                              onKeyDown={composer.onKeyDown}
+                              onContentChange={composer.onContentChange}
+                              bind={composer.bind}
+                            />
+                          </box>
                         </Match>
                         <Match when={selectingSubagent()}>
                           <RunSubagentSelectBody

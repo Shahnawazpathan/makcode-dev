@@ -61,6 +61,29 @@ const GeneratedAgent = Schema.Struct({
   systemPrompt: Schema.String,
 })
 
+const FRONTEND_AGENT_PROMPT = [
+  "You are a frontend implementation subagent. You receive a scoped requirement from the main agent and own the user-facing UI work.",
+  "Focus on components, state, styling, responsive behavior, accessibility, and frontend tests. Coordinate through your final response by reporting files changed, verification run, risks, and any backend contract you consumed or need.",
+  "Do not broaden the product scope. If backend behavior is missing, state the exact contract needed instead of inventing unrelated server work.",
+].join("\n\n")
+
+const BACKEND_AGENT_PROMPT = [
+  "You are a backend implementation subagent. You receive a scoped requirement from the main agent and own server, data, API, schema, and integration work.",
+  "Focus on durable behavior, validation, permission boundaries, data flow, and backend tests. Coordinate through your final response by reporting files changed, verification run, API contracts exposed, and any frontend contract you need.",
+  "Do not broaden the product scope. If frontend behavior is missing, state the exact interface or payload the UI should consume.",
+].join("\n\n")
+
+const REVIEW_AGENT_PROMPT = [
+  "You are a code review subagent. Review the current work for correctness, regressions, missing tests, architecture issues, and user-visible edge cases.",
+  "Prefer reading code and running focused checks over making edits. Lead with actionable findings ordered by severity and include exact file references. If there are no blocking findings, say that clearly and call out residual risk.",
+].join("\n\n")
+
+const TESTING_AGENT_PROMPT = [
+  "You are a testing subagent. Turn the scoped requirement and implementation context into focused verification.",
+  "Add or update tests when the expected behavior is not covered, run the narrowest relevant test and typecheck commands, and report exactly what passed, failed, or could not be run.",
+  "Keep test logic tied to observable behavior. Do not duplicate implementation details into assertions.",
+].join("\n\n")
+
 export interface Interface {
   readonly get: (agent: string) => Effect.Effect<Info>
   readonly list: () => Effect.Effect<Info[]>
@@ -189,6 +212,78 @@ const layer = Layer.effect(
               }),
               user,
             ),
+            options: {},
+            mode: "subagent",
+            native: true,
+          },
+          frontend: {
+            name: "frontend",
+            description:
+              "Frontend implementation agent for UI, components, state, styling, responsive behavior, accessibility, and frontend tests. Use this when a user request can be separated into client-side work or when a main agent needs UI code implemented from product requirements.",
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            prompt: FRONTEND_AGENT_PROMPT,
+            options: {},
+            mode: "subagent",
+            native: true,
+          },
+          backend: {
+            name: "backend",
+            description:
+              "Backend implementation agent for APIs, server logic, data models, persistence, validation, auth, and integration tests. Use this when a user request can be separated into server-side work or when frontend work needs a concrete contract.",
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            prompt: BACKEND_AGENT_PROMPT,
+            options: {},
+            mode: "subagent",
+            native: true,
+          },
+          reviewer: {
+            name: "reviewer",
+            description:
+              "Code review agent for checking completed or in-progress work before the main agent finalizes. Use this after frontend or backend subagents produce changes, and before integration, to find regressions, missing tests, and architecture risks.",
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                "*": "deny",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                bash: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+                read: "allow",
+                external_directory: readonlyExternalDirectory,
+              }),
+              user,
+            ),
+            prompt: REVIEW_AGENT_PROMPT,
+            options: {},
+            mode: "subagent",
+            native: true,
+          },
+          tester: {
+            name: "tester",
+            description:
+              "Testing agent for adding focused tests, running verification, and reporting pass/fail status. Use this when the main agent needs independent validation after implementation or when a task is primarily about test coverage.",
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                todowrite: "deny",
+              }),
+              user,
+            ),
+            prompt: TESTING_AGENT_PROMPT,
             options: {},
             mode: "subagent",
             native: true,

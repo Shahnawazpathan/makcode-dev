@@ -3,6 +3,7 @@ import { TextAttributes, type InputRenderable, type KeyEvent } from "@opentui/co
 import { useKeyboard, type JSX } from "@opentui/solid"
 import fuzzysort from "fuzzysort"
 import { createEffect, createMemo, createSignal, type Accessor } from "solid-js"
+import { brandName } from "@makcode-ai/tui/util/brand"
 import { RunFooterMenu, createFooterMenuState, type RunFooterMenuItem } from "./footer.menu"
 import type { RunFooterTheme } from "./theme"
 import type { FooterQueuedPrompt, FooterSubagentTab, RunCommand, RunInput, RunProvider } from "./types"
@@ -968,8 +969,8 @@ export function RunModelSelectBody(props: {
             return {
               providerID: provider.id,
               modelID,
-              providerName: provider.name,
-              category: provider.name,
+              providerName: brandName(provider.name),
+              category: brandName(provider.name),
               display: title,
               footer,
               keywords: `${provider.id} ${provider.name} ${modelID} ${title} ${footer ?? ""}`,
