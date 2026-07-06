@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test"
 import type { ToolPart } from "@makcode-ai/sdk/v2"
-import { laneFromTaskPart, laneProgress } from "../../src/routes/session/coordinator-board"
+import { inferLaneRole, laneFromTaskPart, laneProgress } from "../../src/routes/session/coordinator-board"
 
 function taskPart(input: {
   subagent_type?: string
@@ -40,11 +40,20 @@ test("laneFromTaskPart maps frontend and backend task parts to lanes", () => {
   })
 })
 
-test("laneFromTaskPart ignores non-lane subagents and non-task tools", () => {
-  expect(laneFromTaskPart(taskPart({ subagent_type: "explore" }))).toBeUndefined()
+test("laneFromTaskPart ignores unscoped subagents and non-task tools", () => {
+  expect(laneFromTaskPart(taskPart({ subagent_type: "explore", description: "Explore app architecture" }))).toBeUndefined()
 
   const bash = { ...taskPart({ subagent_type: "frontend" }), tool: "bash" } as ToolPart
   expect(laneFromTaskPart(bash)).toBeUndefined()
+})
+
+test("inferLaneRole detects lanes from generic agent descriptions", () => {
+  expect(inferLaneRole("explore", "Explore mobile frontend module")).toBe("frontend")
+  expect(inferLaneRole("explore", "Explore backend mobile endpoints")).toBe("backend")
+  expect(inferLaneRole("general", "Check API response times in the server")).toBe("backend")
+  expect(inferLaneRole("explore", "Explore app architecture")).toBeUndefined()
+  expect(inferLaneRole("explore", "Compare frontend and backend performance")).toBeUndefined()
+  expect(inferLaneRole("backend", "anything")).toBe("backend")
 })
 
 test("laneFromTaskPart marks interrupted errors as cancelled", () => {

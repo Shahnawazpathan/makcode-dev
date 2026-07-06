@@ -35,11 +35,26 @@ function partUpdatedAt(part: ToolPart) {
   return time.end ?? time.start ?? 0
 }
 
+const FRONTEND_HINT = /\bfront[- ]?end\b|\bui\b|\bcomponent|\bscreen|\bstyling\b|\bcss\b/i
+const BACKEND_HINT = /\bback[- ]?end\b|\bapi\b|\bserver\b|\bendpoint|\bdatabase\b|\bschema\b/i
+
+/** @internal Exported for focused tests. Infers a lane role from the task description when a
+ * generic agent (explore/general) is doing clearly frontend- or backend-scoped work. */
+export function inferLaneRole(role: string | undefined, description: string): string | undefined {
+  if (role && LANE_ROLES.has(role)) return role
+  const frontend = FRONTEND_HINT.test(description)
+  const backend = BACKEND_HINT.test(description)
+  if (frontend && !backend) return "frontend"
+  if (backend && !frontend) return "backend"
+  return undefined
+}
+
 /** @internal Exported for focused tests. */
 export function laneFromTaskPart(part: ToolPart): CoordinatorLane | undefined {
   if (part.tool !== "task") return undefined
-  const role = stringValue(partInput(part).subagent_type)?.toLowerCase()
-  if (!role || !LANE_ROLES.has(role)) return undefined
+  const description = stringValue(partInput(part).description) ?? ""
+  const role = inferLaneRole(stringValue(partInput(part).subagent_type)?.toLowerCase(), description)
+  if (!role) return undefined
 
   const metadata = partMetadata(part)
   const status =
@@ -53,7 +68,7 @@ export function laneFromTaskPart(part: ToolPart): CoordinatorLane | undefined {
 
   return {
     role,
-    description: stringValue(partInput(part).description) ?? "",
+    description,
     status,
     sessionID: stringValue(metadata.sessionId) ?? stringValue(metadata.sessionID),
     updatedAt: partUpdatedAt(part),
@@ -141,7 +156,7 @@ export function CoordinatorBoard(props: { sessionID: string }) {
   const backend = createMemo(() => lanes().get("backend"))
   const reviewer = createMemo(() => lanes().get("reviewer"))
   const tester = createMemo(() => lanes().get("tester"))
-  const show = createMemo(() => Boolean(frontend() && backend()))
+  const show = createMemo(() => Boolean(frontend() || backend()))
 
   const requirement = createMemo(() => {
     for (const message of sync.data.message[props.sessionID] ?? []) {
